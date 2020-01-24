@@ -29,8 +29,6 @@ const server = http.createServer(async (request, response) => {
   response.statusCode = 200;
 
   try {
-    test(`http://127.0.0.1:1337${url.pathname}${url.search}`, 'information');
-
     const compiledJSON = await helpers.validateInputFromPath(json.Compiled, './compiled.json');
     const compilerJSON = await helpers.validateInputFromPath(json.Compiler, './compiler.json');
 
@@ -148,16 +146,16 @@ const server = http.createServer(async (request, response) => {
         });
 
         readableStream.on('error', async () => {
-          response.end(JSON.stringify('The request is not valid.'));
+          response.end(JSON.stringify(`The request "${url.toString()}" is not valid.`));
 
-          test('The request is not valid.', 'error');
+          test(`The request "${url.toString()}" is not valid.`, 'error');
         });
 
         return;
       }
     }
 
-    throw new Error('The request is not valid.');
+    throw new Error(`The request "${url.toString()}" is not valid.`);
   } catch (error) {
     response.setHeader('Content-Type', 'text/plain; charset=utf-8');
 
