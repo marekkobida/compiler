@@ -23,6 +23,10 @@ function test (message: any, type: 'error' | 'information' | 'warning') {
 const server = http.createServer(async (request, response) => {
   const url = new URL(`file://${request.url}`);
 
+  if (url.pathname === '/favicon.ico') {
+    return;
+  }
+
   response.setHeader('Access-Control-Allow-Origin', '*');
   response.setHeader('Content-Type', 'application/json; charset=utf-8');
 
