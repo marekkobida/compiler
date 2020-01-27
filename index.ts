@@ -4,8 +4,9 @@ import http from 'http';
 import * as helpers from '@redred/helpers/server';
 import * as json from '@redred/pages/private/types/json';
 
-import Compiler from './helpers/Compiler';
-import compile from './helpers/compile';
+import Compiler from './Compiler';
+import MIME from './MIME';
+import compile from './compile';
 
 const compiler = new Compiler();
 
@@ -121,30 +122,7 @@ const server = http.createServer(async (request, response) => {
         });
 
         readableStream.on('end', () => {
-          const $ = /([^.]+)$/.exec(url.pathname);
-
-          switch ($ ? $[1] : '') {
-            case 'css':
-              response.setHeader('Content-Type', 'text/css');
-              break;
-            case 'html':
-              response.setHeader('Content-Type', 'text/html; charset=utf-8');
-              break;
-            case 'js':
-              response.setHeader('Content-Type', 'application/javascript');
-              break;
-            case 'map':
-              response.setHeader('Content-Type', 'application/json');
-              break;
-            case 'otf':
-              response.setHeader('Content-Type', 'font/otf');
-              break;
-            case 'png':
-              response.setHeader('Content-Type', 'image/png');
-              break;
-            default:
-              response.setHeader('Content-Type', 'text/plain');
-          }
+          response.setHeader('Content-Type', MIME(url.pathname));
 
           response.end(Buffer.concat(data));
         });
