@@ -60,8 +60,6 @@ const server = http.createServer(async (request, response) => {
 
             response.end(JSON.stringify(`The path "${container.path}" was added to the compiler.`));
 
-            test(`The path "${container.path}" was added to the compiler.`, 'information');
-
             return;
           }
         }
@@ -91,17 +89,13 @@ const server = http.createServer(async (request, response) => {
       const __ = new RegExp(`\\/${_}`).exec(url.pathname);
       const ___ = new RegExp(`\\/${_}\\/public\\/(.+)`).exec(url.pathname);
 
-      if (__) {
+      if (__ && ___) {
         if (container.error) {
           throw new Error(container.error);
         }
       }
 
       if (___) {
-        if (container.error) {
-          throw new Error(container.error);
-        }
-
         const data = await helpers.read(`${container.path}/public/${___[1]}`);
 
         response.setHeader('Content-Type', mime(url.pathname));

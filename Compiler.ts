@@ -11,6 +11,8 @@ class Compiler {
   containers: Map<string, Container> = new Map();
 
   addContainer (container: t.TypeOf<typeof json.Compiler>['containers'][0]): Container {
+    test(`The path "${container.path}" was added to the compiler.`, 'information');
+
     const addedContainer = new Container(null, null, []);
 
     for (let i = 0; i < container.inputs.length; i += 1) {
