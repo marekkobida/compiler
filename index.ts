@@ -95,7 +95,7 @@ const server = http.createServer(async (request, response) => {
       }
 
       if (___) {
-        const data = await helpers.read(`${container.path}/public/${___[1]}`);
+        const data = await helpers.read(`${container.path}/public/${___[1]}`, 'base64');
 
         switch (path.extname(url.pathname)) {
           case '.css':
@@ -120,7 +120,7 @@ const server = http.createServer(async (request, response) => {
             response.setHeader('Content-Type', 'text/plain');
         }
 
-        response.end(data);
+        response.end(data, 'base64');
 
         return;
       }
