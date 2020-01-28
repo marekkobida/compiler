@@ -1,4 +1,4 @@
-export let S: { date: number, message: string, type: string, }[] = [];
+export let S: { date: number; message: string; type: string }[] = [];
 
 function test (message: any, type: 'error' | 'information' | 'warning') {
   S = [
