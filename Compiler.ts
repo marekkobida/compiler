@@ -31,7 +31,7 @@ class Compiler {
 
   afterCompilation (container: Container) {
     if (container.path) {
-      test(`Compiler.afterCompilation "${container.path}"`, 'error');
+      test(`The path "${container.path}" was compiled.`, 'information');
 
       let isCompiled = true;
 
