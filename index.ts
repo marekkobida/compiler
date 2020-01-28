@@ -4,7 +4,6 @@ import * as helpers from '@redred/helpers/server';
 import * as json from '@redred/pages/private/types/json';
 
 import Compiler from './Compiler';
-import compile from './compile';
 import mime from './mime';
 import test, { S, } from './test';
 
@@ -56,7 +55,7 @@ const server = http.createServer(async (request, response) => {
 
             compiler.addContainer(container);
 
-            compile(compiler);
+            compiler.compile();
 
             response.end(JSON.stringify(`The path "${container.path}" was added to the compiler.`));
 

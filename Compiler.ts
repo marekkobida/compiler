@@ -7,6 +7,8 @@ import Container from '@redred/pages/private/Container';
 
 import test from './test';
 
+const webpack = __non_webpack_require__('webpack');
+
 class Compiler {
   containers: Map<string, Container> = new Map();
 
@@ -78,6 +80,36 @@ class Compiler {
         container.inputs.forEach((input, inputPath) => container.inputs.set(inputPath, null));
       }
     }
+  }
+
+  compile () {
+    this.containers.forEach((container) => {
+      container.inputs.forEach((input, inputPath) => {
+        delete __non_webpack_require__.cache[__non_webpack_require__.resolve(inputPath)];
+        const w = __non_webpack_require__(inputPath);
+
+        webpack(w(container)).watch({}, (...b) => {
+          container.inputs.set(inputPath, b[1]);
+
+          const $ = container.inputs.get('./packages/compiler/webpack/client.js');
+
+          if ($) {
+            const assets = Object.keys($.compilation.assets).map((asset) => `./assets/${asset}`);
+
+            container.assets = [];
+
+            for (let i = 0; i < assets.length; i += 1) {
+              container.assets = [
+                ...container.assets,
+                assets[i],
+              ];
+            }
+          }
+
+          this.afterCompilation(container);
+        });
+      });
+    });
   }
 
   containersToJSON (containers: Compiler['containers']) {
