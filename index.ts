@@ -1,10 +1,10 @@
 import http from 'http';
+import path from 'path';
 
 import * as helpers from '@redred/helpers/server';
 import * as json from '@redred/pages/private/types/json';
 
 import Compiler from './Compiler';
-import mime from './mime';
 import test, { S, } from './test';
 
 const compiler = new Compiler();
@@ -97,7 +97,28 @@ const server = http.createServer(async (request, response) => {
       if (___) {
         const data = await helpers.read(`${container.path}/public/${___[1]}`);
 
-        response.setHeader('Content-Type', mime(url.pathname));
+        switch (path.extname(url.pathname)) {
+          case '.css':
+            response.setHeader('Content-Type', 'text/css');
+            break;
+          case '.html':
+            response.setHeader('Content-Type', 'text/html; charset=utf-8');
+            break;
+          case '.js':
+            response.setHeader('Content-Type', 'application/javascript');
+            break;
+          case '.map':
+            response.setHeader('Content-Type', 'application/json');
+            break;
+          case '.otf':
+            response.setHeader('Content-Type', 'font/otf');
+            break;
+          case '.png':
+            response.setHeader('Content-Type', 'image/png');
+            break;
+          default:
+            response.setHeader('Content-Type', 'text/plain');
+        }
 
         response.end(data);
 
