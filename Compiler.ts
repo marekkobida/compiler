@@ -69,7 +69,11 @@ class Compiler {
           container.error = error.stack;
         }
 
-        this.containersToJSON(this.containers);
+        try {
+          this.containersToJSON(this.containers);
+        } catch (error) {
+          test(error.stack, 'error');
+        }
 
         container.inputs.forEach((input, inputPath) => container.inputs.set(inputPath, null));
       }
