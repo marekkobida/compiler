@@ -5,6 +5,8 @@ import * as json from '@redred/pages/private/types/json';
 import * as t from 'io-ts';
 import Container from '@redred/pages/private/Container';
 
+import test from './test';
+
 class Compiler {
   containers: Map<string, Container> = new Map();
 
@@ -27,6 +29,8 @@ class Compiler {
 
   afterCompilation (container: Container) {
     if (container.path) {
+      test(`Compiler.afterCompilation "${container.path}"`, 'error');
+
       let isCompiled = true;
 
       container.inputs.forEach((input) => (input === null ? isCompiled = false : null));

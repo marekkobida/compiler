@@ -1,25 +1,14 @@
-import fs from 'fs';
 import http from 'http';
 
 import * as helpers from '@redred/helpers/server';
 import * as json from '@redred/pages/private/types/json';
 
 import Compiler from './Compiler';
-import MIME from './MIME';
 import compile from './compile';
+import mime from './mime';
+import test, { S, } from './test';
 
 const compiler = new Compiler();
-
-let S: { date: number, message: string, type: string, }[] = [];
-
-function test (message: any, type: 'error' | 'information' | 'warning') {
-  S = [
-    {
-      date: +new Date(), message: JSON.stringify(message, null, 2), type,
-    },
-    ...S,
-  ];
-}
 
 const server = http.createServer(async (request, response) => {
   const url = new URL(`file://${request.url}`);
@@ -113,25 +102,11 @@ const server = http.createServer(async (request, response) => {
           throw new Error(container.error);
         }
 
-        const readableStream = fs.createReadStream(`${container.path}/public/${___[1]}`);
+        const data = await helpers.read(`${container.path}/public/${___[1]}`);
 
-        let data: Array<Buffer> = [];
+        response.setHeader('Content-Type', mime(url.pathname));
 
-        readableStream.on('data', ($) => {
-          data = [ ...data, $, ];
-        });
-
-        readableStream.on('end', () => {
-          response.setHeader('Content-Type', MIME(url.pathname));
-
-          response.end(Buffer.concat(data));
-        });
-
-        readableStream.on('error', async () => {
-          response.end(JSON.stringify(`The request "${url.toString()}" is not valid.`));
-
-          test(`The request "${url.toString()}" is not valid.`, 'error');
-        });
+        response.end(data);
 
         return;
       }

@@ -1,23 +1,22 @@
-function MIME (path: string): string {
-  const $ = /([^.]+)$/.exec(path);
+import path from 'path';
 
-  switch ($ ? $[1] : '') {
-    case 'css':
+function mime ($: string): string {
+  switch (path.extname($)) {
+    case '.css':
       return 'text/css';
-    case 'html':
+    case '.html':
       return 'text/html; charset=utf-8';
-      break;
-    case 'js':
+    case '.js':
       return 'application/javascript';
-    case 'map':
+    case '.map':
       return 'application/json';
-    case 'otf':
+    case '.otf':
       return 'font/otf';
-    case 'png':
+    case '.png':
       return 'image/png';
     default:
       return 'text/plain';
   }
 }
 
-export default MIME;
+export default mime;
