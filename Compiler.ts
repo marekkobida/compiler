@@ -5,15 +5,15 @@ import * as json from '@redred/pages/private/types/json';
 import * as t from 'io-ts';
 import Container from '@redred/pages/private/Container';
 
-import test from './test';
-
 const webpack = __non_webpack_require__('webpack');
 
 class Compiler {
+  S: { date: number; message: string; type: string }[] = [];
+
   containers: Map<string, Container> = new Map();
 
   addContainer (container: t.TypeOf<typeof json.Compiler>['containers'][0]): Container {
-    test(`The path "${container.path}" was added to the compiler.`, 'information');
+    this.log(`The path "${container.path}" was added to the compiler.`, 'information');
 
     const addedContainer = new Container(null, null, []);
 
@@ -33,7 +33,7 @@ class Compiler {
 
   afterCompilation (container: Container) {
     if (container.path) {
-      test(`The path "${container.path}" was compiled.`, 'information');
+      this.log(`The path "${container.path}" was compiled.`, 'information');
 
       let isCompiled = true;
 
@@ -74,7 +74,7 @@ class Compiler {
         try {
           this.containersToJSON(this.containers);
         } catch (error) {
-          test(error.stack, 'error');
+          this.log(error.stack, 'error');
         }
 
         container.inputs.forEach((input, inputPath) => container.inputs.set(inputPath, null));
@@ -125,6 +125,15 @@ class Compiler {
     });
 
     helpers.write('./compiled.json', JSON.stringify(compiled, null, 2));
+  }
+
+  log (message: any, type: 'error' | 'information' | 'warning') {
+    this.S = [
+      {
+        date: +new Date(), message: JSON.stringify(message, null, 2), type,
+      },
+      ...this.S,
+    ];
   }
 }
 

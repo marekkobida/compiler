@@ -5,7 +5,6 @@ import * as helpers from '@redred/helpers/server';
 import * as json from '@redred/pages/private/types/json';
 
 import Compiler from './Compiler';
-import test, { S, } from './test';
 
 const compiler = new Compiler();
 
@@ -26,7 +25,7 @@ const server = http.createServer(async (request, response) => {
     const compilerJSON = await helpers.validateInputFromPath(json.Compiler, './compiler.json');
 
     if (url.pathname === '/test') {
-      response.end(JSON.stringify(S));
+      response.end(JSON.stringify(compiler.S));
 
       return;
     }
@@ -48,7 +47,7 @@ const server = http.createServer(async (request, response) => {
             if (compiler.containers.has(container.path)) {
               response.end(JSON.stringify(`The path "${container.path}" exists in the compiler.`));
 
-              test(`The path "${container.path}" exists in the compiler.`, 'warning');
+              compiler.log(`The path "${container.path}" exists in the compiler.`, 'warning');
 
               return;
             }
@@ -68,7 +67,7 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/compiled.json') {
       response.end(JSON.stringify(compiledJSON));
 
-      test(compiledJSON, 'information');
+      compiler.log(compiledJSON, 'information');
 
       return;
     }
@@ -76,7 +75,7 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/compiler.json') {
       response.end(JSON.stringify(compilerJSON));
 
-      test(compilerJSON, 'information');
+      compiler.log(compilerJSON, 'information');
 
       return;
     }
@@ -132,7 +131,7 @@ const server = http.createServer(async (request, response) => {
 
     response.end(JSON.stringify(error.stack));
 
-    test(error.stack, 'error');
+    compiler.log(error.stack, 'error');
   }
 });
 
