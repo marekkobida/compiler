@@ -26,12 +26,6 @@ const server = http.createServer(async (request, response) => {
     const compiledJSON = await helpers.validateInputFromPath(json.Compiled, './compiled.json');
     const compilerJSON = await helpers.validateInputFromPath(json.Compiler, './compiler.json');
 
-    if (url.pathname === '/test') {
-      response.end(JSON.stringify(compiler.S));
-
-      return;
-    }
-
     if (url.pathname === '/compile') {
       if (url.searchParams.has('path')) {
         for (let i = 0; i < compilerJSON.containers.length; i += 1) {
@@ -78,6 +72,12 @@ const server = http.createServer(async (request, response) => {
       response.end(JSON.stringify(compilerJSON));
 
       // compiler.log(compilerJSON, 'information');
+
+      return;
+    }
+
+    if (url.pathname === '/messages') {
+      response.end(JSON.stringify(compiler.S));
 
       return;
     }
