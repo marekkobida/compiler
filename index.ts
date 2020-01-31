@@ -131,6 +131,8 @@ const server = http.createServer(async (request, response) => {
   } catch (error) {
     response.setHeader('Content-Type', 'text/plain; charset=utf-8');
 
+    response.statusCode = 500;
+
     response.end(JSON.stringify(error.stack));
 
     compiler.log(error.stack, 'error');
