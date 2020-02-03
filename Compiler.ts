@@ -71,11 +71,7 @@ class Compiler {
           container.error = error.stack;
         }
 
-        try {
-          this.containersToJSON(this.containers);
-        } catch (error) {
-          this.log(error.stack, 'error');
-        }
+        this.containersToJSON(this.containers);
 
         container.inputs.forEach((input, inputPath) => container.inputs.set(inputPath, null));
       }
@@ -89,21 +85,13 @@ class Compiler {
         const w = __non_webpack_require__(inputPath);
 
         webpack(w(container)).watch({}, (...b) => {
+          console.log(b);
           container.inputs.set(inputPath, b[1]);
 
           const $ = container.inputs.get('./packages/compiler/webpack/client.js');
 
           if ($) {
-            const assets = Object.keys($.compilation.assets).map((asset) => `./assets/${asset}`);
-
-            container.assets = [];
-
-            for (let i = 0; i < assets.length; i += 1) {
-              container.assets = [
-                ...container.assets,
-                assets[i],
-              ];
-            }
+            container.assets = Object.keys($.compilation.assets).map((asset) => `./assets/${asset}`);
           }
 
           this.afterCompilation(container);
@@ -116,15 +104,13 @@ class Compiler {
     const compiled: t.TypeOf<typeof json.Compiled> = { containers: [], };
 
     containers.forEach((container) => {
-      if (container.path && container.version) {
-        compiled.containers = [
-          ...compiled.containers,
-          container.toJSON(),
-        ];
-      }
+      compiled.containers = [
+        ...compiled.containers,
+        container.toJSON(),
+      ];
     });
 
-    helpers.write('./compiled.json', JSON.stringify(compiled, null, 2));
+    helpers.write('./compiled.json', `${JSON.stringify(compiled, null, 2)}\n`);
   }
 
   log (message: any, type: 'error' | 'information' | 'warning') {
