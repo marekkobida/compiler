@@ -17,12 +17,7 @@ class Compiler {
 
     const addedContainer = new Container(null, null, []);
 
-    for (let i = 0; i < container.inputs.length; i += 1) {
-      const input = container.inputs[i];
-
-      addedContainer.inputs.set(input, null);
-    }
-
+    addedContainer.inputs = container.inputs;
     addedContainer.path = container.path;
     addedContainer.version = container.version;
 
@@ -35,80 +30,70 @@ class Compiler {
     if (container.path) {
       this.log(`The path "${container.path}" was compiled.`, 'information');
 
-      let isCompiled = true;
+      try {
+        const $ = path.resolve(container.path, './public/assets/server.js');
 
-      container.inputs.forEach((input) => (input === null ? isCompiled = false : null));
+        delete __non_webpack_require__.cache[__non_webpack_require__.resolve($)];
 
-      if (isCompiled) {
-        try {
-          const $ = path.resolve(container.path, './public/assets/server.js');
+        const $$: Container = __non_webpack_require__($).default;
 
-          delete __non_webpack_require__.cache[__non_webpack_require__.resolve($)];
+        container.error = null;
+        container.id = $$.id;
+        container.name = $$.name;
+        container.pages = $$.pages;
 
-          const $$: Container = __non_webpack_require__($).default;
+        container.pages.forEach((page) => {
+          try {
+            page.context = { ...page.context, container, };
 
-          container.error = null;
-          container.id = $$.id;
-          container.name = $$.name;
-          container.pages = $$.pages;
+            page.toHTML();
 
-          container.pages.forEach((page) => {
-            try {
-              page.context = { ...page.context, container, };
-
-              page.toHTML();
-
-              if (typeof page.html === 'string') {
-                helpers.write(`${container.path}/public/${page.name}.html`, page.html);
-              }
-            } catch (error) {
-              container.error = error.stack;
+            if (typeof page.html === 'string') {
+              helpers.write(`${container.path}/public/${page.name}.html`, page.html);
             }
+          } catch (error) {
+            container.error = error.stack;
+          }
 
-            delete page.context.container;
-          });
-        } catch (error) {
-          container.error = error.stack;
-        }
+          delete page.context.container;
+        });
+      } catch (error) {
+        container.error = error.stack;
+      }
 
-        try {
-          this.containersToJSON(this.containers);
-        } catch (error) {
-          this.log(error.stack, 'error');
-        }
-
-        container.inputs.forEach((input, inputPath) => container.inputs.set(inputPath, null));
+      try {
+        this.containersToJSON(this.containers);
+      } catch (error) {
+        this.log(error.stack, 'error');
       }
     }
   }
 
   compile () {
     this.containers.forEach((container) => {
-      container.inputs.forEach((input, inputPath) => {
-        delete __non_webpack_require__.cache[__non_webpack_require__.resolve(inputPath)];
-        const w = __non_webpack_require__(inputPath);
+      for (let i = 0; i < container.inputs.length; i += 1) {
+        const input = container.inputs[i];
+
+        delete __non_webpack_require__.cache[__non_webpack_require__.resolve(input)];
+        const w = __non_webpack_require__(input);
 
         webpack(w(container)).watch({}, (...b) => {
-          container.inputs.set(inputPath, b[1]);
+          const $ = b[1].stats[0];
 
-          const $ = container.inputs.get('./packages/compiler/webpack/client.js');
+          const assets = Object.keys($.compilation.assets).map((asset) => `./assets/${asset}`);
 
-          if ($) {
-            const assets = Object.keys($.compilation.assets).map((asset) => `./assets/${asset}`);
+          container.assets = [];
 
-            container.assets = [];
-
-            for (let i = 0; i < assets.length; i += 1) {
-              container.assets = [
-                ...container.assets,
-                assets[i],
-              ];
-            }
+          for (let i = 0; i < assets.length; i += 1) {
+            container.assets = [
+              ...container.assets,
+              assets[i],
+            ];
           }
 
           this.afterCompilation(container);
         });
-      });
+      }
     });
   }
 
