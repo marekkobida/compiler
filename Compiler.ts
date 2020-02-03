@@ -109,7 +109,7 @@ class Compiler {
       }
     });
 
-    helpers.write('./compiled.json', JSON.stringify(compiled, null, 2));
+    helpers.write('./compiled.json', `${JSON.stringify(compiled, null, 2)}\n`);
   }
 
   log (message: any, type: 'error' | 'information' | 'warning') {
