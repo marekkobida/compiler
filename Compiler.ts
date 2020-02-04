@@ -10,6 +10,8 @@ const webpack = __non_webpack_require__('webpack');
 class Compiler {
   S: { date: number; message: string; type: string }[] = [];
 
+  canLog = false;
+
   containers: Map<string, Container> = new Map();
 
   addContainer (container: t.TypeOf<typeof json.Compiler>['containers'][0]): Container {
@@ -85,7 +87,6 @@ class Compiler {
         const w = __non_webpack_require__(inputPath);
 
         webpack(w(container)).watch({}, (...b) => {
-          console.log(b);
           container.inputs.set(inputPath, b[1]);
 
           const $ = container.inputs.get('./packages/compiler/webpack/client.js');
@@ -114,12 +115,14 @@ class Compiler {
   }
 
   log (message: any, type: 'error' | 'information' | 'warning') {
-    this.S = [
-      {
-        date: +new Date(), message: JSON.stringify(message, null, 2), type,
-      },
-      ...this.S,
-    ];
+    if (this.canLog) {
+      this.S = [
+        {
+          date: +new Date(), message: JSON.stringify(message, null, 2), type,
+        },
+        ...this.S,
+      ];
+    }
   }
 }
 
