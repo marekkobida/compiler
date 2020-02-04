@@ -71,7 +71,7 @@ class Compiler {
           container.error = error.stack;
         }
 
-        this.containersToJSON(this.containers);
+        this.containersToJSON();
 
         container.inputs.forEach((input, inputPath) => container.inputs.set(inputPath, null));
       }
@@ -99,10 +99,10 @@ class Compiler {
     });
   }
 
-  containersToJSON (containers: Compiler['containers']) {
+  containersToJSON () {
     const compiled: t.TypeOf<typeof json.Compiled> = { containers: [], };
 
-    containers.forEach((container) => {
+    this.containers.forEach((container) => {
       compiled.containers = [
         ...compiled.containers,
         container.toJSON(),

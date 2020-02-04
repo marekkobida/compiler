@@ -8,8 +8,6 @@ import Compiler from './Compiler';
 
 const compiler = new Compiler();
 
-compiler.containersToJSON(compiler.containers);
-
 const server = http.createServer(async (request, response) => {
   const url = new URL(`file://${request.url}`);
 
