@@ -13,8 +13,6 @@ compiler.containersToJSON(compiler.containers);
 const server = http.createServer(async (request, response) => {
   const url = new URL(`file://${request.url}`);
 
-  compiler.canLog = url.searchParams.get('log') === 'true';
-
   if (url.pathname === '/favicon.ico') {
     return;
   }
@@ -65,15 +63,11 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/compiled.json') {
       response.end(JSON.stringify(compiledJSON));
 
-      compiler.log(compiledJSON, 'information');
-
       return;
     }
 
     if (url.pathname === '/compiler.json') {
       response.end(JSON.stringify(compilerJSON));
-
-      compiler.log(compilerJSON, 'information');
 
       return;
     }
