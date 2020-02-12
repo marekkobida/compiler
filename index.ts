@@ -72,7 +72,7 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    if (url.pathname === '/messages') {
+    if (url.pathname === '/messages.json') {
       response.end(JSON.stringify(compiler.S));
 
       return;
