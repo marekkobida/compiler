@@ -8,9 +8,9 @@ import Container from '@redred/pages/private/Container';
 const webpack = __non_webpack_require__('webpack');
 
 class Compiler {
-  S: { date: number; message: string; type: 'error' | 'information' | 'warning' }[] = [];
-
   containers: Map<string, Container> = new Map();
+
+  messages: { date: number; message: string; type: 'error' | 'information' | 'warning' }[] = [];
 
   addContainer (container: t.TypeOf<typeof json.Compiler>['containers'][0]): Container {
     this.log(`The path "${container.path}" was added to the compiler.`);
@@ -113,11 +113,11 @@ class Compiler {
   }
 
   log (message: any, type: 'error' | 'information' | 'warning' = 'information') {
-    this.S = [
+    this.messages = [
       {
         date: +new Date(), message: JSON.stringify(message, null, 2), type,
       },
-      ...this.S,
+      ...this.messages,
     ];
   }
 }
