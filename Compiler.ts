@@ -13,14 +13,14 @@ class Compiler {
   messages: { date: number; message: string; type: 'error' | 'information' | 'warning' }[] = [];
 
   addContainer (container: t.TypeOf<typeof json.Compiler>['containers'][0]): Container {
-    this.log(`The path "${container.path}" was added to the compiler.`);
+    this.addMessage(`The path "${container.path}" was added to the compiler.`);
 
     const addedContainer = new Container(null, null, []);
 
     for (let i = 0; i < container.inputs.length; i += 1) {
       const input = container.inputs[i];
 
-      addedContainer.inputs.set(input, null);
+      addedContainer.inputs[input] = '';
     }
 
     addedContainer.path = container.path;
@@ -31,13 +31,26 @@ class Compiler {
     return addedContainer;
   }
 
+  addMessage (message: any, type: 'error' | 'information' | 'warning' = 'information') {
+    this.messages = [
+      {
+        date: +new Date(), message: JSON.stringify(message, null, 2), type,
+      },
+      ...this.messages,
+    ];
+  }
+
   afterCompilation (container: Container) {
     if (container.path) {
-      this.log(`The path "${container.path}" was compiled.`);
+      this.addMessage(`The path "${container.path}" was compiled.`);
 
       let isCompiled = true;
 
-      container.inputs.forEach((input) => (input === null ? isCompiled = false : null));
+      for (const input in container.inputs) {
+        if (container.inputs[input] === '') {
+          isCompiled = false;
+        }
+      }
 
       if (isCompiled) {
         try {
@@ -73,29 +86,25 @@ class Compiler {
 
         this.containersToJSON();
 
-        container.inputs.forEach((input, inputPath) => container.inputs.set(inputPath, null));
+        for (const input in container.inputs) {
+          container.inputs[input] = '';
+        }
       }
     }
   }
 
   compile () {
     this.containers.forEach((container) => {
-      container.inputs.forEach((input, inputPath) => {
-        delete __non_webpack_require__.cache[__non_webpack_require__.resolve(inputPath)];
-        const w = __non_webpack_require__(inputPath);
+      for (const input in container.inputs) {
+        delete __non_webpack_require__.cache[__non_webpack_require__.resolve(input)];
+        const w = __non_webpack_require__(input);
 
         webpack(w(container)).watch({}, (...b) => {
-          container.inputs.set(inputPath, b[1]);
-
-          const $ = container.inputs.get('./packages/compiler/webpack/client.js');
-
-          if ($) {
-            container.assets = Object.keys($.compilation.assets).map((asset) => `./assets/${asset}`);
-          }
+          container.inputs[input] = b[1].toJson();
 
           this.afterCompilation(container);
         });
-      });
+      }
     });
   }
 
@@ -110,15 +119,6 @@ class Compiler {
     });
 
     helpers.write('./compiled.json', `${JSON.stringify(compiled, null, 2)}\n`);
-  }
-
-  log (message: any, type: 'error' | 'information' | 'warning' = 'information') {
-    this.messages = [
-      {
-        date: +new Date(), message: JSON.stringify(message, null, 2), type,
-      },
-      ...this.messages,
-    ];
   }
 }
 

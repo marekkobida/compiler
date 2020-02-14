@@ -39,7 +39,7 @@ const server = http.createServer(async (request, response) => {
             if (compiler.containers.has(container.path)) {
               response.end(JSON.stringify(`The path "${container.path}" exists in the compiler.`));
 
-              compiler.log(`The path "${container.path}" exists in the compiler.`, 'warning');
+              compiler.addMessage(`The path "${container.path}" exists in the compiler.`, 'warning');
 
               return;
             }
@@ -127,7 +127,7 @@ const server = http.createServer(async (request, response) => {
 
     response.end(JSON.stringify(error.stack));
 
-    compiler.log(error.stack, 'error');
+    compiler.addMessage(error.stack, 'error');
   }
 });
 
