@@ -24,6 +24,7 @@ class Compiler {
     }
 
     addedContainer.path = container.path;
+    addedContainer.test = container.test;
     addedContainer.version = container.version;
 
     this.containers.set(addedContainer.path, addedContainer);

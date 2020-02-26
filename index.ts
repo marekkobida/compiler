@@ -10,6 +10,24 @@ const compiler = new Compiler();
 
 compiler.containersToJSON();
 
+(async () => {
+  const compilerJSON = await helpers.validateInputFromPath(json.Compiler, './compiler.json');
+
+  for (let i = 0; i < compilerJSON.containers.length; i += 1) {
+    const container = compilerJSON.containers[i];
+
+    if (container.test) {
+      if (compiler.containers.has(container.path)) {
+        return;
+      }
+
+      compiler.addContainer(container);
+
+      compiler.compile();
+    }
+  }
+})();
+
 const server = http.createServer(async (request, response) => {
   const url = new URL(`file://${request.url}`);
 
