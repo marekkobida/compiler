@@ -1,7 +1,7 @@
 import path from 'path';
 
 import * as helpers from '@redred/helpers/server';
-import * as json from '@redred/pages/private/types/json';
+import * as json from '@redred/compiler/private/types/json';
 import * as t from 'io-ts';
 import Container from '@redred/pages/private/Container';
 
@@ -13,8 +13,6 @@ class Compiler {
   messages: { date: number; message: string; type: 'error' | 'information' | 'warning' }[] = [];
 
   addContainer (container: t.TypeOf<typeof json.Compiler>['containers'][0]): Container {
-    this.addMessage(`The path "${container.path}" was added to the compiler.`);
-
     const addedContainer = new Container(null, null, []);
 
     for (let i = 0; i < container.inputs.length; i += 1) {
@@ -28,6 +26,8 @@ class Compiler {
     addedContainer.version = container.version;
 
     this.containers.set(addedContainer.path, addedContainer);
+
+    this.addMessage(`The path "${container.path}" was added to the compiler.`);
 
     return addedContainer;
   }
@@ -74,6 +74,8 @@ class Compiler {
 
               if (typeof page.html === 'string') {
                 helpers.write(`${container.path}/public/${page.name}.html`, page.html);
+
+                this.addMessage(`The path "${container.path}/public/${page.name}.html" was created.`);
               }
             } catch (error) {
               container.error = error.stack;
@@ -120,6 +122,8 @@ class Compiler {
     });
 
     helpers.write('./compiled.json', `${JSON.stringify(compiled, null, 2)}\n`);
+
+    this.addMessage('"./compiled.json"');
   }
 }
 

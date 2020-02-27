@@ -2,13 +2,11 @@ import http from 'http';
 import path from 'path';
 
 import * as helpers from '@redred/helpers/server';
-import * as json from '@redred/pages/private/types/json';
+import * as json from '@redred/compiler/private/types/json';
 
 import Compiler from './Compiler';
 
 const compiler = new Compiler();
-
-compiler.containersToJSON();
 
 helpers.validateInputFromPath(json.Compiler, './compiler.json')
   .then((compilerJSON) => {
