@@ -56,7 +56,7 @@ class Compiler {
 
       if (isCompiled) {
         try {
-          const $ = path.resolve(container.path, './public/assets/server.js');
+          const $ = path.resolve(container.path, './public/server.js');
 
           delete __non_webpack_require__.cache[__non_webpack_require__.resolve($)];
 
