@@ -22,7 +22,6 @@ class Compiler {
     }
 
     addedContainer.id = container.id;
-    addedContainer.isActive = container.isActive;
     addedContainer.name = container.name;
     addedContainer.path = container.path;
     addedContainer.version = container.version;
