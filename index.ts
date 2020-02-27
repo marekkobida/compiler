@@ -8,12 +8,14 @@ import Compiler from './Compiler';
 
 const compiler = new Compiler();
 
+compiler.containersToJSON();
+
 helpers.validateInputFromPath(json.Compiler, './compiler.json')
   .then((compilerJSON) => {
     for (let i = 0; i < compilerJSON.containers.length; i += 1) {
       const container = compilerJSON.containers[i];
 
-      if (container.test) {
+      if (container.isActive) {
         if (compiler.containers.has(container.path)) {
           return;
         }

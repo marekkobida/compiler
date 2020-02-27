@@ -23,8 +23,8 @@ class Compiler {
       addedContainer.inputs[input] = '';
     }
 
+    addedContainer.isActive = container.isActive;
     addedContainer.path = container.path;
-    addedContainer.test = container.test;
     addedContainer.version = container.version;
 
     this.containers.set(addedContainer.path, addedContainer);
