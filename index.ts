@@ -37,7 +37,6 @@ const server = http.createServer(async (request, response) => {
   response.statusCode = 200;
 
   try {
-    const compiledJSON = await helpers.validateInputFromPath(json.Compiled, './compiled.json');
     const compilerJSON = await helpers.validateInputFromPath(json.Compiler, './compiler.json');
 
     if (url.pathname === '/compile') {
@@ -75,6 +74,8 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (url.pathname === '/compiled.json') {
+      const compiledJSON = await helpers.validateInputFromPath(json.Compiled, './compiled.json');
+
       response.end(JSON.stringify(compiledJSON));
 
       return;
@@ -86,11 +87,17 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    if (url.pathname === '/favicon.ico') {
+      return;
+    }
+
     if (url.pathname === '/messages.json') {
       response.end(JSON.stringify(compiler.messages));
 
       return;
     }
+
+    const compiledJSON = await helpers.validateInputFromPath(json.Compiled, './compiled.json');
 
     for (let i = 0; i < compiledJSON.containers.length; i += 1) {
       const container = compiledJSON.containers[i];
@@ -98,12 +105,6 @@ const server = http.createServer(async (request, response) => {
       const _ = container.path.replace(/^\.\//, '');
       const __ = new RegExp(`\\/${_}`).exec(url.pathname);
       const ___ = new RegExp(`\\/${_}\\/public\\/(.+)`).exec(url.pathname);
-
-      if (__ && ___) {
-        if (container.error) {
-          throw new Error(container.error);
-        }
-      }
 
       if (___) {
         const data = await helpers.read(`${container.path}/public/${___[1]}`, 'base64');

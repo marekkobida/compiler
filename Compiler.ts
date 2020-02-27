@@ -13,7 +13,7 @@ class Compiler {
   messages: { date: number; message: string; type: 'error' | 'information' | 'warning' }[] = [];
 
   addContainer (container: t.TypeOf<typeof json.Compiler>['containers'][0]): Container {
-    const addedContainer = new Container(null, null, []);
+    const addedContainer = new Container([]);
 
     for (let i = 0; i < container.inputs.length; i += 1) {
       const input = container.inputs[i];
@@ -21,7 +21,9 @@ class Compiler {
       addedContainer.inputs[input] = '';
     }
 
+    addedContainer.id = container.id;
     addedContainer.isActive = container.isActive;
+    addedContainer.name = container.name;
     addedContainer.path = container.path;
     addedContainer.version = container.version;
 
@@ -61,9 +63,6 @@ class Compiler {
 
           const $$: Container = __non_webpack_require__($).default;
 
-          container.error = null;
-          container.id = $$.id;
-          container.name = $$.name;
           container.pages = $$.pages;
 
           container.pages.forEach((page) => {
@@ -78,13 +77,13 @@ class Compiler {
                 this.addMessage(`The path "${container.path}/public/${page.name}.html" was created.`);
               }
             } catch (error) {
-              container.error = error.stack;
+              console.log('TODO 2408', error);
             }
 
             delete page.context.container;
           });
         } catch (error) {
-          container.error = error.stack;
+          console.log('TODO 2409', error);
         }
 
         this.containersToJSON();
