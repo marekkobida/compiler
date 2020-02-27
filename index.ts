@@ -8,25 +8,25 @@ import Compiler from './Compiler';
 
 const compiler = new Compiler();
 
-compiler.containersToJSON();
+helpers.validateInputFromPath(json.Compiler, './compiler.json')
+  .then((compilerJSON) => {
+    for (let i = 0; i < compilerJSON.containers.length; i += 1) {
+      const container = compilerJSON.containers[i];
 
-(async () => {
-  const compilerJSON = await helpers.validateInputFromPath(json.Compiler, './compiler.json');
+      if (container.test) {
+        if (compiler.containers.has(container.path)) {
+          return;
+        }
 
-  for (let i = 0; i < compilerJSON.containers.length; i += 1) {
-    const container = compilerJSON.containers[i];
+        compiler.addContainer(container);
 
-    if (container.test) {
-      if (compiler.containers.has(container.path)) {
-        return;
+        compiler.compile();
       }
-
-      compiler.addContainer(container);
-
-      compiler.compile();
     }
-  }
-})();
+  })
+  .catch((error) => {
+    compiler.addMessage(error, 'error');
+  });
 
 const server = http.createServer(async (request, response) => {
   const url = new URL(`file://${request.url}`);
