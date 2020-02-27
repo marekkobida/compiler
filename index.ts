@@ -83,7 +83,7 @@ const server = http.createServer(async (request, response) => {
       const container = compiledJSON.containers[i];
 
       const _ = container.path.replace(/^\.\//, '');
-      const __ = new RegExp(`\\/${_}`).exec(url.pathname);
+      // const __ = new RegExp(`\\/${_}`).exec(url.pathname);
       const ___ = new RegExp(`\\/${_}\\/public\\/(.+)`).exec(url.pathname);
 
       if (___) {
