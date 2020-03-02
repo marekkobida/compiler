@@ -17,10 +17,10 @@ const server = http.createServer(async (request, response) => {
   response.statusCode = 200;
 
   try {
-    const compilerJSON = await helpers.validateInputFromPath(json.Compiler, './compiler.json');
-
     if (url.pathname === '/compile') {
       if (url.searchParams.has('path')) {
+        const compilerJSON = await helpers.validateInputFromPath(json.Compiler, './compiler.json');
+
         for (let i = 0; i < compilerJSON.containers.length; i += 1) {
           const container = compilerJSON.containers[i];
 
@@ -62,12 +62,10 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (url.pathname === '/compiler.json') {
+      const compilerJSON = await helpers.validateInputFromPath(json.Compiler, './compiler.json');
+
       response.end(JSON.stringify(compilerJSON));
 
-      return;
-    }
-
-    if (url.pathname === '/favicon.ico') {
       return;
     }
 
@@ -77,18 +75,15 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    const compiledJSON = await helpers.validateInputFromPath(json.Compiled, './compiled.json');
+    const compilerJSON = await helpers.validateInputFromPath(json.Compiler, './compiler.json');
 
-    for (let i = 0; i < compiledJSON.containers.length; i += 1) {
-      const container = compiledJSON.containers[i];
+    for (let i = 0; i < compilerJSON.containers.length; i += 1) {
+      const container = compilerJSON.containers[i];
 
       const _ = container.path.replace(/^\.\//, '');
-      // const __ = new RegExp(`\\/${_}`).exec(url.pathname);
-      const ___ = new RegExp(`\\/${_}\\/public\\/(.+)`).exec(url.pathname);
+      const __ = new RegExp(`\\/${_}\\/public\\/(.+)`).exec(url.pathname);
 
-      if (___) {
-        const data = await helpers.read(`${container.path}/public/${___[1]}`, 'base64');
-
+      if (__) {
         switch (path.extname(url.pathname)) {
           case '.css':
             response.setHeader('Content-Type', 'text/css');
@@ -100,7 +95,7 @@ const server = http.createServer(async (request, response) => {
             response.setHeader('Content-Type', 'application/javascript');
             break;
           case '.map':
-            response.setHeader('Content-Type', 'application/json');
+            response.setHeader('Content-Type', 'application/json; charset=utf-8');
             break;
           case '.otf':
             response.setHeader('Content-Type', 'font/otf');
@@ -111,6 +106,8 @@ const server = http.createServer(async (request, response) => {
           default:
             response.setHeader('Content-Type', 'text/plain');
         }
+
+        const data = await helpers.read(`${container.path}/public/${__[1]}`, 'base64');
 
         response.end(data, 'base64');
 
