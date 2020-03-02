@@ -55,35 +55,27 @@ class Compiler {
       }
 
       if (isCompiled) {
-        try {
-          const $ = path.resolve(container.path, './public/server.js');
+        const $ = path.resolve(container.path, './public/server.js');
 
-          delete __non_webpack_require__.cache[__non_webpack_require__.resolve($)];
+        delete __non_webpack_require__.cache[__non_webpack_require__.resolve($)];
 
-          const $$: Container = __non_webpack_require__($).default;
+        const $$: Container = __non_webpack_require__($).default;
 
-          container.pages = $$.pages;
+        container.pages = $$.pages;
 
-          container.pages.forEach((page) => {
-            try {
-              page.context = { ...page.context, container, };
+        container.pages.forEach((page) => {
+          page.context = { ...page.context, container, };
 
-              page.toHTML();
+          page.toHTML();
 
-              if (typeof page.html === 'string') {
-                helpers.write(`${container.path}/public/${page.name}.html`, page.html);
+          if (typeof page.html === 'string') {
+            helpers.write(`${container.path}/public/${page.name}.html`, page.html);
+          }
 
-                this.addMessage(`The path "${container.path}/public/${page.name}.html" was created.`);
-              }
-            } catch (error) {
-              console.log('TODO 2408', error);
-            }
+          delete page.context.container;
 
-            delete page.context.container;
-          });
-        } catch (error) {
-          console.log('TODO 2409', error);
-        }
+          this.addMessage(`The file "${container.path}/public/${page.name}.html" was created.`);
+        });
 
         this.containersToJSON();
 
@@ -103,7 +95,11 @@ class Compiler {
         webpack(w(container)).watch({}, (...b) => {
           container.inputs[input] = b[1].toJson();
 
-          this.afterCompilation(container);
+          try {
+            this.afterCompilation(container);
+          } catch (error) {
+            console.log('VEĽKÁ CHYBA', container.path, error);
+          }
         });
       }
     });
@@ -121,7 +117,7 @@ class Compiler {
 
     helpers.write('./compiled.json', `${JSON.stringify(compiled, null, 2)}\n`);
 
-    this.addMessage('"./compiled.json"');
+    this.addMessage('The file "./compiled.json" was created.');
   }
 }
 
