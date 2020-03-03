@@ -75,10 +75,10 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    const compilerJSON = await helpers.validateInputFromPath(json.Compiler, './compiler.json');
+    const compiledJSON = await helpers.validateInputFromPath(json.Compiled, './compiled.json');
 
-    for (let i = 0; i < compilerJSON.containers.length; i += 1) {
-      const container = compilerJSON.containers[i];
+    for (let i = 0; i < compiledJSON.containers.length; i += 1) {
+      const container = compiledJSON.containers[i];
 
       const _ = container.path.replace(/^\.\//, '');
       const __ = new RegExp(`\\/${_}\\/public\\/(.+)`).exec(url.pathname);
