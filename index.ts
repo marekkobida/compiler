@@ -8,6 +8,8 @@ import Compiler from './Compiler';
 
 const compiler = new Compiler();
 
+compiler.containersToJSON();
+
 const server = http.createServer(async (request, response) => {
   const url = new URL(`file://${request.url}`);
 
@@ -69,16 +71,23 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    if (url.pathname === '/favicon.ico') {
+      response.setHeader('Content-Type', 'image/x-icon');
+      response.end();
+
+      return;
+    }
+
     if (url.pathname === '/messages.json') {
       response.end(JSON.stringify(compiler.messages));
 
       return;
     }
 
-    const compiledJSON = await helpers.validateInputFromPath(json.Compiled, './compiled.json');
+    const compilerJSON = await helpers.validateInputFromPath(json.Compiler, './compiler.json');
 
-    for (let i = 0; i < compiledJSON.containers.length; i += 1) {
-      const container = compiledJSON.containers[i];
+    for (let i = 0; i < compilerJSON.containers.length; i += 1) {
+      const container = compilerJSON.containers[i];
 
       const _ = container.path.replace(/^\.\//, '');
       const __ = new RegExp(`\\/${_}\\/public\\/(.+)`).exec(url.pathname);
