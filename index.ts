@@ -36,17 +36,7 @@ const server = http.createServer(async (request, response) => {
               }
             }
 
-            if (compiler.containers.has(container.path)) {
-              response.end(JSON.stringify(`The path "${container.path}" exists in the compiler.`));
-
-              compiler.addMessage(`The path "${container.path}" exists in the compiler.`, 'warning');
-
-              return;
-            }
-
             compiler.addContainer(container);
-
-            compiler.compile();
 
             response.end(JSON.stringify(`The path "${container.path}" was added to the compiler.`));
 

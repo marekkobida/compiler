@@ -13,7 +13,13 @@ class Compiler {
   messages: { date: number; message: string; type: 'error' | 'information' | 'warning' }[] = [];
 
   addContainer (container: t.TypeOf<typeof json.Compiler>['containers'][0]): Container {
+    if (this.containers.has(container.path)) {
+      throw new Error(`The path "${container.path}" exists in the compiler.`);
+    }
+
     const addedContainer = new Container([]);
+
+    addedContainer.id = container.id;
 
     for (let i = 0; i < container.inputs.length; i += 1) {
       const input = container.inputs[i];
@@ -21,7 +27,6 @@ class Compiler {
       addedContainer.inputs[input] = '';
     }
 
-    addedContainer.id = container.id;
     addedContainer.name = container.name;
     addedContainer.path = container.path;
     addedContainer.version = container.version;
@@ -30,19 +35,23 @@ class Compiler {
 
     this.addMessage(`The path "${container.path}" was added to the compiler.`);
 
+    this.compile(addedContainer);
+
     return addedContainer;
   }
 
-  addMessage (message: any, type: 'error' | 'information' | 'warning' = 'information') {
+  addMessage (message: any, type: 'error' | 'information' | 'warning' = 'information'): void {
     this.messages = [
       {
-        date: +new Date(), message: JSON.stringify(message, null, 2), type,
+        date: +new Date(),
+        message: JSON.stringify(message, null, 2),
+        type,
       },
       ...this.messages,
     ];
   }
 
-  afterCompilation (container: Container) {
+  afterCompilation (container: Container): void {
     if (container.path) {
       this.addMessage(`The path "${container.path}" was compiled.`);
 
@@ -86,26 +95,25 @@ class Compiler {
     }
   }
 
-  compile () {
-    this.containers.forEach((container) => {
-      for (const input in container.inputs) {
-        delete __non_webpack_require__.cache[__non_webpack_require__.resolve(input)];
-        const w = __non_webpack_require__(input);
+  compile (container: Container): void {
+    for (const input in container.inputs) {
+      delete __non_webpack_require__.cache[__non_webpack_require__.resolve(input)];
 
-        webpack(w(container)).watch({}, (...b) => {
-          container.inputs[input] = b[1].toJson();
+      const $ = __non_webpack_require__(input);
 
-          try {
-            this.afterCompilation(container);
-          } catch (error) {
-            console.log('VEĽKÁ CHYBA', container.path, error);
-          }
-        });
-      }
-    });
+      webpack($(container)).watch({}, (left: Error, right: { toJson: () => unknown }) => {
+        container.inputs[input] = right.toJson();
+
+        try {
+          this.afterCompilation(container);
+        } catch (error) {
+          this.addMessage(error.stack, 'error');
+        }
+      });
+    }
   }
 
-  containersToJSON () {
+  containersToJSON (): void {
     const compiled: t.TypeOf<typeof json.Compiled> = { containers: [], };
 
     this.containers.forEach((container) => {
