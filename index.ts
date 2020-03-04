@@ -5,6 +5,7 @@ import * as helpers from '@redred/helpers/server';
 import * as json from '@redred/compiler/private/types/json';
 
 import Compiler from './Compiler';
+import mime from './mime';
 
 const compiler = new Compiler();
 
@@ -84,47 +85,11 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    const compilerJSON = await helpers.validateInputFromPath(json.Compiler, './compiler.json');
+    response.setHeader('Content-Type', mime(path.extname(url.pathname)));
 
-    for (let i = 0; i < compilerJSON.containers.length; i += 1) {
-      const container = compilerJSON.containers[i];
+    const data = await helpers.read(`.${url.pathname}`, 'base64');
 
-      const _ = container.path.replace(/^\.\//, '');
-      const __ = new RegExp(`\\/${_}\\/public\\/(.+)`).exec(url.pathname);
-
-      if (__) {
-        switch (path.extname(url.pathname)) {
-          case '.css':
-            response.setHeader('Content-Type', 'text/css');
-            break;
-          case '.html':
-            response.setHeader('Content-Type', 'text/html; charset=utf-8');
-            break;
-          case '.js':
-            response.setHeader('Content-Type', 'application/javascript');
-            break;
-          case '.map':
-            response.setHeader('Content-Type', 'application/json; charset=utf-8');
-            break;
-          case '.otf':
-            response.setHeader('Content-Type', 'font/otf');
-            break;
-          case '.png':
-            response.setHeader('Content-Type', 'image/png');
-            break;
-          default:
-            response.setHeader('Content-Type', 'text/plain');
-        }
-
-        const data = await helpers.read(`${container.path}/public/${__[1]}`, 'base64');
-
-        response.end(data, 'base64');
-
-        return;
-      }
-    }
-
-    throw new Error(`The request "${url.toString()}" is not valid.`);
+    response.end(data, 'base64');
   } catch (error) {
     response.setHeader('Content-Type', 'text/plain; charset=utf-8');
 
