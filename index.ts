@@ -28,12 +28,10 @@ const server = http.createServer(async (request, response) => {
           const container = compilerJSON.containers[i];
 
           if (container.path === url.searchParams.get('path')) {
-            if (url.searchParams.has('version')) {
-              const version = url.searchParams.get('version');
+            const version = url.searchParams.get('version');
 
-              if (version === 'development' || version === 'production') {
-                container.version = version;
-              }
+            if (version === 'development' || version === 'production') {
+              container.version = version;
             }
 
             compiler.addContainer(container);

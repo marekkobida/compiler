@@ -1,4 +1,4 @@
-import json from './mime.json';
+import json from './index.json';
 
 function mime (extension: string): string {
   for (const $ in json) {

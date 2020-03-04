@@ -4,8 +4,7 @@ import * as helpers from '@redred/helpers/server';
 import * as json from '@redred/compiler/private/types/json';
 import * as t from 'io-ts';
 import Container from '@redred/pages/private/Container';
-
-const webpack = __non_webpack_require__('webpack');
+import webpack from 'webpack';
 
 class Compiler {
   containers: Map<string, Container> = new Map();
@@ -40,7 +39,7 @@ class Compiler {
     return addedContainer;
   }
 
-  addMessage (message: any, type: 'error' | 'information' | 'warning' = 'information'): void {
+  addMessage (message: unknown, type: 'error' | 'information' | 'warning' = 'information'): void {
     this.messages = [
       {
         date: +new Date(),
