@@ -5,15 +5,16 @@ import * as json from '@redred/compiler/private/types/json';
 import * as t from 'io-ts';
 import Container from '@redred/pages/private/Container';
 import ServerPaths from '../ServerPaths';
-import webpack from 'webpack';
+
+const webpack = __non_webpack_require__('webpack');
 
 class Compiler {
-  addedContainers: Map<string, Container> = new Map();
+  addedContainers: Record<string, Container> = {};
 
   messages: NonNullable<t.TypeOf<typeof ServerPaths>['/messages.json']> = [];
 
   addContainer (container: t.TypeOf<typeof json.CompilerContainer>): Container {
-    if (this.addedContainers.has(container.path)) {
+    if (this.addedContainers[container.path]) {
       throw new Error(`The path "${container.path}" exists in the compiler.`);
     }
 
@@ -31,7 +32,7 @@ class Compiler {
     addedContainer.path = container.path;
     addedContainer.version = container.version;
 
-    this.addedContainers.set(addedContainer.path, addedContainer);
+    this.addedContainers[addedContainer.path] = addedContainer;
 
     this.addMessage(`The path "${addedContainer.path}" was added to the compiler.`, {});
 
@@ -116,12 +117,14 @@ class Compiler {
   containersToJSON (): void {
     const compiled: t.TypeOf<typeof json.Compiled> = { containers: [], };
 
-    this.addedContainers.forEach((addedContainer) => {
+    for (const addedContainerPath in this.addedContainers) {
+      const addedContainer = this.addedContainers[addedContainerPath];
+
       compiled.containers = [
         ...compiled.containers,
         addedContainer.toJSON(),
       ];
-    });
+    }
 
     helpers.write('./compiled.json', `${JSON.stringify(compiled, null, 2)}\n`);
 
