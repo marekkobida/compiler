@@ -12,7 +12,7 @@ class Compiler {
 
   messages: NonNullable<t.TypeOf<typeof ServerPaths>['/messages.json']> = [];
 
-  addContainer (container: t.TypeOf<typeof json.Compiler>['containers'][0]): Container {
+  addContainer (container: t.TypeOf<typeof json.CompilerContainer>): Container {
     if (this.addedContainers.has(container.path)) {
       throw new Error(`The path "${container.path}" exists in the compiler.`);
     }
@@ -40,11 +40,11 @@ class Compiler {
     return addedContainer;
   }
 
-  addMessage (message: unknown, style: Compiler['messages'][0]['style']): void {
+  addMessage (message: Compiler['messages'][0]['message'], style: Compiler['messages'][0]['style']): void {
     this.messages = [
       {
         date: +new Date(),
-        message: JSON.stringify(message, null, 2),
+        message,
         style,
       },
       ...this.messages,
@@ -107,7 +107,7 @@ class Compiler {
         try {
           this.afterCompilation(addedContainer);
         } catch (error) {
-          this.addMessage('#f00', error.stack);
+          this.addMessage([ error.message, error.stack, ], { backgroundColor: '#f00', color: '#fff', });
         }
       });
     }

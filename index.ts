@@ -85,7 +85,7 @@ const server = http.createServer(async (request, response) => {
 
     response.end(JSON.stringify(error.stack));
 
-    compiler.addMessage(error.stack, { backgroundColor: '#f00', color: '#fff', });
+    compiler.addMessage([ error.message, error.stack, ], { backgroundColor: '#f00', color: '#fff', });
   }
 });
 
