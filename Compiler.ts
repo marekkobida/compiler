@@ -4,15 +4,16 @@ import * as helpers from '@redred/helpers/server';
 import * as json from '@redred/compiler/private/types/json';
 import * as t from 'io-ts';
 import Container from '@redred/pages/private/Container';
+import ServerPaths from '../ServerPaths';
 import webpack from 'webpack';
 
 class Compiler {
-  containers: Map<string, Container> = new Map();
+  addedContainers: Map<string, Container> = new Map();
 
-  messages: { date: number; message: string; type: 'error' | 'information' | 'warning' }[] = [];
+  messages: NonNullable<t.TypeOf<typeof ServerPaths>['/messages.json']> = [];
 
   addContainer (container: t.TypeOf<typeof json.Compiler>['containers'][0]): Container {
-    if (this.containers.has(container.path)) {
+    if (this.addedContainers.has(container.path)) {
       throw new Error(`The path "${container.path}" exists in the compiler.`);
     }
 
@@ -30,83 +31,83 @@ class Compiler {
     addedContainer.path = container.path;
     addedContainer.version = container.version;
 
-    this.containers.set(addedContainer.path, addedContainer);
+    this.addedContainers.set(addedContainer.path, addedContainer);
 
-    this.addMessage(`The path "${container.path}" was added to the compiler.`);
+    this.addMessage(`The path "${addedContainer.path}" was added to the compiler.`, {});
 
     this.compile(addedContainer);
 
     return addedContainer;
   }
 
-  addMessage (message: unknown, type: 'error' | 'information' | 'warning' = 'information'): void {
+  addMessage (message: unknown, style: Compiler['messages'][0]['style']): void {
     this.messages = [
       {
         date: +new Date(),
         message: JSON.stringify(message, null, 2),
-        type,
+        style,
       },
       ...this.messages,
     ];
   }
 
-  afterCompilation (container: Container): void {
-    if (container.path) {
-      this.addMessage(`The path "${container.path}" was compiled.`);
+  afterCompilation (addedContainer: Container): void {
+    if (addedContainer.path) {
+      this.addMessage(`The path "${addedContainer.path}" was compiled.`, {});
 
       let isCompiled = true;
 
-      for (const input in container.inputs) {
-        if (container.inputs[input] === '') {
+      for (const input in addedContainer.inputs) {
+        if (addedContainer.inputs[input] === '') {
           isCompiled = false;
         }
       }
 
       if (isCompiled) {
-        const $ = path.resolve(container.path, './public/server.js');
+        const $ = path.resolve(addedContainer.path, './public/server.js');
 
         delete __non_webpack_require__.cache[__non_webpack_require__.resolve($)];
 
         const $$: Container = __non_webpack_require__($).default;
 
-        container.pages = $$.pages;
+        addedContainer.pages = $$.pages;
 
-        container.pages.forEach((page) => {
-          page.context = { ...page.context, container, };
+        addedContainer.pages.forEach((page) => {
+          page.context = { ...page.context, container: addedContainer, };
 
           page.toHTML();
 
           if (typeof page.html === 'string') {
-            helpers.write(`${container.path}/public/${page.name}.html`, page.html);
+            helpers.write(`${addedContainer.path}/public/${page.name}.html`, page.html);
           }
 
           delete page.context.container;
 
-          this.addMessage(`The file "${container.path}/public/${page.name}.html" was created.`);
+          this.addMessage(`The file "${addedContainer.path}/public/${page.name}.html" was created.`, {});
         });
 
         this.containersToJSON();
 
-        for (const input in container.inputs) {
-          container.inputs[input] = '';
+        for (const input in addedContainer.inputs) {
+          addedContainer.inputs[input] = '';
         }
       }
     }
   }
 
-  compile (container: Container): void {
-    for (const input in container.inputs) {
+  compile (addedContainer: Container): void {
+    for (const input in addedContainer.inputs) {
       delete __non_webpack_require__.cache[__non_webpack_require__.resolve(input)];
 
       const $ = __non_webpack_require__(input);
 
-      webpack($(container)).watch({}, (left: Error, right: { toJson: () => unknown }) => {
-        container.inputs[input] = right.toJson();
+      webpack($(addedContainer)).watch({}, (left: Error, right: { toJson: () => unknown }) => {
+        addedContainer.inputs[input] = right.toJson();
 
         try {
-          this.afterCompilation(container);
+          this.afterCompilation(addedContainer);
         } catch (error) {
-          this.addMessage(error.stack, 'error');
+          this.addMessage('#f00', error.stack);
         }
       });
     }
@@ -115,16 +116,16 @@ class Compiler {
   containersToJSON (): void {
     const compiled: t.TypeOf<typeof json.Compiled> = { containers: [], };
 
-    this.containers.forEach((container) => {
+    this.addedContainers.forEach((addedContainer) => {
       compiled.containers = [
         ...compiled.containers,
-        container.toJSON(),
+        addedContainer.toJSON(),
       ];
     });
 
     helpers.write('./compiled.json', `${JSON.stringify(compiled, null, 2)}\n`);
 
-    this.addMessage('The file "./compiled.json" was created.');
+    this.addMessage('The file "./compiled.json" was created.', {});
   }
 }
 
