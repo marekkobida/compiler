@@ -1,21 +1,36 @@
 {
-  "application/javascript": [
-    ".js"
-  ],
-  "application/json; charset=utf-8": [
-    ".json",
-    ".map"
-  ],
-  "font/otf": [
-    ".otf"
-  ],
-  "image/png": [
-    ".png"
-  ],
-  "text/css; charset=utf-8": [
-    ".css"
-  ],
-  "text/html; charset=utf-8": [
-    ".html"
-  ]
+  "application/javascript": {
+    "extensions": [
+      ".js"
+    ]
+  },
+  "application/json": {
+    "charset": "utf-8",
+    "extensions": [
+      ".json",
+      ".map"
+    ]
+  },
+  "font/otf": {
+    "extensions": [
+      ".otf"
+    ]
+  },
+  "image/png": {
+    "extensions": [
+      ".png"
+    ]
+  },
+  "text/css": {
+    "charset": "utf-8",
+    "extensions": [
+      ".css"
+    ]
+  },
+  "text/html": {
+    "charset": "utf-8",
+    "extensions": [
+      ".html"
+    ]
+  }
 }

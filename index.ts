@@ -60,13 +60,6 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    if (url.pathname === '/favicon.ico') {
-      response.setHeader('Content-Type', 'image/x-icon');
-      response.end();
-
-      return;
-    }
-
     if (url.pathname === '/messages.json') {
       response.end(JSON.stringify(compiler.messages));
 
@@ -83,7 +76,7 @@ const server = http.createServer(async (request, response) => {
 
     response.statusCode = 500;
 
-    response.end(JSON.stringify(error.stack));
+    response.end(error.stack);
 
     compiler.addMessage([ error.message, error.stack, ], { backgroundColor: '#f00', color: '#fff', });
   }
