@@ -1,8 +1,8 @@
 import path from 'path';
 
 import * as helpers from '@redred/helpers/server';
-import * as json from '@redred/compiler/private/types/json';
 import * as t from 'io-ts';
+import * as types from '@redred/compiler/private/types';
 import Container from '@redred/pages/private/Container';
 import ServerPaths from '../ServerPaths';
 
@@ -13,10 +13,8 @@ class Compiler {
 
   messages: NonNullable<t.TypeOf<typeof ServerPaths>['/messages.json']> = [];
 
-  addContainer (container: t.TypeOf<typeof json.CompilerContainer>): Container {
+  addContainer (container: t.TypeOf<typeof types.json.CompilerContainer>): Container {
     if (this.containers[container.path]) {
-      // throw new Error(`The path "${container.path}" exists in the compiler.`);
-
       const addedContainer = this.containers[container.path];
 
       if (addedContainer.w.closed) {
@@ -128,7 +126,7 @@ class Compiler {
   }
 
   containersToJSON (): void {
-    const compiled: t.TypeOf<typeof json.Compiled> = { containers: [], };
+    const compiled: t.TypeOf<typeof types.json.Compiled> = { containers: [], };
 
     for (const path in this.containers) {
       const container = this.containers[path];

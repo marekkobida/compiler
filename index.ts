@@ -2,7 +2,7 @@ import http from 'http';
 import path from 'path';
 
 import * as helpers from '@redred/helpers/server';
-import * as json from '@redred/compiler/private/types/json';
+import * as types from '@redred/compiler/private/types';
 
 import Compiler from './Compiler';
 import mime from './mime';
@@ -22,7 +22,7 @@ const server = http.createServer(async (request, response) => {
   try {
     if (url.pathname === '/compile') {
       if (url.searchParams.has('path')) {
-        const compilerJSON = await helpers.validateInputFromPath(json.Compiler, './compiler.json');
+        const compilerJSON = await helpers.validateInputFromPath(types.json.Compiler, './compiler.json');
 
         for (let i = 0; i < compilerJSON.containers.length; i += 1) {
           const container = compilerJSON.containers[i];
@@ -45,7 +45,7 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (url.pathname === '/compiled.json') {
-      const compiledJSON = await helpers.validateInputFromPath(json.Compiled, './compiled.json');
+      const compiledJSON = await helpers.validateInputFromPath(types.json.Compiled, './compiled.json');
 
       response.end(JSON.stringify(compiledJSON));
 
@@ -53,7 +53,7 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (url.pathname === '/compiler.json') {
-      const compilerJSON = await helpers.validateInputFromPath(json.Compiler, './compiler.json');
+      const compilerJSON = await helpers.validateInputFromPath(types.json.Compiler, './compiler.json');
 
       response.end(JSON.stringify(compilerJSON));
 
@@ -66,7 +66,13 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    response.setHeader('Content-Type', mime(path.extname(url.pathname)));
+    const m = mime(path.extname(url.pathname));
+
+    if (m.charset) {
+      m.type += `; charset=${m.charset}`;
+    }
+
+    response.setHeader('Content-Type', m.type);
 
     const data = await helpers.read(`.${url.pathname}`, 'base64');
 
