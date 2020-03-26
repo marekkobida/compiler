@@ -1,8 +1,10 @@
+interface Type {
+  charset?: string;
+  extensions: string[];
+}
+
 interface Types {
-  [ type: string ]: {
-    charset?: string;
-    extensions: string[];
-  };
+  [ typeName: string ]: Type;
 }
 
 const types: Types = {
@@ -47,18 +49,18 @@ const types: Types = {
   },
 };
 
-function mime (extension: string): Types[0] & { type: string } {
-  for (const type in types) {
-    const $ = types[type];
+function mime (extension: string): Type & { typeName: string } {
+  for (const typeName in types) {
+    const type = types[typeName];
 
-    for (let i = 0; i < $.extensions.length; i += 1) {
-      if (extension === $.extensions[i]) {
-        return { ...$, type, };
+    for (let i = 0; i < type.extensions.length; i += 1) {
+      if (extension === type.extensions[i]) {
+        return { ...type, typeName, };
       }
     }
   }
 
-  return { extensions: [], type: 'text/plain', };
+  return { extensions: [], typeName: 'text/plain', };
 }
 
 export default mime;
