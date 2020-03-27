@@ -1,11 +1,9 @@
-import http from 'http';
-import path from 'path';
-
 import * as helpers from '@redred/helpers/server';
-import * as types from '@redred/compiler/private/types';
-
+import * as types from '../types';
 import Compiler from './Compiler';
+import http from 'http';
 import mime from './mime';
+import path from 'path';
 
 const compiler = new Compiler();
 
@@ -69,10 +67,10 @@ const server = http.createServer(async (request, response) => {
     const m = mime(path.extname(url.pathname));
 
     if (m.charset) {
-      m.type += `; charset=${m.charset}`;
+      m.typeName += `; charset=${m.charset}`;
     }
 
-    response.setHeader('Content-Type', m.type);
+    response.setHeader('Content-Type', m.typeName);
 
     const data = await helpers.read(`.${url.pathname}`, 'base64');
 

@@ -1,10 +1,9 @@
-import path from 'path';
-
 import * as helpers from '@redred/helpers/server';
 import * as t from 'io-ts';
-import * as types from '@redred/compiler/private/types';
+import * as types from '../types';
 import Container from '@redred/pages/private/Container';
 import ServerPaths from '../ServerPaths';
+import path from 'path';
 
 const webpack = __non_webpack_require__('webpack');
 
@@ -15,17 +14,6 @@ class Compiler {
 
   addContainer (container: t.TypeOf<typeof types.json.CompilerContainer>): Container {
     if (this.containers[container.path]) {
-      const addedContainer = this.containers[container.path];
-
-      if (addedContainer.w.closed) {
-        addedContainer.w.resume();
-        this.addMessage(`The path "${addedContainer.path}" was added to the compiler.`, {});
-      } else {
-        addedContainer.w.close(() => {
-          this.addMessage(`The path "${addedContainer.path}" was deleted from the compiler.`, {});
-        });
-      }
-
       return this.containers[container.path];
     }
 
