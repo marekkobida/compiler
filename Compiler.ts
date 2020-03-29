@@ -1,16 +1,20 @@
+import path from 'path';
+
 import * as helpers from '@redred/helpers/server';
 import * as t from 'io-ts';
 import * as types from '../types';
 import Container from '@redred/pages/private/Container';
-import ServerPaths from '../ServerPaths';
-import path from 'path';
 
 const webpack = __non_webpack_require__('webpack');
 
 class Compiler {
   containers: { [ path: string ]: Container } = {};
 
-  messages: NonNullable<t.TypeOf<typeof ServerPaths>['/messages.json']> = [];
+  messages: t.TypeOf<typeof types.json.Messages> = [];
+
+  constructor () {
+    this.toCompiledJSON();
+  }
 
   addContainer (container: t.TypeOf<typeof types.json.CompilerContainer>): Container {
     if (this.containers[container.path]) {
@@ -33,27 +37,26 @@ class Compiler {
 
     this.containers[addedContainer.path] = addedContainer;
 
-    this.addMessage(`The path "${addedContainer.path}" was added to the compiler.`, {});
-
     this.compile(addedContainer);
 
     return addedContainer;
   }
 
-  addMessage (message: Compiler['messages'][0]['message'], style: Compiler['messages'][0]['style']): void {
+  addMessage (message: Compiler['messages'][0]['message']): void {
     this.messages = [
       {
         date: +new Date(),
         message,
-        style,
       },
       ...this.messages,
     ];
+
+    helpers.write('./messages.json', `${JSON.stringify(this.messages)}\n`);
   }
 
   afterCompilation (container: Container): void {
     if (container.path) {
-      this.addMessage(`The path "${container.path}" was compiled.`, {});
+      this.addMessage(`The path "${container.path}" was compiled.`);
 
       let isCompiled = true;
 
@@ -83,10 +86,10 @@ class Compiler {
 
           delete page.context.container;
 
-          this.addMessage(`The file "${container.path}/public/${page.name}.html" was created.`, {});
+          this.addMessage(`The file "${container.path}/public/${page.name}.html" was created.`);
         });
 
-        this.containersToJSON();
+        this.toCompiledJSON();
 
         for (const input in container.inputs) {
           container.inputs[input] = '';
@@ -107,13 +110,13 @@ class Compiler {
         try {
           this.afterCompilation(container);
         } catch (error) {
-          this.addMessage([ error.message, error.stack, ], { backgroundColor: '#f00', color: '#fff', });
+          this.addMessage([ error.message, error.stack, ]);
         }
       });
     }
   }
 
-  containersToJSON (): void {
+  toCompiledJSON (): void {
     const compiled: t.TypeOf<typeof types.json.Compiled> = { containers: [], };
 
     for (const path in this.containers) {
@@ -127,7 +130,7 @@ class Compiler {
 
     helpers.write('./compiled.json', `${JSON.stringify(compiled)}\n`);
 
-    this.addMessage('The file "./compiled.json" was created.', {});
+    this.addMessage('The file "./compiled.json" was created.');
   }
 }
 
