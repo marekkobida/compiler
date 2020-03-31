@@ -19,11 +19,11 @@ const server = http.createServer(async (request, response) => {
     const requestedURL = new URL(`file://${request.url}`);
 
     /**
-     * /compile
-     * /compile?path=./packages/compiler
-     * /compile?path=./packages/compiler&version=development
+     * /add-container
+     * /add-container?path=./packages/compiler
+     * /add-container?path=./packages/compiler&version=development
      */
-    if (requestedURL.pathname === '/compile') {
+    if (requestedURL.pathname === '/add-container') {
       if (requestedURL.searchParams.has('path')) {
         const pathFromURL = requestedURL.searchParams.get('path');
 
@@ -82,12 +82,12 @@ const server = http.createServer(async (request, response) => {
     }
 
     /**
-     * /messages.json
+     * /messages
      */
-    if (requestedURL.pathname === '/messages.json') {
-      const messagesJSON = await helpers.validateInputFromPath(types.json.Messages, './messages.json');
+    if (requestedURL.pathname === '/messages') {
+      const messages = await helpers.validateInput(types.json.Messages, compiler.messages);
 
-      response.end(JSON.stringify(messagesJSON));
+      response.end(JSON.stringify(messages));
 
       return;
     }

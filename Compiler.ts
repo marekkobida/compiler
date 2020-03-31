@@ -8,17 +8,13 @@ import Container from '@redred/pages/private/Container';
 const webpack = __non_webpack_require__('webpack');
 
 class Compiler {
-  containers: { [ path: string ]: Container } = {};
+  addedContainers: { [ path: string ]: Container } = {};
 
   messages: t.TypeOf<typeof types.json.Messages> = [];
 
-  constructor () {
-    this.toCompiledJSON();
-  }
-
   addContainer (container: t.TypeOf<typeof types.json.CompilerContainer>): Container {
-    if (this.containers[container.path]) {
-      return this.containers[container.path];
+    if (this.addedContainers[container.path]) {
+      return this.addedContainers[container.path];
     }
 
     const addedContainer = new Container([]);
@@ -35,14 +31,14 @@ class Compiler {
     addedContainer.path = container.path;
     addedContainer.version = container.version;
 
-    this.containers[addedContainer.path] = addedContainer;
+    this.addedContainers[addedContainer.path] = addedContainer;
 
     this.compile(addedContainer);
 
     return addedContainer;
   }
 
-  addMessage (message: Compiler['messages'][0]['message']): void {
+  addMessage (message: t.TypeOf<typeof types.json.MessagesMessage>['message']): void {
     this.messages = [
       {
         date: +new Date(),
@@ -50,8 +46,6 @@ class Compiler {
       },
       ...this.messages,
     ];
-
-    helpers.write('./messages.json', `${JSON.stringify(this.messages)}\n`);
   }
 
   afterCompilation (container: Container): void {
@@ -119,8 +113,8 @@ class Compiler {
   toCompiledJSON (): void {
     const compiled: t.TypeOf<typeof types.json.Compiled> = { containers: [], };
 
-    for (const path in this.containers) {
-      const container = this.containers[path];
+    for (const path in this.addedContainers) {
+      const container = this.addedContainers[path];
 
       compiled.containers = [
         ...compiled.containers,
