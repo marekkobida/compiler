@@ -43,11 +43,11 @@ const server = http.createServer(async (request, response) => {
               }
             }
 
-            const addedContainerToCompiler = compiler.addContainer(containerFromCompilerJSON);
+            const addedContainerInCompiler = compiler.addContainer(containerFromCompilerJSON);
 
-            response.end(`The path "${addedContainerToCompiler.path}" was added to the compiler.`);
+            response.end(`The path "${addedContainerInCompiler.path}" was added to the compiler.`);
 
-            compiler.addMessage(`The path "${addedContainerToCompiler.path}" was added to the compiler.`);
+            compiler.addMessage(`The path "${addedContainerInCompiler.path}" was added to the compiler.`);
 
             return;
           }

@@ -98,7 +98,7 @@ class Compiler {
 
       const $ = __non_webpack_require__(input);
 
-      container.w = webpack($(container)).watch({}, (left: Error, right: { toJson: () => unknown }) => {
+      webpack($(container)).watch({}, (left: Error, right: { toJson: () => unknown }) => {
         container.inputs[input] = right.toJson();
 
         try {
