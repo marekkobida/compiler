@@ -7,17 +7,37 @@ import Container from '@redred/pages/private/Container';
 
 const webpack = __non_webpack_require__('webpack');
 
+type CompilerInputFileContainer = t.TypeOf<typeof types.CompilerInputFileContainer>;
+
+type CompilerMessage = t.TypeOf<typeof types.CompilerMessage>;
+
+type CompilerMessages = t.TypeOf<typeof types.CompilerMessages>;
+
+type CompilerOutputFile = t.TypeOf<typeof types.CompilerOutputFile>;
+
 class Compiler {
   addedContainers: { [ path: string ]: Container } = {};
 
-  messages: t.TypeOf<typeof types.json.Messages> = [];
+  addedMessages: CompilerMessages = [];
 
-  addContainer (container: t.TypeOf<typeof types.json.CompilerContainer>): Container {
-    if (this.addedContainers[container.path]) {
-      return this.addedContainers[container.path];
+  inputFile = 'compiler.json';
+
+  outputFile = 'compiled.json';
+
+  constructor () {
+    this.toJSON();
+  }
+
+  addContainer (container: CompilerInputFileContainer): Container {
+    let addedContainer = this.addedContainers[container.path];
+
+    if (addedContainer) {
+      this.addMessage(`The path "${addedContainer.path}" exists in the compiler.`);
+
+      return addedContainer;
     }
 
-    const addedContainer = new Container([]);
+    addedContainer = new Container([]);
 
     addedContainer.id = container.id;
 
@@ -35,16 +55,18 @@ class Compiler {
 
     this.compile(addedContainer);
 
+    this.addMessage(`The path "${addedContainer.path}" was added to the compiler.`);
+
     return addedContainer;
   }
 
-  addMessage (message: t.TypeOf<typeof types.json.MessagesMessage>['message']): void {
-    this.messages = [
+  addMessage (message: CompilerMessage['message']): void {
+    this.addedMessages = [
       {
         date: +new Date(),
         message,
       },
-      ...this.messages,
+      ...this.addedMessages,
     ];
   }
 
@@ -61,7 +83,7 @@ class Compiler {
       }
 
       if (isCompiled) {
-        const $ = path.resolve(container.path, './public/server.js');
+        const $ = path.resolve(container.path, 'public/server.js');
 
         delete __non_webpack_require__.cache[__non_webpack_require__.resolve($)];
 
@@ -83,7 +105,7 @@ class Compiler {
           this.addMessage(`The file "${container.path}/public/${page.name}.html" was created.`);
         });
 
-        this.toCompiledJSON();
+        this.toJSON();
 
         for (const input in container.inputs) {
           container.inputs[input] = '';
@@ -110,21 +132,21 @@ class Compiler {
     }
   }
 
-  toCompiledJSON (): void {
-    const compiled: t.TypeOf<typeof types.json.Compiled> = { containers: [], };
+  toJSON (): void {
+    const compiled: CompilerOutputFile = { containers: [], };
 
-    for (const path in this.addedContainers) {
-      const container = this.addedContainers[path];
+    for (const addedContainerPath in this.addedContainers) {
+      const addedContainer = this.addedContainers[addedContainerPath];
 
       compiled.containers = [
         ...compiled.containers,
-        container.toJSON(),
+        addedContainer.toJSON(),
       ];
     }
 
-    helpers.write('./compiled.json', `${JSON.stringify(compiled)}\n`);
+    helpers.write(this.outputFile, `${JSON.stringify(compiled)}\n`);
 
-    this.addMessage('The file "./compiled.json" was created.');
+    this.addMessage(`The file "${this.outputFile}" was created.`);
   }
 }
 

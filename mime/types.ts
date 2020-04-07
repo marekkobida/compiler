@@ -30,11 +30,6 @@ const types: Types = {
       '.png',
     ],
   },
-  'image/x-icon': {
-    extensions: [
-      '.ico',
-    ],
-  },
   'text/css': {
     charset: 'utf-8',
     extensions: [

@@ -11,94 +11,82 @@ const compiler = new Compiler();
 const server = http.createServer(async (request, response) => {
   response.setHeader('Access-Control-Allow-Origin', '*');
 
+  const requestedURL = new URL(`file://${request.url}`);
+
   try {
     response.setHeader('Content-Type', 'application/json; charset=utf-8');
 
     response.statusCode = 200;
 
-    const requestedURL = new URL(`file://${request.url}`);
-
-    /**
-     * /add-container
-     * /add-container?path=./packages/compiler
-     * /add-container?path=./packages/compiler&version=development
-     */
     if (requestedURL.pathname === '/add-container') {
       if (requestedURL.searchParams.has('path')) {
         const pathFromURL = requestedURL.searchParams.get('path');
 
-        const compilerJSON = await helpers.validateInputFromPath(types.json.Compiler, './compiler.json');
+        const compilerInputFile = await helpers.validateInputFromPath(types.CompilerInputFile, compiler.inputFile);
 
-        const containersFromCompilerJSON = compilerJSON.containers;
+        const compilerInputFileContainers = compilerInputFile.containers;
 
-        for (let i = 0; i < containersFromCompilerJSON.length; i += 1) {
-          const containerFromCompilerJSON = containersFromCompilerJSON[i];
+        for (let i = 0; i < compilerInputFileContainers.length; i += 1) {
+          const compilerInputFileContainer = compilerInputFileContainers[i];
 
-          if (pathFromURL === containerFromCompilerJSON.path) {
+          if (pathFromURL === compilerInputFileContainer.path) {
             if (requestedURL.searchParams.has('version')) {
-              const versionFromURL = requestedURL.searchParams.get('version');
+              const versionFromRequestedURL = requestedURL.searchParams.get('version');
 
-              if (versionFromURL === 'development' || versionFromURL === 'production') {
-                containerFromCompilerJSON.version = versionFromURL;
+              if (versionFromRequestedURL === 'development' || versionFromRequestedURL === 'production') {
+                compilerInputFileContainer.version = versionFromRequestedURL;
               }
             }
 
-            const addedContainerInCompiler = compiler.addContainer(containerFromCompilerJSON);
+            const addedContainerInCompiler = compiler.addContainer(compilerInputFileContainer);
 
             response.end(`The path "${addedContainerInCompiler.path}" was added to the compiler.`);
-
-            compiler.addMessage(`The path "${addedContainerInCompiler.path}" was added to the compiler.`);
 
             return;
           }
         }
 
-        throw new Error(`The path "${pathFromURL}" does not exist in the "./compiler.json".}`);
+        throw new Error(`The path "${pathFromURL}" does not exist.`);
       }
 
       throw new Error('The path does not exist.');
     }
 
-    /**
-     * /compiled.json
-     */
-    if (requestedURL.pathname === '/compiled.json') {
-      const compiledJSON = await helpers.validateInputFromPath(types.json.Compiled, './compiled.json');
+    if (requestedURL.pathname === `/${compiler.outputFile}`) {
+      const compilerOutputFile = await helpers.validateInputFromPath(types.CompilerOutputFile, compiler.outputFile);
 
-      response.end(JSON.stringify(compiledJSON));
+      response.end(JSON.stringify(compilerOutputFile));
 
       return;
     }
 
-    /**
-     * /compiler.json
-     */
-    if (requestedURL.pathname === '/compiler.json') {
-      const compilerJSON = await helpers.validateInputFromPath(types.json.Compiler, './compiler.json');
+    if (requestedURL.pathname === `/${compiler.inputFile}`) {
+      const compilerInputFile = await helpers.validateInputFromPath(types.CompilerInputFile, compiler.inputFile);
 
-      response.end(JSON.stringify(compilerJSON));
+      response.end(JSON.stringify(compilerInputFile));
 
       return;
     }
 
-    /**
-     * /messages
-     */
-    if (requestedURL.pathname === '/messages') {
-      const messages = await helpers.validateInput(types.json.Messages, compiler.messages);
+    if (requestedURL.pathname === '/added-messages') {
+      const compilerMessages = await helpers.validateInput(types.CompilerMessages, compiler.addedMessages);
 
-      response.end(JSON.stringify(messages));
+      response.end(JSON.stringify(compilerMessages));
+
+      return;
+    }
+
+    if (requestedURL.pathname === '/favicon.ico') {
+      response.setHeader('Content-Type', 'image/x-icon');
+
+      response.end();
 
       return;
     }
 
     const $ = mime(path.extname(requestedURL.pathname));
 
-    if ($.charset) {
-      $.typeName += `; charset=${$.charset}`;
-    }
-
-    response.setHeader('Content-Type', $.typeName);
+    response.setHeader('Content-Type', $.charset ? `${$.typeName}; charset=${$.charset}` : $.typeName);
 
     response.end(await helpers.read(`.${requestedURL.pathname}`, 'base64'), 'base64');
   } catch (error) {
@@ -108,7 +96,7 @@ const server = http.createServer(async (request, response) => {
 
     response.end(error.stack);
 
-    compiler.addMessage([ error.message, error.stack, ]);
+    compiler.addMessage([ error.message, `.${requestedURL.pathname}\n\n${error.stack}`, ]);
   }
 });
 
