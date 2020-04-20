@@ -30,7 +30,10 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (requestedURL.pathname === '/compiler/added-messages') {
-      const compilerMessages = await helpers.validateInput(types.CompilerMessages, compiler.addedMessages);
+      const compilerMessages = await helpers.validateInput(
+        types.CompilerMessages,
+        compiler.addedMessages
+      );
 
       response.end(JSON.stringify(compilerMessages));
 
@@ -67,15 +70,21 @@ const server = http.createServer(async (request, response) => {
 
     const $ = mime(path.extname(requestedURL.pathname));
 
-    response.setHeader('Content-Type', $.charset ? `${$.typeName}; charset=${$.charset}` : $.typeName);
+    response.setHeader(
+      'Content-Type',
+      $.charset ? `${$.typeName}; charset=${$.charset}` : $.typeName
+    );
 
-    response.end(await helpers.read(`.${requestedURL.pathname}`, 'base64'), 'base64');
+    response.end(
+      await helpers.read(`.${requestedURL.pathname}`, 'base64'),
+      'base64'
+    );
   } catch (error) {
     response.setHeader('Content-Type', 'text/plain; charset=utf-8');
 
     response.end();
 
-    compiler.addMessage({ message: [ error.message, error.stack, ], });
+    compiler.addMessage({message: [error.message, error.stack]});
   }
 });
 

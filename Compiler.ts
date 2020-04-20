@@ -13,7 +13,7 @@ type CompilerMessages = t.TypeOf<typeof types.CompilerMessages>;
 type CompilerOutputFile = t.TypeOf<typeof types.CompilerOutputFile>;
 
 class Compiler {
-  addedContainers: { [ path: string ]: Container } = {};
+  addedContainers: { [path: string]: Container } = {};
 
   addedMessages: CompilerMessages = [];
 
@@ -21,13 +21,18 @@ class Compiler {
 
   outputFileName = 'compiled.json';
 
-  constructor () {
+  constructor() {
     this.toJSON();
   }
 
-  async compile (pathFromURL: CompilerInputFileContainer['path'], versionFromURL: string) {
+  async compile(
+    pathFromURL: CompilerInputFileContainer['path'],
+    versionFromURL: string
+  ) {
     if (this.addedContainers[pathFromURL]) {
-      this.addMessage({ message: `The path "${pathFromURL}" exists in the compiler.`, });
+      this.addMessage({
+        message: `The path "${pathFromURL}" exists in the compiler.`,
+      });
 
       return;
     }
@@ -43,20 +48,32 @@ class Compiler {
         for (let i = 0; i < inputFileContainer.inputs.length; i += 1) {
           const input = inputFileContainer.inputs[i];
 
-          delete __non_webpack_require__.cache[__non_webpack_require__.resolve(input)];
+          delete __non_webpack_require__.cache[
+            __non_webpack_require__.resolve(input)
+            ];
 
           const $ = __non_webpack_require__(input);
 
-          webpack($(inputFileContainer, versionFromURL)).watch({}, (left: Error, right: { toJson: () => unknown }) => {
-            try {
-              this.afterCompilation(inputFileContainer, input, right.toJson(), versionFromURL);
-            } catch (error) {
-              this.addMessage({ message: [ error.message, error.stack, ], });
+          webpack($(inputFileContainer, versionFromURL)).watch(
+            {},
+            (left: Error, right: { toJson: () => unknown }) => {
+              try {
+                this.afterCompilation(
+                  inputFileContainer,
+                  input,
+                  right.toJson(),
+                  versionFromURL
+                );
+              } catch (error) {
+                this.addMessage({message: [error.message, error.stack]});
+              }
             }
-          });
+          );
         }
 
-        this.addMessage({ message: `The path "${pathFromURL}" was added to the compiler in the ${versionFromURL} version.`, });
+        this.addMessage({
+          message: `The path "${pathFromURL}" was added to the compiler in the ${versionFromURL} version.`,
+        });
 
         return;
       }
@@ -65,12 +82,22 @@ class Compiler {
     throw new Error(`The path "${pathFromURL}" does not exist.`);
   }
 
-  addMessage (message: CompilerMessage): void {
-    this.addedMessages = [{ date: message.date ? message.date : +new Date(), ...message, }, ...this.addedMessages, ];
+  addMessage(message: CompilerMessage): void {
+    this.addedMessages = [
+      {date: message.date ? message.date : +new Date(), ...message},
+      ...this.addedMessages,
+    ];
   }
 
-  afterCompilation (container: CompilerInputFileContainer, input: string, json: unknown, versionFromURL: string): void {
-    this.addMessage({ message: `The path "${container.path}" was compiled in the ${versionFromURL} version.`, });
+  afterCompilation(
+    container: CompilerInputFileContainer,
+    input: string,
+    json: unknown,
+    versionFromURL: string
+  ): void {
+    this.addMessage({
+      message: `The path "${container.path}" was compiled in the ${versionFromURL} version.`,
+    });
 
     const $ = p.resolve(container.path, 'public/server.js');
 
@@ -83,21 +110,28 @@ class Compiler {
     if (addedContainer) {
       addedContainer.inputs[input] = json;
 
-      if (Object.keys(addedContainer.inputs).length === container.inputs.length) {
+      if (
+        Object.keys(addedContainer.inputs).length === container.inputs.length
+      ) {
         console.log('builol som všetky inputy');
 
         addedContainer.pages.forEach((page) => {
-          page.context = { ...page.context, container: addedContainer, };
+          page.context = {...page.context, container: addedContainer};
 
           page.toHTML();
 
           if (typeof page.html === 'string') {
-            helpers.write(`${addedContainer.path}/public/${page.name}.html`, page.html);
+            helpers.write(
+              `${addedContainer.path}/public/${page.name}.html`,
+              page.html
+            );
           }
 
           delete page.context.container;
 
-          this.addMessage({ message: `The file "${addedContainer.path}/public/${page.name}.html" was created.`, });
+          this.addMessage({
+            message: `The file "${addedContainer.path}/public/${page.name}.html" was created.`,
+          });
         });
 
         this.toJSON();
@@ -119,29 +153,34 @@ class Compiler {
     this.addedContainers[container.path] = compiledContainer;
   }
 
-  inputFile () {
-    return helpers.validateInputFromPath(types.CompilerInputFile, this.inputFileName);
+  inputFile() {
+    return helpers.validateInputFromPath(
+      types.CompilerInputFile,
+      this.inputFileName
+    );
   }
 
-  outputFile () {
-    return helpers.validateInputFromPath(types.CompilerOutputFile, this.outputFileName);
+  outputFile() {
+    return helpers.validateInputFromPath(
+      types.CompilerOutputFile,
+      this.outputFileName
+    );
   }
 
-  toJSON (): void {
-    const compiled: CompilerOutputFile = { containers: [], };
+  toJSON(): void {
+    const compiled: CompilerOutputFile = {containers: []};
 
     for (const addedContainerPath in this.addedContainers) {
       const addedContainer = this.addedContainers[addedContainerPath];
 
-      compiled.containers = [
-        ...compiled.containers,
-        addedContainer.toJSON(),
-      ];
+      compiled.containers = [...compiled.containers, addedContainer.toJSON()];
     }
 
     helpers.write(this.outputFileName, `${JSON.stringify(compiled)}\n`);
 
-    this.addMessage({ message: `The file "${this.outputFileName}" was created.`, });
+    this.addMessage({
+      message: `The file "${this.outputFileName}" was created.`,
+    });
   }
 }
 
