@@ -10,70 +10,51 @@ const compiler = new Compiler();
 
 const server = http.createServer(async (request, response) => {
   response.setHeader('Access-Control-Allow-Origin', '*');
+  response.setHeader('Content-Type', 'application/json; charset=utf-8');
+
+  response.statusCode = 200;
 
   const requestedURL = new URL(`file://${request.url}`);
 
   try {
-    response.setHeader('Content-Type', 'application/json; charset=utf-8');
-
-    response.statusCode = 200;
-
-    if (requestedURL.pathname === '/add-container') {
-      if (requestedURL.searchParams.has('path')) {
-        const pathFromURL = requestedURL.searchParams.get('path');
-
-        const compilerInputFile = await helpers.validateInputFromPath(types.CompilerInputFile, compiler.inputFile);
-
-        const compilerInputFileContainers = compilerInputFile.containers;
-
-        for (let i = 0; i < compilerInputFileContainers.length; i += 1) {
-          const compilerInputFileContainer = compilerInputFileContainers[i];
-
-          if (pathFromURL === compilerInputFileContainer.path) {
-            if (requestedURL.searchParams.has('version')) {
-              const versionFromRequestedURL = requestedURL.searchParams.get('version');
-
-              if (versionFromRequestedURL === 'development' || versionFromRequestedURL === 'production') {
-                compilerInputFileContainer.version = versionFromRequestedURL;
-              }
-            }
-
-            const addedContainerInCompiler = compiler.addContainer(compilerInputFileContainer);
-
-            response.end(`The path "${addedContainerInCompiler.path}" was added to the compiler.`);
-
-            return;
-          }
-        }
-
-        throw new Error(`The path "${pathFromURL}" does not exist.`);
-      }
-
-      throw new Error('The path does not exist.');
-    }
-
-    if (requestedURL.pathname === `/${compiler.outputFile}`) {
-      const compilerOutputFile = await helpers.validateInputFromPath(types.CompilerOutputFile, compiler.outputFile);
-
-      response.end(JSON.stringify(compilerOutputFile));
+    if (requestedURL.pathname === `/${compiler.outputFileName}`) {
+      response.end(JSON.stringify(await compiler.outputFile()));
 
       return;
     }
 
-    if (requestedURL.pathname === `/${compiler.inputFile}`) {
-      const compilerInputFile = await helpers.validateInputFromPath(types.CompilerInputFile, compiler.inputFile);
-
-      response.end(JSON.stringify(compilerInputFile));
+    if (requestedURL.pathname === `/${compiler.inputFileName}`) {
+      response.end(JSON.stringify(await compiler.inputFile()));
 
       return;
     }
 
-    if (requestedURL.pathname === '/added-messages') {
+    if (requestedURL.pathname === '/compiler/added-messages') {
       const compilerMessages = await helpers.validateInput(types.CompilerMessages, compiler.addedMessages);
 
       response.end(JSON.stringify(compilerMessages));
 
       return;
+    }
+
+    if (requestedURL.pathname === '/compiler/compile') {
+      const pathFromURL = requestedURL.searchParams.get('path');
+
+      if (pathFromURL) {
+        const versionFromURL = requestedURL.searchParams.get('version');
+
+        if (versionFromURL) {
+          await compiler.compile(pathFromURL, versionFromURL);
+
+          response.end();
+
+          return;
+        }
+
+        throw new Error('The version does not exist.');
+      }
+
+      throw new Error('The path does not exist.');
     }
 
     if (requestedURL.pathname === '/favicon.ico') {
@@ -92,11 +73,9 @@ const server = http.createServer(async (request, response) => {
   } catch (error) {
     response.setHeader('Content-Type', 'text/plain; charset=utf-8');
 
-    response.statusCode = 500;
+    response.end();
 
-    response.end(error.stack);
-
-    compiler.addMessage([ error.message, `.${requestedURL.pathname}\n\n${error.stack}`, ]);
+    compiler.addMessage({ message: [ error.message, error.stack, ], });
   }
 });
 
