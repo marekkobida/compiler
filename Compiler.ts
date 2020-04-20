@@ -7,7 +7,9 @@ import Container from '@redred/pages/private/Container';
 
 const webpack = __non_webpack_require__('webpack');
 
-type CompilerInputFileContainer = t.TypeOf<typeof types.CompilerInputFileContainer>;
+type CompilerInputFileContainer = t.TypeOf<
+  typeof types.CompilerInputFileContainer
+>;
 type CompilerMessage = t.TypeOf<typeof types.CompilerMessage>;
 type CompilerMessages = t.TypeOf<typeof types.CompilerMessages>;
 type CompilerOutputFile = t.TypeOf<typeof types.CompilerOutputFile>;
@@ -50,7 +52,7 @@ class Compiler {
 
           delete __non_webpack_require__.cache[
             __non_webpack_require__.resolve(input)
-            ];
+          ];
 
           const $ = __non_webpack_require__(input);
 
@@ -65,7 +67,7 @@ class Compiler {
                   versionFromURL
                 );
               } catch (error) {
-                this.addMessage({message: [error.message, error.stack]});
+                this.addMessage({ message: [error.message, error.stack] });
               }
             }
           );
@@ -84,7 +86,7 @@ class Compiler {
 
   addMessage(message: CompilerMessage): void {
     this.addedMessages = [
-      {date: message.date ? message.date : +new Date(), ...message},
+      { date: message.date ? message.date : +new Date(), ...message },
       ...this.addedMessages,
     ];
   }
@@ -116,7 +118,7 @@ class Compiler {
         console.log('builol som všetky inputy');
 
         addedContainer.pages.forEach((page) => {
-          page.context = {...page.context, container: addedContainer};
+          page.context = { ...page.context, container: addedContainer };
 
           page.toHTML();
 
@@ -168,7 +170,7 @@ class Compiler {
   }
 
   toJSON(): void {
-    const compiled: CompilerOutputFile = {containers: []};
+    const compiled: CompilerOutputFile = { containers: [] };
 
     for (const addedContainerPath in this.addedContainers) {
       const addedContainer = this.addedContainers[addedContainerPath];
