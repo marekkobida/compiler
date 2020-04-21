@@ -24,13 +24,13 @@ const server = http.createServer(async (request, response) => {
 
   try {
     if (isCompilerInputFileRequested) {
-      response.end(JSON.stringify(await compiler.inputFile()));
+      response.end(JSON.stringify(await compiler.readInputFile()));
 
       return;
     }
 
     if (isCompilerOutputFileRequested) {
-      response.end(JSON.stringify(await compiler.outputFile()));
+      response.end(JSON.stringify(await compiler.readOutputFile()));
 
       return;
     }
@@ -84,7 +84,7 @@ const server = http.createServer(async (request, response) => {
     );
 
     response.end(
-      await helpers.read(`.${requestedURL.pathname}`, 'base64'),
+      await helpers.readFile(`.${requestedURL.pathname}`, 'base64'),
       'base64'
     );
   } catch (error) {

@@ -37,7 +37,7 @@ class Compiler {
       return;
     }
 
-    const inputFile = await this.inputFile();
+    const inputFile = await this.readInputFile();
 
     const inputFileContainers = inputFile.containers;
 
@@ -148,15 +148,15 @@ class Compiler {
     this.containers[container.path] = compiledContainer;
   }
 
-  inputFile() {
-    return helpers.validateInputFromPath(
+  readInputFile() {
+    return helpers.validateInputFromFile(
       types.CompilerInputFile,
       this.inputFileName
     );
   }
 
-  outputFile() {
-    return helpers.validateInputFromPath(
+  readOutputFile() {
+    return helpers.validateInputFromFile(
       types.CompilerOutputFile,
       this.outputFileName
     );
