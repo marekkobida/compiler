@@ -4,7 +4,6 @@ import path from 'path';
 import * as helpers from '@redred/helpers/server';
 import * as types from '../types';
 import Compiler from './Compiler';
-import mime from './mime';
 
 const compiler = new Compiler();
 
@@ -16,23 +15,30 @@ const server = http.createServer(async (request, response) => {
 
   const requestedURL = new URL(`file://${request.url}`);
 
+  const areCompilerMessagesRequested =
+    requestedURL.pathname === '/compiler/messages';
+  const isCompilerInputFileRequested =
+    requestedURL.pathname === `/${compiler.inputFileName}`;
+  const isCompilerOutputFileRequested =
+    requestedURL.pathname === `/${compiler.outputFileName}`;
+
   try {
-    if (requestedURL.pathname === `/${compiler.outputFileName}`) {
-      response.end(JSON.stringify(await compiler.outputFile()));
-
-      return;
-    }
-
-    if (requestedURL.pathname === `/${compiler.inputFileName}`) {
+    if (isCompilerInputFileRequested) {
       response.end(JSON.stringify(await compiler.inputFile()));
 
       return;
     }
 
-    if (requestedURL.pathname === '/compiler/added-messages') {
+    if (isCompilerOutputFileRequested) {
+      response.end(JSON.stringify(await compiler.outputFile()));
+
+      return;
+    }
+
+    if (areCompilerMessagesRequested) {
       const compilerMessages = await helpers.validateInput(
         types.CompilerMessages,
-        compiler.addedMessages
+        compiler.messages
       );
 
       response.end(JSON.stringify(compilerMessages));
@@ -41,23 +47,25 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (requestedURL.pathname === '/compiler/compile') {
-      const pathFromURL = requestedURL.searchParams.get('path');
+      const pathFromRequestedURL = requestedURL.searchParams.get('path');
 
-      if (pathFromURL) {
-        const versionFromURL = requestedURL.searchParams.get('version');
+      if (pathFromRequestedURL) {
+        const versionFromRequestedURL = requestedURL.searchParams.get(
+          'version'
+        );
 
-        if (versionFromURL) {
-          await compiler.compile(pathFromURL, versionFromURL);
+        if (versionFromRequestedURL) {
+          await compiler.compile(pathFromRequestedURL, versionFromRequestedURL);
 
           response.end();
 
           return;
         }
 
-        throw new Error('The version does not exist.');
+        throw new Error('The version does not exist in the requested URL.');
       }
 
-      throw new Error('The path does not exist.');
+      throw new Error('The path does not exist in the requested URL.');
     }
 
     if (requestedURL.pathname === '/favicon.ico') {
@@ -68,11 +76,11 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    const $ = mime(path.extname(requestedURL.pathname));
+    const mime = helpers.mime(path.extname(requestedURL.pathname));
 
     response.setHeader(
       'Content-Type',
-      $.charset ? `${$.typeName}; charset=${$.charset}` : $.typeName
+      mime.charset ? `${mime.typeName}; charset=${mime.charset}` : mime.typeName
     );
 
     response.end(
@@ -84,7 +92,7 @@ const server = http.createServer(async (request, response) => {
 
     response.end();
 
-    compiler.addMessage({message: [error.message, error.stack]});
+    compiler.addMessage([error.message, error.stack]);
   }
 });
 

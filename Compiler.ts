@@ -15,11 +15,11 @@ type CompilerMessages = t.TypeOf<typeof types.CompilerMessages>;
 type CompilerOutputFile = t.TypeOf<typeof types.CompilerOutputFile>;
 
 class Compiler {
-  addedContainers: { [path: string]: Container } = {};
-
-  addedMessages: CompilerMessages = [];
+  containers: { [path: string]: Container } = {};
 
   inputFileName = 'compiler.json';
+
+  messages: CompilerMessages = [];
 
   outputFileName = 'compiled.json';
 
@@ -31,10 +31,8 @@ class Compiler {
     pathFromURL: CompilerInputFileContainer['path'],
     versionFromURL: string
   ) {
-    if (this.addedContainers[pathFromURL]) {
-      this.addMessage({
-        message: `The path "${pathFromURL}" exists in the compiler.`,
-      });
+    if (this.containers[pathFromURL]) {
+      this.addMessage(`The path "${pathFromURL}" exists in the compiler.`);
 
       return;
     }
@@ -67,15 +65,15 @@ class Compiler {
                   versionFromURL
                 );
               } catch (error) {
-                this.addMessage({ message: [error.message, error.stack] });
+                this.addMessage([error.message, error.stack]);
               }
             }
           );
         }
 
-        this.addMessage({
-          message: `The path "${pathFromURL}" was added to the compiler in the ${versionFromURL} version.`,
-        });
+        this.addMessage(
+          `The path "${pathFromURL}" was added to the compiler in the ${versionFromURL} version.`
+        );
 
         return;
       }
@@ -84,11 +82,8 @@ class Compiler {
     throw new Error(`The path "${pathFromURL}" does not exist.`);
   }
 
-  addMessage(message: CompilerMessage): void {
-    this.addedMessages = [
-      { date: message.date ? message.date : +new Date(), ...message },
-      ...this.addedMessages,
-    ];
+  addMessage(message: CompilerMessage['message']): void {
+    this.messages = [{ date: +new Date(), message: text }, ...this.messages];
   }
 
   afterCompilation(
@@ -97,9 +92,9 @@ class Compiler {
     json: unknown,
     versionFromURL: string
   ): void {
-    this.addMessage({
-      message: `The path "${container.path}" was compiled in the ${versionFromURL} version.`,
-    });
+    this.addMessage(
+      `The path "${container.path}" was compiled in the ${versionFromURL} version.`
+    );
 
     const $ = p.resolve(container.path, 'public/server.js');
 
@@ -107,7 +102,7 @@ class Compiler {
 
     const compiledContainer: Container = __non_webpack_require__($).default;
 
-    const addedContainer = this.addedContainers[container.path];
+    const addedContainer = this.containers[container.path];
 
     if (addedContainer) {
       addedContainer.inputs[input] = json;
@@ -115,15 +110,13 @@ class Compiler {
       if (
         Object.keys(addedContainer.inputs).length === container.inputs.length
       ) {
-        console.log('builol som všetky inputy');
-
         addedContainer.pages.forEach((page) => {
           page.context = { ...page.context, container: addedContainer };
 
           page.toHTML();
 
           if (typeof page.html === 'string') {
-            helpers.write(
+            helpers.writeFile(
               `${addedContainer.path}/public/${page.name}.html`,
               page.html
             );
@@ -131,18 +124,18 @@ class Compiler {
 
           delete page.context.container;
 
-          this.addMessage({
-            message: `The file "${addedContainer.path}/public/${page.name}.html" was created.`,
-          });
+          this.addMessage(
+            `The file "${addedContainer.path}/public/${page.name}.html" was created.`
+          );
         });
 
         this.toJSON();
 
-        console.log(this.addedContainers);
+        console.log(this.containers);
 
         addedContainer.inputs = {};
 
-        console.log(this.addedContainers);
+        console.log(this.containers);
       }
 
       return;
@@ -152,7 +145,7 @@ class Compiler {
     compiledContainer.path = container.path;
     compiledContainer.version = versionFromURL;
 
-    this.addedContainers[container.path] = compiledContainer;
+    this.containers[container.path] = compiledContainer;
   }
 
   inputFile() {
@@ -170,19 +163,17 @@ class Compiler {
   }
 
   toJSON(): void {
-    const compiled: CompilerOutputFile = { containers: [] };
+    const outputFile: CompilerOutputFile = { containers: [] };
 
-    for (const addedContainerPath in this.addedContainers) {
-      const addedContainer = this.addedContainers[addedContainerPath];
+    for (const containerPath in this.containers) {
+      const container = this.containers[containerPath];
 
-      compiled.containers = [...compiled.containers, addedContainer.toJSON()];
+      outputFile.containers = [...outputFile.containers, container.toJSON()];
     }
 
-    helpers.write(this.outputFileName, `${JSON.stringify(compiled)}\n`);
+    helpers.writeFile(this.outputFileName, `${JSON.stringify(outputFile)}\n`);
 
-    this.addMessage({
-      message: `The file "${this.outputFileName}" was created.`,
-    });
+    this.addMessage(`The file "${this.outputFileName}" was written.`);
   }
 }
 
