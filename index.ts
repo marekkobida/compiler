@@ -63,14 +63,6 @@ const server = http.createServer(async (request, response) => {
       );
     }
 
-    if (requestedURL.pathname === '/favicon.ico') {
-      response.setHeader('Content-Type', 'image/x-icon');
-
-      response.end();
-
-      return;
-    }
-
     const mime = helpers.mime(path.extname(requestedURL.pathname));
 
     response.setHeader(
