@@ -84,6 +84,8 @@ class Compiler {
 
   addMessage(text: CompilerMessage['text']): void {
     this.messages = [{ date: +new Date(), text }, ...this.messages];
+
+    console.log(text);
   }
 
   afterCompilation(
