@@ -23,6 +23,17 @@ const server = http.createServer(async (request, response) => {
     requestedURL.pathname === `/${compiler.outputFileName}`;
 
   try {
+    if (areCompilerMessagesRequested) {
+      const compilerMessages = await helpers.validateInput(
+        types.CompilerMessages,
+        compiler.messages
+      );
+
+      response.end(JSON.stringify(compilerMessages));
+
+      return;
+    }
+
     if (isCompilerInputFileRequested) {
       response.end(JSON.stringify(await compiler.readInputFile()));
 
@@ -35,37 +46,21 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    if (areCompilerMessagesRequested) {
-      const compilerMessages = await helpers.validateInput(
-        types.CompilerMessages,
-        compiler.messages
-      );
-
-      response.end(JSON.stringify(compilerMessages));
-
-      return;
-    }
-
     if (requestedURL.pathname === '/compiler/compile') {
       const pathFromRequestedURL = requestedURL.searchParams.get('path');
+      const versionFromRequestedURL = requestedURL.searchParams.get('version');
 
-      if (pathFromRequestedURL) {
-        const versionFromRequestedURL = requestedURL.searchParams.get(
-          'version'
-        );
+      if (pathFromRequestedURL && versionFromRequestedURL) {
+        await compiler.compile(pathFromRequestedURL, versionFromRequestedURL);
 
-        if (versionFromRequestedURL) {
-          await compiler.compile(pathFromRequestedURL, versionFromRequestedURL);
+        response.end();
 
-          response.end();
-
-          return;
-        }
-
-        throw new Error('The version does not exist in the requested URL.');
+        return;
       }
 
-      throw new Error('The path does not exist in the requested URL.');
+      throw new Error(
+        'The path or the version does not exist in the requested URL.'
+      );
     }
 
     if (requestedURL.pathname === '/favicon.ico') {

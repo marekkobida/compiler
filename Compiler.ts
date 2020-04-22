@@ -82,8 +82,8 @@ class Compiler {
     throw new Error(`The path "${pathFromURL}" does not exist.`);
   }
 
-  addMessage(message: CompilerMessage['message']): void {
-    this.messages = [{ date: +new Date(), message: text }, ...this.messages];
+  addMessage(text: CompilerMessage['text']): void {
+    this.messages = [{ date: +new Date(), text }, ...this.messages];
   }
 
   afterCompilation(
@@ -131,11 +131,7 @@ class Compiler {
 
         this.toJSON();
 
-        console.log(this.containers);
-
         addedContainer.inputs = {};
-
-        console.log(this.containers);
       }
 
       return;
