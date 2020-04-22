@@ -15,26 +15,22 @@ type CompilerMessages = t.TypeOf<typeof types.CompilerMessages>;
 type CompilerOutputFile = t.TypeOf<typeof types.CompilerOutputFile>;
 
 class Compiler {
-  containers: { [path: string]: Container } = {};
+  containers: { [containerPath: string]: Container } = {};
 
-  inputFileName = 'compiler.json';
+  inputFileName: string = 'compiler.json';
 
   messages: CompilerMessages = [];
 
-  outputFileName = 'compiled.json';
-
-  constructor() {
-    this.toJSON();
-  }
+  outputFileName: string = 'compiled.json';
 
   async compile(
-    pathFromURL: CompilerInputFileContainer['path'],
-    versionFromURL: string
+    pathFromRequestedURL: CompilerInputFileContainer['path'],
+    versionFromRequestedURL: string
   ) {
-    if (this.containers[pathFromURL]) {
-      this.addMessage(`The path "${pathFromURL}" exists in the compiler.`);
-
-      return;
+    if (this.containers[pathFromRequestedURL]) {
+      throw new Error(
+        `The path from the requested URL "${pathFromRequestedURL}" exists in the compiler.`
+      );
     }
 
     const inputFile = await this.readInputFile();
@@ -44,48 +40,48 @@ class Compiler {
     for (let i = 0; i < inputFileContainers.length; i += 1) {
       const inputFileContainer = inputFileContainers[i];
 
-      if (inputFileContainer.path === pathFromURL) {
-        for (let i = 0; i < inputFileContainer.inputs.length; i += 1) {
-          const input = inputFileContainer.inputs[i];
+      if (pathFromRequestedURL === inputFileContainer.path) {
+        const inputFileContainerInputs = inputFileContainer.inputs;
+
+        for (let i = 0; i < inputFileContainerInputs.length; i += 1) {
+          const inputFileContainerInput = inputFileContainer.inputs[i];
 
           delete __non_webpack_require__.cache[
-            __non_webpack_require__.resolve(input)
+            __non_webpack_require__.resolve(inputFileContainerInput)
           ];
 
-          const $ = __non_webpack_require__(input);
-
-          webpack($(inputFileContainer, versionFromURL)).watch(
-            {},
-            (left: Error, right: { toJson: () => unknown }) => {
-              try {
-                this.afterCompilation(
-                  inputFileContainer,
-                  input,
-                  right.toJson(),
-                  versionFromURL
-                );
-              } catch (error) {
-                this.addMessage([error.message, error.stack]);
-              }
+          webpack(
+            __non_webpack_require__(inputFileContainerInput)(
+              inputFileContainer,
+              versionFromRequestedURL
+            )
+          ).watch({}, (left: Error, right: { toJson: () => unknown }) => {
+            try {
+              this.afterCompilation(
+                inputFileContainer,
+                inputFileContainerInput,
+                right.toJson(),
+                versionFromRequestedURL
+              );
+            } catch (error) {
+              this.addMessage([error.message, error.stack]);
             }
-          );
+          });
         }
 
         this.addMessage(
-          `The path "${pathFromURL}" was added to the compiler in the ${versionFromURL} version.`
+          `The path from the requested URL "${pathFromRequestedURL}" was added to the compiler in the ${versionFromRequestedURL} version.`
         );
 
         return;
       }
     }
 
-    throw new Error(`The path "${pathFromURL}" does not exist.`);
+    throw new Error(`The path "${pathFromRequestedURL}" does not exist.`);
   }
 
   addMessage(text: CompilerMessage['text']): void {
     this.messages = [{ date: +new Date(), text }, ...this.messages];
-
-    console.log(text);
   }
 
   afterCompilation(
@@ -146,21 +142,21 @@ class Compiler {
     this.containers[container.path] = compiledContainer;
   }
 
-  readInputFile() {
+  async readInputFile() {
     return helpers.validateInputFromFile(
       types.CompilerInputFile,
       this.inputFileName
     );
   }
 
-  readOutputFile() {
+  async readOutputFile() {
     return helpers.validateInputFromFile(
       types.CompilerOutputFile,
       this.outputFileName
     );
   }
 
-  toJSON(): void {
+  toJSON() {
     const outputFile: CompilerOutputFile = { containers: [] };
 
     for (const containerPath in this.containers) {

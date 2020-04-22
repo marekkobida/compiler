@@ -7,22 +7,24 @@ import Compiler from './Compiler';
 
 const compiler = new Compiler();
 
+compiler.toJSON();
+
 const server = http.createServer(async (request, response) => {
   response.setHeader('Access-Control-Allow-Origin', '*');
   response.setHeader('Content-Type', 'application/json; charset=utf-8');
 
-  response.statusCode = 200;
-
-  const requestedURL = new URL(`file://${request.url}`);
-
-  const areCompilerMessagesRequested =
-    requestedURL.pathname === '/compiler/messages';
-  const isCompilerInputFileRequested =
-    requestedURL.pathname === `/${compiler.inputFileName}`;
-  const isCompilerOutputFileRequested =
-    requestedURL.pathname === `/${compiler.outputFileName}`;
-
   try {
+    response.statusCode = 200;
+
+    const requestedURL = new URL(`file://${request.url}`);
+
+    const areCompilerMessagesRequested =
+      requestedURL.pathname === '/compiler/messages';
+    const isCompilerInputFileRequested =
+      requestedURL.pathname === `/${compiler.inputFileName}`;
+    const isCompilerOutputFileRequested =
+      requestedURL.pathname === `/${compiler.outputFileName}`;
+
     if (areCompilerMessagesRequested) {
       const compilerMessages = await helpers.validateInput(
         types.CompilerMessages,
@@ -47,11 +49,18 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (requestedURL.pathname === '/compiler/compile') {
-      const pathFromRequestedURL = requestedURL.searchParams.get('path');
-      const versionFromRequestedURL = requestedURL.searchParams.get('version');
+      const pathFromRequestedURLParameters = requestedURL.searchParams.get(
+        'path'
+      );
+      const versionFromRequestedURLParameters = requestedURL.searchParams.get(
+        'version'
+      );
 
-      if (pathFromRequestedURL && versionFromRequestedURL) {
-        await compiler.compile(pathFromRequestedURL, versionFromRequestedURL);
+      if (pathFromRequestedURLParameters && versionFromRequestedURLParameters) {
+        await compiler.compile(
+          pathFromRequestedURLParameters,
+          versionFromRequestedURLParameters
+        );
 
         response.end();
 
@@ -59,7 +68,7 @@ const server = http.createServer(async (request, response) => {
       }
 
       throw new Error(
-        'The path or the version does not exist in the requested URL.'
+        'The path or the version does not exist in the requested URL parameters.'
       );
     }
 
@@ -75,11 +84,9 @@ const server = http.createServer(async (request, response) => {
       'base64'
     );
   } catch (error) {
-    response.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    response.statusCode = 500;
 
-    response.end();
-
-    compiler.addMessage([error.message, error.stack]);
+    response.end(JSON.stringify({ errors: [[error.message, error.stack]] }));
   }
 });
 
