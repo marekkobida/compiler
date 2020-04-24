@@ -1,9 +1,8 @@
-import p from 'path';
-
 import * as helpers from '@redred/helpers/server';
 import * as t from 'io-ts';
 import * as types from '../types';
 import Container from '@redred/pages/private/Container';
+import p from 'path';
 
 const webpack = __non_webpack_require__('webpack');
 
@@ -15,7 +14,7 @@ type CompilerMessages = t.TypeOf<typeof types.CompilerMessages>;
 type CompilerOutputFile = t.TypeOf<typeof types.CompilerOutputFile>;
 
 class Compiler {
-  containers: { [containerPath: string]: Container } = {};
+  containers: { compiled: Container; path: string }[] = [];
 
   inputFileName: string = 'compiler.json';
 
@@ -23,14 +22,9 @@ class Compiler {
 
   outputFileName: string = 'compiled.json';
 
-  async compile(
-    pathFromRequestedURL: CompilerInputFileContainer['path'],
-    versionFromRequestedURL: string
-  ) {
-    if (this.containers[pathFromRequestedURL]) {
-      throw new Error(
-        `The path from the requested URL "${pathFromRequestedURL}" exists in the compiler.`
-      );
+  async compile(path: string, version: string) {
+    if (this.containerByPath(path)) {
+      throw new Error(`The path "${path}" exists in the compiler.`);
     }
 
     const inputFile = await this.readInputFile();
@@ -40,7 +34,7 @@ class Compiler {
     for (let i = 0; i < inputFileContainers.length; i += 1) {
       const inputFileContainer = inputFileContainers[i];
 
-      if (pathFromRequestedURL === inputFileContainer.path) {
+      if (path === inputFileContainer.path) {
         const inputFileContainerInputs = inputFileContainer.inputs;
 
         for (let i = 0; i < inputFileContainerInputs.length; i += 1) {
@@ -53,7 +47,7 @@ class Compiler {
           webpack(
             __non_webpack_require__(inputFileContainerInput)(
               inputFileContainer,
-              versionFromRequestedURL
+              version
             )
           ).watch({}, (left: Error, right: { toJson: () => unknown }) => {
             try {
@@ -61,7 +55,7 @@ class Compiler {
                 inputFileContainer,
                 inputFileContainerInput,
                 right.toJson(),
-                versionFromRequestedURL
+                version
               );
             } catch (error) {
               this.addMessage([error.message, error.stack]);
@@ -70,14 +64,14 @@ class Compiler {
         }
 
         this.addMessage(
-          `The path from the requested URL "${pathFromRequestedURL}" was added to the compiler in the ${versionFromRequestedURL} version.`
+          `The path from the requested URL "${path}" was added to the compiler in the ${version} version.`
         );
 
         return;
       }
     }
 
-    throw new Error(`The path "${pathFromRequestedURL}" does not exist.`);
+    throw new Error(`The path "${path}" does not exist.`);
   }
 
   addMessage(text: CompilerMessage['text']): void {
@@ -100,16 +94,20 @@ class Compiler {
 
     const compiledContainer: Container = __non_webpack_require__($).default;
 
-    const addedContainer = this.containers[container.path];
+    const addedContainer = this.containerByPath(container.path);
 
     if (addedContainer) {
-      addedContainer.inputs[input] = json;
+      addedContainer.compiled.inputs[input] = json;
 
       if (
-        Object.keys(addedContainer.inputs).length === container.inputs.length
+        Object.keys(addedContainer.compiled.inputs).length ===
+        container.inputs.length
       ) {
-        addedContainer.pages.forEach((page) => {
-          page.context = { ...page.context, container: addedContainer };
+        addedContainer.compiled.pages.forEach((page) => {
+          page.context = {
+            ...page.context,
+            container: addedContainer.compiled,
+          };
 
           page.toHTML();
 
@@ -129,7 +127,7 @@ class Compiler {
 
         this.toJSON();
 
-        addedContainer.inputs = {};
+        addedContainer.compiled.inputs = {};
       }
 
       return;
@@ -139,7 +137,20 @@ class Compiler {
     compiledContainer.path = container.path;
     compiledContainer.version = versionFromURL;
 
-    this.containers[container.path] = compiledContainer;
+    this.containers = [
+      ...this.containers,
+      { compiled: compiledContainer, path: container.path },
+    ];
+  }
+
+  containerByPath(path: string) {
+    for (let i = 0; i < this.containers.length; i += 1) {
+      const container = this.containers[i];
+
+      if (container.path === path) return container;
+    }
+
+    return;
   }
 
   async readInputFile() {
@@ -159,10 +170,13 @@ class Compiler {
   toJSON() {
     const outputFile: CompilerOutputFile = { containers: [] };
 
-    for (const containerPath in this.containers) {
-      const container = this.containers[containerPath];
+    for (let i = 0; i < this.containers.length; i += 1) {
+      const container = this.containers[i];
 
-      outputFile.containers = [...outputFile.containers, container.toJSON()];
+      outputFile.containers = [
+        ...outputFile.containers,
+        container.compiled.toJSON(),
+      ];
     }
 
     helpers.writeFile(this.outputFileName, `${JSON.stringify(outputFile)}\n`);
