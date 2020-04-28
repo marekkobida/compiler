@@ -1,10 +1,8 @@
+import * as compiler from './compiler';
 import * as helpers from '@redred/helpers/server';
 import * as types from '../types';
-import Compiler from './Compiler';
 import http from 'http';
 import path from 'path';
-
-const compiler = new Compiler();
 
 compiler.toJSON();
 
