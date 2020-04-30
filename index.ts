@@ -1,10 +1,11 @@
-import * as compiler from './compiler';
 import * as helpers from '@redred/helpers/server';
 import * as types from '../types';
+import compile from './compiler/compile';
 import http from 'http';
 import path from 'path';
-
-compiler.toJSON();
+import readInputFile, { INPUT_FILE_NAME } from './compiler/readInputFile';
+import readOutputFile, { OUTPUT_FILE_NAME } from './compiler/readOutputFile';
+import { messages } from './compiler/addMessage';
 
 const server = http.createServer(async (request, response) => {
   response.setHeader('Access-Control-Allow-Origin', '*');
@@ -18,14 +19,14 @@ const server = http.createServer(async (request, response) => {
     const areCompilerMessagesRequested =
       requestedURL.pathname === '/compiler/messages';
     const isCompilerInputFileRequested =
-      requestedURL.pathname === `/${compiler.inputFileName}`;
+      requestedURL.pathname === `/${INPUT_FILE_NAME}`;
     const isCompilerOutputFileRequested =
-      requestedURL.pathname === `/${compiler.outputFileName}`;
+      requestedURL.pathname === `/${OUTPUT_FILE_NAME}`;
 
     if (areCompilerMessagesRequested) {
       const compilerMessages = await helpers.validateInput(
         types.CompilerMessages,
-        compiler.messages
+        messages
       );
 
       response.end(JSON.stringify(compilerMessages));
@@ -34,13 +35,13 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (isCompilerInputFileRequested) {
-      response.end(JSON.stringify(await compiler.readInputFile()));
+      response.end(JSON.stringify(await readInputFile()));
 
       return;
     }
 
     if (isCompilerOutputFileRequested) {
-      response.end(JSON.stringify(await compiler.readOutputFile()));
+      response.end(JSON.stringify(await readOutputFile()));
 
       return;
     }
@@ -54,7 +55,7 @@ const server = http.createServer(async (request, response) => {
       );
 
       if (pathFromRequestedURLParameters && versionFromRequestedURLParameters) {
-        await compiler.compile(
+        await compile(
           pathFromRequestedURLParameters,
           versionFromRequestedURLParameters
         );
@@ -63,10 +64,6 @@ const server = http.createServer(async (request, response) => {
 
         return;
       }
-
-      throw new Error(
-        'The path or the version does not exist in the requested URL parameters.'
-      );
     }
 
     const mime = helpers.mime(path.extname(requestedURL.pathname));
