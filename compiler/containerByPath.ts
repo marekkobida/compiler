@@ -1,11 +1,13 @@
-import { containers } from './compile';
+import { outputFile } from './compile';
 
 function containerByPath(path: string) {
-  for (let i = 0; i < containers.length; i += 1) {
-    const container = containers[i];
+  const outputFileContainers = outputFile.containers;
 
-    if (container.path === path) {
-      return container;
+  for (let i = 0; i < outputFileContainers.length; i += 1) {
+    const outputFileContainer = outputFileContainers[i];
+
+    if (outputFileContainer.path === path) {
+      return outputFileContainer;
     }
   }
 }
