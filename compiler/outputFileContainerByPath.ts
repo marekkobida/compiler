@@ -1,6 +1,12 @@
+import * as t from 'io-ts';
+import * as types from '../../types';
 import { outputFile } from './compile';
 
-function containerByPath(path: string) {
+type CompilerOutputFileContainer = t.TypeOf<
+  typeof types.CompilerOutputFileContainer
+>;
+
+function outputFileContainerByPath(path: CompilerOutputFileContainer['path']) {
   const outputFileContainers = outputFile.containers;
 
   for (let i = 0; i < outputFileContainers.length; i += 1) {
@@ -12,4 +18,4 @@ function containerByPath(path: string) {
   }
 }
 
-export default containerByPath;
+export default outputFileContainerByPath;

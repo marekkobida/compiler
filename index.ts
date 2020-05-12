@@ -1,11 +1,13 @@
 import * as helpers from '@redred/helpers/server';
 import * as types from '../types';
+import addMessage, { messages } from './compiler/addMessage';
 import compile from './compiler/compile';
 import http from 'http';
 import path from 'path';
 import readInputFile, { INPUT_FILE_NAME } from './compiler/readInputFile';
 import readOutputFile, { OUTPUT_FILE_NAME } from './compiler/readOutputFile';
-import { messages } from './compiler/addMessage';
+
+compile('./packages/compiler', 'development'); // ?!
 
 const server = http.createServer(async (request, response) => {
   response.setHeader('Access-Control-Allow-Origin', '*');
@@ -81,6 +83,8 @@ const server = http.createServer(async (request, response) => {
     response.statusCode = 500;
 
     response.end(JSON.stringify({ errors: [[error.message, error.stack]] }));
+
+    addMessage([error.message, error.stack]);
   }
 });
 

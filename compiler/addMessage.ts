@@ -9,6 +9,10 @@ let messages: CompilerMessages = [];
 
 function addMessage(text: CompilerMessage['text']) {
   messages = [{ date: +new Date(), text }, ...messages];
+
+  console.log(text);
+
+  return messages;
 }
 
 export { CompilerMessage, CompilerMessages, messages };

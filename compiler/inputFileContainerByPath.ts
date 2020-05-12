@@ -1,6 +1,14 @@
+import * as t from 'io-ts';
+import * as types from '../../types';
 import readInputFile from './readInputFile';
 
-async function inputFileContainerByPath(path: string) {
+type CompilerInputFileContainer = t.TypeOf<
+  typeof types.CompilerInputFileContainer
+>;
+
+async function inputFileContainerByPath(
+  path: CompilerInputFileContainer['path']
+) {
   const inputFile = await readInputFile();
 
   const inputFileContainers = inputFile.containers;
