@@ -1,11 +1,14 @@
 import * as helpers from '@redred/helpers/server';
 import * as types from '../types';
+import InputFile from './compiler/InputFile';
+import OutputFile from './compiler/OutputFile';
 import addMessage, { messages } from './compiler/addMessage';
 import compile from './compiler/compile';
 import http from 'http';
 import path from 'path';
-import readInputFile, { INPUT_FILE_NAME } from './compiler/readInputFile';
-import readOutputFile, { OUTPUT_FILE_NAME } from './compiler/readOutputFile';
+
+const inputFile = new InputFile();
+const outputFile = new OutputFile();
 
 compile('./packages/compiler', 'development'); // ?!
 
@@ -20,10 +23,11 @@ const server = http.createServer(async (request, response) => {
 
     const areCompilerMessagesRequested =
       requestedURL.pathname === '/compiler/messages';
-    const isCompilerInputFileRequested =
-      requestedURL.pathname === `/${INPUT_FILE_NAME}`;
-    const isCompilerOutputFileRequested =
-      requestedURL.pathname === `/${OUTPUT_FILE_NAME}`;
+    const isCompilerCompileFunctionRequested =
+      requestedURL.pathname === '/compiler/compile';
+    const isInputFileRequested = requestedURL.pathname === `/${inputFile.name}`;
+    const isOutputFileRequested =
+      requestedURL.pathname === `/${outputFile.name}`;
 
     if (areCompilerMessagesRequested) {
       const compilerMessages = await helpers.validateInput(
@@ -36,23 +40,12 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    if (isCompilerInputFileRequested) {
-      response.end(JSON.stringify(await readInputFile()));
+    if (isCompilerCompileFunctionRequested) {
+      const requestedURLParameters = requestedURL.searchParams;
 
-      return;
-    }
+      const pathFromRequestedURLParameters = requestedURLParameters.get('path');
 
-    if (isCompilerOutputFileRequested) {
-      response.end(JSON.stringify(await readOutputFile()));
-
-      return;
-    }
-
-    if (requestedURL.pathname === '/compiler/compile') {
-      const pathFromRequestedURLParameters = requestedURL.searchParams.get(
-        'path'
-      );
-      const versionFromRequestedURLParameters = requestedURL.searchParams.get(
+      const versionFromRequestedURLParameters = requestedURLParameters.get(
         'version'
       );
 
@@ -66,6 +59,18 @@ const server = http.createServer(async (request, response) => {
 
         return;
       }
+    }
+
+    if (isInputFileRequested) {
+      response.end(JSON.stringify(await inputFile.read()));
+
+      return;
+    }
+
+    if (isOutputFileRequested) {
+      response.end(JSON.stringify(await outputFile.read()));
+
+      return;
     }
 
     const mime = helpers.mime(path.extname(requestedURL.pathname));

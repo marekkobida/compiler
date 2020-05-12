@@ -3,7 +3,7 @@ import * as t from 'io-ts';
 import * as types from '../../types';
 import Container from '@redred/pages/private/Container';
 import addMessage from './addMessage';
-import outputFileContainerByPath from './outputFileContainerByPath';
+import temporaryOutputFileContainerByPath from './temporaryOutputFileContainerByPath';
 import path from 'path';
 import { OUTPUT_FILE_NAME } from './readOutputFile';
 
@@ -21,7 +21,9 @@ function afterCompilation(
   version: string
 ) {
   try {
-    const container = outputFileContainerByPath(inputFileContainer.path);
+    const container = temporaryOutputFileContainerByPath(
+      inputFileContainer.path
+    );
 
     if (container) {
       if (

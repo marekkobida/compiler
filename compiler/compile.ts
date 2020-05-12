@@ -1,30 +1,27 @@
-import * as helpers from '@redred/helpers/server';
 import * as t from 'io-ts';
 import * as types from '../../types';
+import InputFile from './InputFile';
+import OutputFile from './OutputFile';
 import addMessage from './addMessage';
-import inputFileContainerByPath from './inputFileContainerByPath';
-import outputFileContainerByPath from './outputFileContainerByPath';
-import { OUTPUT_FILE_NAME } from './readOutputFile';
+
+const inputFile = new InputFile();
+const outputFile = new OutputFile();
 
 const webpack = __non_webpack_require__('webpack');
-
-type CompilerOutputFile = t.TypeOf<typeof types.CompilerOutputFile>;
 
 type CompilerOutputFileContainer = t.TypeOf<
   typeof types.CompilerOutputFileContainer
 >;
 
-const outputFile: CompilerOutputFile = { containers: [] };
-
 async function compile(
   path: CompilerOutputFileContainer['path'],
   version: CompilerOutputFileContainer['version']
 ) {
-  if (outputFileContainerByPath(path)) {
+  if (outputFile.containerByPath(path)) {
     throw new Error(`The path "${path}" exists in the output file.`);
   }
 
-  const inputFileContainer = await inputFileContainerByPath(path);
+  const inputFileContainer = await inputFile.containerByPath(path);
 
   if (!inputFileContainer) {
     throw new Error(`The path "${path}" does not exist in the input file.`);
@@ -46,7 +43,7 @@ async function compile(
     ];
   }
 
-  outputFile.containers = [...outputFile.containers, container];
+  outputFile.data.containers = [...outputFile.data.containers, container];
 
   for (let i = 0; i < container.filesToCompile.length; i += 1) {
     const containerFileToCompile = container.filesToCompile[i];
@@ -65,29 +62,29 @@ async function compile(
         `The path "${containerFileToCompile.path}" was compiled in the ${version} version.`
       );
 
-      for (let ii = 0; ii < outputFile.containers.length; ii += 1) {
-        const outputFileContainer = outputFile.containers[ii];
+      for (let ii = 0; ii < outputFile.data.containers.length; ii += 1) {
+        const temporaryOutputFileContainer = outputFile.data.containers[ii];
 
-        if (outputFileContainer.path === inputFileContainer.path) {
+        if (temporaryOutputFileContainer.path === inputFileContainer.path) {
           for (
             let iii = 0;
-            iii < outputFileContainer.filesToCompile.length;
+            iii < temporaryOutputFileContainer.filesToCompile.length;
             iii += 1
           ) {
-            const outputFileContainerFileToCompile =
-              outputFileContainer.filesToCompile[iii];
+            const temporaryOutputFileContainerFileToCompile =
+              temporaryOutputFileContainer.filesToCompile[iii];
 
             if (
-              outputFileContainerFileToCompile.path ===
+              temporaryOutputFileContainerFileToCompile.path ===
               containerFileToCompile.path
             ) {
-              outputFileContainerFileToCompile.compiled = right.toJson();
+              temporaryOutputFileContainerFileToCompile.compiled = right.toJson();
             }
           }
         }
       }
 
-      helpers.writeFile(OUTPUT_FILE_NAME, `${JSON.stringify(outputFile)}\n`);
+      outputFile.write();
     });
   }
 
@@ -95,7 +92,5 @@ async function compile(
     `The path "${path}" was added to the compiler in the ${version} version.`
   );
 }
-
-export { outputFile };
 
 export default compile;
