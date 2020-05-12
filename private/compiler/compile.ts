@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import * as types from '../../types';
+import * as types from '@redred/compiler/private/types';
 import InputFile from './InputFile';
 import OutputFile from './OutputFile';
 import addMessage from './addMessage';

@@ -1,6 +1,6 @@
 import * as helpers from '@redred/helpers/server';
 import * as t from 'io-ts';
-import * as types from '../../types';
+import * as types from '@redred/compiler/private/types';
 
 type CompilerInputFileContainer = t.TypeOf<
   typeof types.CompilerInputFileContainer

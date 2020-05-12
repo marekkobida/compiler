@@ -1,13 +1,12 @@
 const path = require('path');
 
 module.exports = {
-  entry: path.resolve(__dirname, './private/server/index.ts'),
+  entry: path.resolve(__dirname, './private/index.ts'),
   mode: 'production',
   module: {
     rules: [
       {
-        exclude: /node_modules/,
-        test: /\.(js|ts|tsx)$/,
+        test: /\.(js|ts)$/,
         use: [
           {
             loader: 'babel-loader',
@@ -18,7 +17,7 @@ module.exports = {
   },
   output: {
     filename: 'compiler.js',
-    path: path.resolve(__dirname, '../..'),
+    path: path.resolve(__dirname, '..'),
   },
   resolve: {
     extensions: ['.js', '.ts'],

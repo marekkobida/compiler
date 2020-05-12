@@ -1,5 +1,5 @@
 import * as helpers from '@redred/helpers/server';
-import * as types from '../types';
+import * as types from '@redred/compiler/private/types';
 import InputFile from './compiler/InputFile';
 import OutputFile from './compiler/OutputFile';
 import addMessage, { messages } from './compiler/addMessage';

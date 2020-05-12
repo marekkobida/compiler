@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import * as types from '../../types';
+import * as types from '@redred/compiler/private/types';
 
 type CompilerMessage = t.TypeOf<typeof types.CompilerMessage>;
 
