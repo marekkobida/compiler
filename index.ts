@@ -10,6 +10,8 @@ import path from 'path';
 const inputFile = new InputFile();
 const outputFile = new OutputFile();
 
+outputFile.write();
+
 compile('./packages/compiler', 'development'); // ?!
 
 const server = http.createServer(async (request, response) => {

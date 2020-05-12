@@ -4,14 +4,14 @@ import InputFile from './InputFile';
 import OutputFile from './OutputFile';
 import addMessage from './addMessage';
 
+type CompilerOutputFileContainer = t.TypeOf<
+  typeof types.CompilerOutputFileContainer
+>;
+
 const inputFile = new InputFile();
 const outputFile = new OutputFile();
 
 const webpack = __non_webpack_require__('webpack');
-
-type CompilerOutputFileContainer = t.TypeOf<
-  typeof types.CompilerOutputFileContainer
->;
 
 async function compile(
   path: CompilerOutputFileContainer['path'],
