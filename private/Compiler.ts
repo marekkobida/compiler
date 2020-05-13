@@ -1,8 +1,8 @@
 import * as t from 'io-ts';
 import * as types from '@redred/compiler/private/types';
-import InputFile from './compiler/InputFile';
-import OutputFile from './compiler/OutputFile';
-import addMessage from './compiler/addMessage';
+import InputFile from './InputFile';
+import OutputFile from './OutputFile';
+import addMessage from './addMessage';
 
 type CompilerOutputFileContainer = t.TypeOf<
   typeof types.CompilerOutputFileContainer

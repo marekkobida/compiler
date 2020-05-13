@@ -1,9 +1,9 @@
 import * as helpers from '@redred/helpers/server';
 import * as types from '@redred/compiler/private/types';
 import Compiler from './Compiler';
-import InputFile from './compiler/InputFile';
-import OutputFile from './compiler/OutputFile';
-import addMessage, { messages } from './compiler/addMessage';
+import InputFile from './InputFile';
+import OutputFile from './OutputFile';
+import addMessage, { messages } from './addMessage';
 import http from 'http';
 import path from 'path';
 
