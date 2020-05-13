@@ -63,10 +63,6 @@ class Compiler {
             );
           }
 
-          delete compiledContainerPage.context.container;
-          delete compiledContainerPage.context.inputFilePackage;
-          delete compiledContainerPage.context.outputFilePackage;
-
           addMessage(
             `The file "${inputFilePackage.path}/public/${compiledContainerPage.name}.html" was written.`
           );
@@ -92,17 +88,13 @@ class Compiler {
     const inputFilePackage = await this.inputFile.packageByPath(path);
 
     if (!inputFilePackage) {
-      throw new Error(
-        `The path "\x1b[32m${path}\x1b[0m" does not exist in the input file.`
-      );
+      throw new Error(`The path "${path}" does not exist in the input file.`);
     }
 
     const outputFilePackage = await this.outputFile.packageByPath(path);
 
     if (outputFilePackage) {
-      throw new Error(
-        `The path "\x1b[32m${path}\x1b[0m" exists in the output file.`
-      );
+      throw new Error(`The path "${path}" exists in the output file.`);
     }
 
     // 2.
@@ -115,10 +107,6 @@ class Compiler {
     ];
 
     this.outputFile.write(outputFile);
-
-    addMessage(
-      `The path "\x1b[32m${path}\x1b[0m" was added to the compiler in the \x1b[32m${version}\x1b[0m version.`
-    );
 
     // 3.
 
@@ -158,7 +146,7 @@ class Compiler {
         }
 
         addMessage(
-          `The path "\x1b[32m${packageFileToCompile.path}\x1b[0m" was compiled in the \x1b[32m${version}\x1b[0m version.`
+          `The path "${packageFileToCompile.path}" was compiled in the ${version} version.`
         );
       });
     }
