@@ -49,7 +49,7 @@ class Compiler {
 
           compiledContainerPage.context = {
             ...compiledContainerPage.context,
-            container: compiledContainer,
+            compiledContainer,
             inputFilePackage,
             outputFilePackage,
           };
@@ -68,7 +68,7 @@ class Compiler {
           );
         }
 
-        outputFilePackage.container = compiledContainer.toJSON();
+        outputFilePackage.compiledContainer = compiledContainer.toJSON();
 
         this.outputFile.write(outputFile);
 
