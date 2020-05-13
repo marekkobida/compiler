@@ -1,6 +1,7 @@
 import * as helpers from '@redred/helpers/server';
 import * as t from 'io-ts';
 import * as types from '@redred/compiler/private/types';
+import addMessage from './addMessage';
 
 type CompilerOutputFile = t.TypeOf<typeof types.CompilerOutputFile>;
 
@@ -36,6 +37,8 @@ class OutputFile {
     const validatedData = helpers.validateInput(types.CompilerOutputFile, data);
 
     helpers.writeFile(this.name, `${JSON.stringify(validatedData)}\n`);
+
+    addMessage(`The file "./${this.name}" was written.`);
   }
 }
 
