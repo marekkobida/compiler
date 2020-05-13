@@ -33,7 +33,7 @@ class Compiler {
   ) {
     if (
       inputFilePackage.filesToCompile.length ===
-      outputFilePackage.filesToCompile.length
+      outputFilePackage.compiledFiles.length
     ) {
       try {
         const $ = path.resolve(inputFilePackage.path, 'public/server.js');
@@ -72,7 +72,7 @@ class Compiler {
 
         this.outputFile.write(outputFile);
 
-        outputFilePackage.filesToCompile = [];
+        outputFilePackage.compiledFiles = [];
       } catch (error) {
         addMessage([error.message, error.stack]);
       }
@@ -103,17 +103,15 @@ class Compiler {
 
     outputFile.packages = [
       ...outputFile.packages,
-      { filesToCompile: [], path, version },
+      { compiledFiles: [], path, version },
     ];
 
     this.outputFile.write(outputFile);
 
     // 3.
 
-    const packageFilesToCompile = inputFilePackage.filesToCompile;
-
-    for (let i = 0; i < packageFilesToCompile.length; i += 1) {
-      const packageFileToCompile = packageFilesToCompile[i];
+    for (let i = 0; i < inputFilePackage.filesToCompile.length; i += 1) {
+      const packageFileToCompile = inputFilePackage.filesToCompile[i];
 
       delete __non_webpack_require__.cache[
         __non_webpack_require__.resolve(packageFileToCompile.path)
@@ -124,31 +122,34 @@ class Compiler {
           inputFilePackage,
           version
         )
-      ).watch({}, (left: Error, right: { toJson: () => unknown }) => {
-        for (let ii = 0; ii < outputFile.packages.length; ii += 1) {
-          const outputFilePackage = outputFile.packages[ii];
+      ).watch(
+        {},
+        (left: Error, right: { toJson: () => Record<string, unknown> }) => {
+          for (let ii = 0; ii < outputFile.packages.length; ii += 1) {
+            const outputFilePackage = outputFile.packages[ii];
 
-          if (outputFilePackage.path === inputFilePackage.path) {
-            outputFilePackage.filesToCompile = [
-              ...outputFilePackage.filesToCompile,
-              {
-                compiled: right.toJson(),
-                path: packageFileToCompile.path,
-              },
-            ];
+            if (outputFilePackage.path === inputFilePackage.path) {
+              outputFilePackage.compiledFiles = [
+                ...outputFilePackage.compiledFiles,
+                {
+                  ...right.toJson(),
+                  path: packageFileToCompile.path,
+                },
+              ];
 
-            this.afterCompilation(
-              inputFilePackage,
-              outputFile,
-              outputFilePackage
-            );
+              this.afterCompilation(
+                inputFilePackage,
+                outputFile,
+                outputFilePackage
+              );
+            }
           }
-        }
 
-        addMessage(
-          `The path "${packageFileToCompile.path}" was compiled in the ${version} version.`
-        );
-      });
+          addMessage(
+            `The path "${packageFileToCompile.path}" was compiled in the ${version} version.`
+          );
+        }
+      );
     }
   }
 }
