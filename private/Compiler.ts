@@ -24,8 +24,6 @@ class Compiler {
 
   constructor() {
     this.outputFile.write({ packages: [] });
-
-    this.compile('./packages/tiptravel.sk', 'development');
   }
 
   afterCompilation(
