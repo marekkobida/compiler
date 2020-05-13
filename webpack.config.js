@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
   entry: path.resolve(__dirname, './private/index.ts'),
-  mode: 'production',
+  mode: 'development',
   module: {
     rules: [
       {

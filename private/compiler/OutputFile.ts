@@ -2,19 +2,19 @@ import * as helpers from '@redred/helpers/server';
 import * as t from 'io-ts';
 import * as types from '@redred/compiler/private/types';
 
-type CompilerOutputFile = t.TypeOf<typeof types.CompilerOutputFile>;
+type CompilerOutputFileType = t.TypeOf<typeof types.CompilerOutputFile>;
 
 type CompilerOutputFileContainer = t.TypeOf<
   typeof types.CompilerOutputFileContainer
 >;
 
 class OutputFile {
-  data: CompilerOutputFile = { containers: [] };
-
   name = 'compiled.json';
 
-  containerByPath(path: CompilerOutputFileContainer['path']) {
-    const outputFileContainers = this.data.containers;
+  async containerByPath(path: CompilerOutputFileContainer['path']) {
+    const outputFile = await this.read();
+
+    const outputFileContainers = outputFile.containers;
 
     for (let i = 0; i < outputFileContainers.length; i += 1) {
       const outputFileContainer = outputFileContainers[i];
@@ -32,9 +32,11 @@ class OutputFile {
     );
   }
 
-  write() {
-    helpers.writeFile(this.name, `${JSON.stringify(this.data)}\n`);
+  write(data: CompilerOutputFileType = { containers: [] }) {
+    const validatedData = helpers.validateInput(types.CompilerOutputFile, data);
+
+    helpers.writeFile(this.name, `${JSON.stringify(validatedData)}\n`);
   }
 }
 
-export default OutputFile;
+export default new OutputFile();

@@ -1,18 +1,15 @@
 import * as helpers from '@redred/helpers/server';
 import * as types from '@redred/compiler/private/types';
+import Compiler from './Compiler';
 import InputFile from './compiler/InputFile';
 import OutputFile from './compiler/OutputFile';
 import addMessage, { messages } from './compiler/addMessage';
-import compile from './compiler/compile';
 import http from 'http';
 import path from 'path';
 
-const inputFile = new InputFile();
-const outputFile = new OutputFile();
+OutputFile.write();
 
-outputFile.write();
-
-compile('./packages/compiler', 'development'); // ?!
+Compiler.compile('./packages/compiler', 'development'); // ?!
 
 const server = http.createServer(async (request, response) => {
   response.setHeader('Access-Control-Allow-Origin', '*');
@@ -27,9 +24,9 @@ const server = http.createServer(async (request, response) => {
       requestedURL.pathname === '/compiler/messages';
     const isCompilerCompileFunctionRequested =
       requestedURL.pathname === '/compiler/compile';
-    const isInputFileRequested = requestedURL.pathname === `/${inputFile.name}`;
+    const isInputFileRequested = requestedURL.pathname === `/${InputFile.name}`;
     const isOutputFileRequested =
-      requestedURL.pathname === `/${outputFile.name}`;
+      requestedURL.pathname === `/${OutputFile.name}`;
 
     if (areCompilerMessagesRequested) {
       const compilerMessages = await helpers.validateInput(
@@ -52,7 +49,7 @@ const server = http.createServer(async (request, response) => {
       );
 
       if (pathFromRequestedURLParameters && versionFromRequestedURLParameters) {
-        await compile(
+        await Compiler.compile(
           pathFromRequestedURLParameters,
           versionFromRequestedURLParameters
         );
@@ -64,13 +61,13 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (isInputFileRequested) {
-      response.end(JSON.stringify(await inputFile.read()));
+      response.end(JSON.stringify(await InputFile.read()));
 
       return;
     }
 
     if (isOutputFileRequested) {
-      response.end(JSON.stringify(await outputFile.read()));
+      response.end(JSON.stringify(await OutputFile.read()));
 
       return;
     }
