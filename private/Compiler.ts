@@ -1,8 +1,13 @@
+import * as helpers from '@redred/helpers/server';
 import * as t from 'io-ts';
 import * as types from '@redred/compiler/private/types';
+import Container from '@redred/pages/private/Container';
 import InputFile from './InputFile';
 import OutputFile from './OutputFile';
 import addMessage from './addMessage';
+import path from 'path';
+
+type CompilerInputFilePackage = t.TypeOf<typeof types.CompilerInputFilePackage>;
 
 type CompilerOutputFilePackage = t.TypeOf<
   typeof types.CompilerOutputFilePackage
@@ -18,12 +23,64 @@ class Compiler {
   constructor() {
     this.outputFile.write({ packages: [] });
 
-    this.compile('./packages/compiler', 'development');
+    this.compile('./packages/tiptravel.sk', 'development');
+  }
+
+  afterCompilation(
+    inputFilePackage: CompilerInputFilePackage,
+    outputFilePackage: CompilerOutputFilePackage
+  ) {
+    if (
+      inputFilePackage.filesToCompile.length ===
+      outputFilePackage.filesToCompile.length
+    ) {
+      try {
+        const $ = path.resolve(inputFilePackage.path, 'public/server.js');
+
+        delete __non_webpack_require__.cache[
+          __non_webpack_require__.resolve($)
+        ];
+
+        const compiledContainer: Container = __non_webpack_require__($).default;
+
+        for (let i = 0; i < compiledContainer.pages.length; i += 1) {
+          const compiledContainerPage = compiledContainer.pages[i];
+
+          compiledContainerPage.context = {
+            ...compiledContainerPage.context,
+            container: compiledContainer,
+            inputFilePackage,
+            outputFilePackage,
+          };
+
+          compiledContainerPage.toHTML();
+
+          if (typeof compiledContainerPage.html === 'string') {
+            helpers.writeFile(
+              `${inputFilePackage.path}/public/${compiledContainerPage.name}.html`,
+              compiledContainerPage.html
+            );
+          }
+
+          delete compiledContainerPage.context.container;
+          delete compiledContainerPage.context.inputFilePackage;
+          delete compiledContainerPage.context.outputFilePackage;
+
+          addMessage(
+            `The file "${inputFilePackage.path}/public/${compiledContainerPage.name}.html" was written.`
+          );
+        }
+
+        outputFilePackage.container = compiledContainer.toJSON();
+      } catch (error) {
+        addMessage([error.message, error.stack]);
+      }
+    }
   }
 
   async compile(
-    path: CompilerOutputFilePackage['path'],
-    version: CompilerOutputFilePackage['version']
+    path: CompilerInputFilePackage['path'],
+    version: CompilerInputFilePackage['version']
   ) {
     // 1.
 
@@ -35,7 +92,7 @@ class Compiler {
       );
     }
 
-    let outputFilePackage = await this.outputFile.packageByPath(path);
+    const outputFilePackage = await this.outputFile.packageByPath(path);
 
     if (outputFilePackage) {
       throw new Error(
@@ -43,13 +100,14 @@ class Compiler {
       );
     }
 
-    outputFilePackage = inputFilePackage;
-
     // 2.
 
     const outputFile = await this.outputFile.read();
 
-    outputFile.packages = [...outputFile.packages, outputFilePackage];
+    outputFile.packages = [
+      ...outputFile.packages,
+      { filesToCompile: [], path, version },
+    ];
 
     this.outputFile.write(outputFile);
 
@@ -59,7 +117,7 @@ class Compiler {
 
     // 3.
 
-    const packageFilesToCompile = outputFilePackage.filesToCompile;
+    const packageFilesToCompile = inputFilePackage.filesToCompile;
 
     for (let i = 0; i < packageFilesToCompile.length; i += 1) {
       const packageFileToCompile = packageFilesToCompile[i];
@@ -77,29 +135,16 @@ class Compiler {
         for (let ii = 0; ii < outputFile.packages.length; ii += 1) {
           const outputFilePackage = outputFile.packages[ii];
 
-          // ?
-          outputFilePackage.container = {
-            id: -1,
-            name: '',
-            pages: [],
-          };
-
           if (outputFilePackage.path === inputFilePackage.path) {
-            for (
-              let iii = 0;
-              iii < outputFilePackage.filesToCompile.length;
-              iii += 1
-            ) {
-              const outputFilePackageFileToCompile =
-                outputFilePackage.filesToCompile[iii];
+            outputFilePackage.filesToCompile = [
+              ...outputFilePackage.filesToCompile,
+              {
+                compiled: right.toJson(),
+                path: packageFileToCompile.path,
+              },
+            ];
 
-              if (
-                outputFilePackageFileToCompile.path ===
-                packageFileToCompile.path
-              ) {
-                outputFilePackageFileToCompile.compiled = right.toJson();
-              }
-            }
+            this.afterCompilation(inputFilePackage, outputFilePackage);
           }
         }
 
