@@ -4,10 +4,13 @@ import * as types from '@redred/compiler/private/types';
 import Container from '@redred/pages/private/Container';
 import InputFile from './InputFile';
 import OutputFile from './OutputFile';
-import addMessage from './addMessage';
 import path from 'path';
 
 type CompilerInputFilePackage = t.TypeOf<typeof types.CompilerInputFilePackage>;
+
+type CompilerMessage = t.TypeOf<typeof types.CompilerMessage>;
+
+type CompilerMessages = t.TypeOf<typeof types.CompilerMessages>;
 
 type CompilerOutputFile = t.TypeOf<typeof types.CompilerOutputFile>;
 
@@ -20,10 +23,22 @@ const webpack = __non_webpack_require__('webpack');
 class Compiler {
   inputFile = new InputFile();
 
+  messages: CompilerMessages = [];
+
   outputFile = new OutputFile();
 
   constructor() {
     this.outputFile.write({ packages: [] });
+
+    this.compile('./packages/compiler', 'development');
+  }
+
+  addMessage(text: CompilerMessage['text']) {
+    this.messages = [{ date: +new Date(), text }, ...this.messages];
+
+    console.log(text);
+
+    return this.messages;
   }
 
   afterCompilation(
@@ -63,7 +78,7 @@ class Compiler {
             );
           }
 
-          addMessage(
+          this.addMessage(
             `The file "${inputFilePackage.path}/public/${compiledContainerPage.name}.html" was written.`
           );
         }
@@ -74,7 +89,7 @@ class Compiler {
 
         outputFilePackage.compiledFiles = [];
       } catch (error) {
-        addMessage([error.message, error.stack]);
+        this.addMessage([error.message, error.stack]);
       }
     }
   }
@@ -145,7 +160,7 @@ class Compiler {
             }
           }
 
-          addMessage(
+          this.addMessage(
             `The path "${packageFileToCompile.path}" was compiled in the ${version} version.`
           );
         }

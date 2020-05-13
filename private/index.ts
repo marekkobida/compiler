@@ -1,7 +1,6 @@
 import * as helpers from '@redred/helpers/server';
 import * as types from '@redred/compiler/private/types';
 import Compiler from './Compiler';
-import addMessage, { messages } from './addMessage';
 import http from 'http';
 import path from 'path';
 
@@ -28,7 +27,7 @@ const server = http.createServer(async (request, response) => {
     if (areCompilerMessagesRequested) {
       const compilerMessages = await helpers.validateInput(
         types.CompilerMessages,
-        messages
+        compiler.messages
       );
 
       response.end(JSON.stringify(compilerMessages));
@@ -85,7 +84,7 @@ const server = http.createServer(async (request, response) => {
 
     response.end(JSON.stringify({ errors: [[error.message, error.stack]] }));
 
-    addMessage([error.message, error.stack]);
+    compiler.addMessage([error.message, error.stack]);
   }
 });
 
