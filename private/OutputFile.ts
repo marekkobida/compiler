@@ -39,4 +39,4 @@ class OutputFile {
   }
 }
 
-export default new OutputFile();
+export default OutputFile;

@@ -11,13 +11,23 @@ type CompilerOutputFileContainer = t.TypeOf<
 const webpack = __non_webpack_require__('webpack');
 
 class Compiler {
+  inputFile = new InputFile();
+
+  outputFile = new OutputFile();
+
+  constructor() {
+    this.outputFile.write();
+
+    this.compile('./packages/compiler', 'development');
+  }
+
   async compile(
     path: CompilerOutputFileContainer['path'],
     version: CompilerOutputFileContainer['version']
   ) {
     // 1.
 
-    const inputFileContainer = await InputFile.containerByPath(path);
+    const inputFileContainer = await this.inputFile.containerByPath(path);
 
     if (!inputFileContainer) {
       throw new Error(
@@ -25,7 +35,7 @@ class Compiler {
       );
     }
 
-    let outputFileContainer = await OutputFile.containerByPath(path);
+    let outputFileContainer = await this.outputFile.containerByPath(path);
 
     if (outputFileContainer) {
       throw new Error(
@@ -37,11 +47,11 @@ class Compiler {
 
     // 2.
 
-    const outputFile = await OutputFile.read();
+    const outputFile = await this.outputFile.read();
 
     outputFile.containers = [...outputFile.containers, outputFileContainer];
 
-    OutputFile.write(outputFile);
+    this.outputFile.write(outputFile);
 
     addMessage(
       `(\x1b[32m${path}\x1b[0m) The path was added to the compiler in the \x1b[32m${version}\x1b[0m version.`
@@ -84,7 +94,7 @@ class Compiler {
           }
         }
 
-        OutputFile.write(outputFile);
+        this.outputFile.write(outputFile);
 
         addMessage(
           `(\x1b[32m${path}\x1b[0m) The path (\x1b[32m${containerFileToCompile.path}\x1b[0m) was compiled in the \x1b[32m${version}\x1b[0m version.`
@@ -94,4 +104,4 @@ class Compiler {
   }
 }
 
-export default new Compiler();
+export default Compiler;

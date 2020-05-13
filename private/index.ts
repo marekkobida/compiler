@@ -1,15 +1,11 @@
 import * as helpers from '@redred/helpers/server';
 import * as types from '@redred/compiler/private/types';
 import Compiler from './Compiler';
-import InputFile from './InputFile';
-import OutputFile from './OutputFile';
 import addMessage, { messages } from './addMessage';
 import http from 'http';
 import path from 'path';
 
-OutputFile.write();
-
-Compiler.compile('./packages/compiler', 'development'); // ?!
+const compiler = new Compiler();
 
 const server = http.createServer(async (request, response) => {
   response.setHeader('Access-Control-Allow-Origin', '*');
@@ -24,9 +20,10 @@ const server = http.createServer(async (request, response) => {
       requestedURL.pathname === '/compiler/messages';
     const isCompilerCompileFunctionRequested =
       requestedURL.pathname === '/compiler/compile';
-    const isInputFileRequested = requestedURL.pathname === `/${InputFile.name}`;
+    const isInputFileRequested =
+      requestedURL.pathname === `/${compiler.inputFile.name}`;
     const isOutputFileRequested =
-      requestedURL.pathname === `/${OutputFile.name}`;
+      requestedURL.pathname === `/${compiler.outputFile.name}`;
 
     if (areCompilerMessagesRequested) {
       const compilerMessages = await helpers.validateInput(
@@ -49,7 +46,7 @@ const server = http.createServer(async (request, response) => {
       );
 
       if (pathFromRequestedURLParameters && versionFromRequestedURLParameters) {
-        await Compiler.compile(
+        await compiler.compile(
           pathFromRequestedURLParameters,
           versionFromRequestedURLParameters
         );
@@ -61,13 +58,13 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (isInputFileRequested) {
-      response.end(JSON.stringify(await InputFile.read()));
+      response.end(JSON.stringify(await compiler.inputFile.read()));
 
       return;
     }
 
     if (isOutputFileRequested) {
-      response.end(JSON.stringify(await OutputFile.read()));
+      response.end(JSON.stringify(await compiler.outputFile.read()));
 
       return;
     }

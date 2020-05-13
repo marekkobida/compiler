@@ -31,4 +31,4 @@ class InputFile {
   }
 }
 
-export default new InputFile();
+export default InputFile;
