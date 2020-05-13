@@ -1,6 +1,6 @@
-import * as helpers from '@redred/helpers/server';
+import * as helpers from '@redredsk/helpers/server';
 import * as t from 'io-ts';
-import * as types from '@redred/compiler/private/types';
+import * as types from '@redredsk/compiler/private/types';
 
 type CompilerOutputFile = t.TypeOf<typeof types.CompilerOutputFile>;
 

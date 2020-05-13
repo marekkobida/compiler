@@ -1,7 +1,7 @@
-import * as helpers from '@redred/helpers/server';
+import * as helpers from '@redredsk/helpers/server';
 import * as t from 'io-ts';
-import * as types from '@redred/compiler/private/types';
-import Container from '@redred/pages/private/Container';
+import * as types from '@redredsk/compiler/private/types';
+import Container from '@redredsk/pages/private/Container';
 import InputFile from './InputFile';
 import OutputFile from './OutputFile';
 import path from 'path';
