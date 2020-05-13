@@ -9,6 +9,8 @@ import path from 'path';
 
 type CompilerInputFilePackage = t.TypeOf<typeof types.CompilerInputFilePackage>;
 
+type CompilerOutputFile = t.TypeOf<typeof types.CompilerOutputFile>;
+
 type CompilerOutputFilePackage = t.TypeOf<
   typeof types.CompilerOutputFilePackage
 >;
@@ -28,6 +30,7 @@ class Compiler {
 
   afterCompilation(
     inputFilePackage: CompilerInputFilePackage,
+    outputFile: CompilerOutputFile,
     outputFilePackage: CompilerOutputFilePackage
   ) {
     if (
@@ -72,6 +75,10 @@ class Compiler {
         }
 
         outputFilePackage.container = compiledContainer.toJSON();
+
+        this.outputFile.write(outputFile);
+
+        outputFilePackage.filesToCompile = [];
       } catch (error) {
         addMessage([error.message, error.stack]);
       }
@@ -144,11 +151,13 @@ class Compiler {
               },
             ];
 
-            this.afterCompilation(inputFilePackage, outputFilePackage);
+            this.afterCompilation(
+              inputFilePackage,
+              outputFile,
+              outputFilePackage
+            );
           }
         }
-
-        this.outputFile.write(outputFile);
 
         addMessage(
           `The path "\x1b[32m${packageFileToCompile.path}\x1b[0m" was compiled in the \x1b[32m${version}\x1b[0m version.`
