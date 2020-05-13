@@ -2,23 +2,21 @@ import * as helpers from '@redred/helpers/server';
 import * as t from 'io-ts';
 import * as types from '@redred/compiler/private/types';
 
-type CompilerInputFileContainer = t.TypeOf<
-  typeof types.CompilerInputFileContainer
->;
+type CompilerInputFilePackage = t.TypeOf<typeof types.CompilerInputFilePackage>;
 
 class InputFile {
   name = 'compiler.json';
 
-  async containerByPath(path: CompilerInputFileContainer['path']) {
+  async packageByPath(path: CompilerInputFilePackage['path']) {
     const inputFile = await this.read();
 
-    const inputFileContainers = inputFile.containers;
+    const inputFilePackages = inputFile.packages;
 
-    for (let i = 0; i < inputFileContainers.length; i += 1) {
-      const inputFileContainer = inputFileContainers[i];
+    for (let i = 0; i < inputFilePackages.length; i += 1) {
+      const inputFilePackage = inputFilePackages[i];
 
-      if (inputFileContainer.path === path) {
-        return inputFileContainer;
+      if (inputFilePackage.path === path) {
+        return inputFilePackage;
       }
     }
   }
