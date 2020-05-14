@@ -7,7 +7,7 @@ type CompilerInputFilePackage = t.TypeOf<typeof types.CompilerInputFilePackage>;
 class InputFile {
   name = 'compiler.json';
 
-  async packageByPath(path: CompilerInputFilePackage['path']) {
+  async packageByPath (path: CompilerInputFilePackage['path']) {
     const inputFile = await this.read();
 
     const inputFilePackages = inputFile.packages;
@@ -21,7 +21,7 @@ class InputFile {
     }
   }
 
-  async read() {
+  async read () {
     return await helpers.validateInputFromFile(
       types.CompilerInputFile,
       this.name

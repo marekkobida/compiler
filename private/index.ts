@@ -15,14 +15,14 @@ const server = http.createServer(async (request, response) => {
 
     const requestedURL = new URL(`file://${request.url}`);
 
-    const areCompilerMessagesRequested =
-      requestedURL.pathname === '/compiler/messages';
-    const isCompilerCompileFunctionRequested =
-      requestedURL.pathname === '/compiler/compile';
-    const isInputFileRequested =
-      requestedURL.pathname === `/${compiler.inputFile.name}`;
-    const isOutputFileRequested =
-      requestedURL.pathname === `/${compiler.outputFile.name}`;
+    const areCompilerMessagesRequested
+      = requestedURL.pathname === '/compiler/messages';
+    const isCompilerCompileFunctionRequested
+      = requestedURL.pathname === '/compiler/compile';
+    const isInputFileRequested
+      = requestedURL.pathname === `/${compiler.inputFile.name}`;
+    const isOutputFileRequested
+      = requestedURL.pathname === `/${compiler.outputFile.name}`;
 
     if (areCompilerMessagesRequested) {
       const compilerMessages = await helpers.validateInput(
@@ -82,9 +82,9 @@ const server = http.createServer(async (request, response) => {
   } catch (error) {
     response.statusCode = 500;
 
-    response.end(JSON.stringify({ errors: [[error.message, error.stack]] }));
+    response.end(JSON.stringify({ errors: [[ error.message, error.stack, ], ], }));
 
-    compiler.addMessage([error.message, error.stack]);
+    compiler.addMessage([ error.message, error.stack, ]);
   }
 });
 

@@ -27,28 +27,28 @@ class Compiler {
 
   outputFile = new OutputFile();
 
-  constructor() {
-    this.outputFile.write({ packages: [] });
+  constructor () {
+    this.outputFile.write({ packages: [], });
 
     this.compile('./packages/compiler', 'development');
   }
 
-  addMessage(text: CompilerMessage['text']) {
-    this.messages = [{ date: +new Date(), text }, ...this.messages];
+  addMessage (text: CompilerMessage['text']) {
+    this.messages = [{ date: +new Date(), text, }, ...this.messages, ];
 
     console.log(text);
 
     return this.messages;
   }
 
-  afterCompilation(
+  afterCompilation (
     inputFilePackage: CompilerInputFilePackage,
     outputFile: CompilerOutputFile,
     outputFilePackage: CompilerOutputFilePackage
   ) {
     if (
-      inputFilePackage.filesToCompile.length ===
-      outputFilePackage.compiledFiles.length
+      inputFilePackage.filesToCompile.length
+      === outputFilePackage.compiledFiles.length
     ) {
       try {
         const $ = path.resolve(inputFilePackage.path, 'public/server.js');
@@ -89,12 +89,12 @@ class Compiler {
 
         outputFilePackage.compiledFiles = [];
       } catch (error) {
-        this.addMessage([error.message, error.stack]);
+        this.addMessage([ error.message, error.stack, ]);
       }
     }
   }
 
-  async compile(
+  async compile (
     path: CompilerInputFilePackage['path'],
     version: CompilerInputFilePackage['version']
   ) {
@@ -118,7 +118,7 @@ class Compiler {
 
     outputFile.packages = [
       ...outputFile.packages,
-      { compiledFiles: [], path, version },
+      { compiledFiles: [], path, version, },
     ];
 
     this.outputFile.write(outputFile);

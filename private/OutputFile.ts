@@ -11,7 +11,7 @@ type CompilerOutputFilePackage = t.TypeOf<
 class OutputFile {
   name = 'compiled.json';
 
-  async packageByPath(path: CompilerOutputFilePackage['path']) {
+  async packageByPath (path: CompilerOutputFilePackage['path']) {
     const outputFile = await this.read();
 
     const outputFilePackages = outputFile.packages;
@@ -25,14 +25,14 @@ class OutputFile {
     }
   }
 
-  async read() {
+  async read () {
     return await helpers.validateInputFromFile(
       types.CompilerOutputFile,
       this.name
     );
   }
 
-  write(data: CompilerOutputFile) {
+  write (data: CompilerOutputFile) {
     const validatedData = helpers.validateInput(types.CompilerOutputFile, data);
 
     helpers.writeFile(this.name, `${JSON.stringify(validatedData)}\n`);
