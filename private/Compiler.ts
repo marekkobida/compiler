@@ -86,11 +86,11 @@ class Compiler {
         outputFilePackage.compiledContainer = compiledContainer.toJSON();
 
         this.outputFile.write(outputFile);
-
-        outputFilePackage.compiledFiles = [];
       } catch (error) {
         this.addMessage([ error.message, error.stack, ]);
       }
+
+      outputFilePackage.compiledFiles = [];
     }
   }
 
