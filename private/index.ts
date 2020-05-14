@@ -15,6 +15,14 @@ const server = http.createServer(async (request, response) => {
 
     const requestedURL = new URL(`file://${request.url}`);
 
+    if (requestedURL.pathname === '/favicon.ico') {
+      response.setHeader('Content-Type', 'image/x-icon');
+
+      response.end();
+
+      return;
+    }
+
     const areCompilerMessagesRequested
       = requestedURL.pathname === '/compiler/messages';
     const isCompilerCompileFunctionRequested
