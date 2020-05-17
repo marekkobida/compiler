@@ -6,14 +6,6 @@ import InputFile from './InputFile';
 import OutputFile from './OutputFile';
 import path from 'path';
 
-type CompilerInputFilePackage = t.TypeOf<typeof types.CompilerInputFilePackage>;
-
-type CompilerMessage = t.TypeOf<typeof types.CompilerMessage>;
-
-type CompilerMessages = t.TypeOf<typeof types.CompilerMessages>;
-
-type CompilerOutputFile = t.TypeOf<typeof types.CompilerOutputFile>;
-
 type CompilerOutputFilePackage = t.TypeOf<
   typeof types.CompilerOutputFilePackage
 >;
@@ -23,7 +15,7 @@ const webpack = __non_webpack_require__('webpack');
 class Compiler {
   inputFile = new InputFile();
 
-  messages: CompilerMessages = [];
+  messages: types.typescript.CompilerMessages = [];
 
   outputFile = new OutputFile();
 
@@ -33,7 +25,7 @@ class Compiler {
     this.compile('./packages/compiler', 'development');
   }
 
-  addMessage (text: CompilerMessage['text']) {
+  addMessage (text: types.typescript.CompilerMessage['text']) {
     this.messages = [{ date: +new Date(), text, }, ...this.messages, ];
 
     console.log(text);
@@ -42,8 +34,8 @@ class Compiler {
   }
 
   afterCompilation (
-    inputFilePackage: CompilerInputFilePackage,
-    outputFile: CompilerOutputFile,
+    inputFilePackage: types.typescript.CompilerInputFilePackage,
+    outputFile: types.typescript.CompilerOutputFile,
     outputFilePackage: CompilerOutputFilePackage
   ) {
     if (
@@ -95,8 +87,8 @@ class Compiler {
   }
 
   async compile (
-    path: CompilerInputFilePackage['path'],
-    version: CompilerInputFilePackage['version']
+    path: types.typescript.CompilerInputFilePackage['path'],
+    version: types.typescript.CompilerInputFilePackage['version']
   ) {
     // 1.
 

@@ -1,17 +1,10 @@
 import * as helpers from '@redredsk/helpers/server';
-import * as t from 'io-ts';
 import * as types from '@redredsk/compiler/private/types';
-
-type CompilerOutputFile = t.TypeOf<typeof types.CompilerOutputFile>;
-
-type CompilerOutputFilePackage = t.TypeOf<
-  typeof types.CompilerOutputFilePackage
->;
 
 class OutputFile {
   name = 'compiled.json';
 
-  async packageByPath (path: CompilerOutputFilePackage['path']) {
+  async packageByPath (path: types.typescript.CompilerOutputFilePackage['path']) {
     const outputFile = await this.read();
 
     const outputFilePackages = outputFile.packages;
@@ -32,7 +25,7 @@ class OutputFile {
     );
   }
 
-  write (data: CompilerOutputFile) {
+  write (data: types.typescript.CompilerOutputFile) {
     const validatedData = helpers.validateInput(types.CompilerOutputFile, data);
 
     helpers.writeFile(this.name, `${JSON.stringify(validatedData)}\n`);

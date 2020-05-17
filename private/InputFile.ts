@@ -1,13 +1,10 @@
 import * as helpers from '@redredsk/helpers/server';
-import * as t from 'io-ts';
 import * as types from '@redredsk/compiler/private/types';
-
-type CompilerInputFilePackage = t.TypeOf<typeof types.CompilerInputFilePackage>;
 
 class InputFile {
   name = 'compiler.json';
 
-  async packageByPath (path: CompilerInputFilePackage['path']) {
+  async packageByPath (path: types.typescript.CompilerInputFilePackage['path']) {
     const inputFile = await this.read();
 
     const inputFilePackages = inputFile.packages;
