@@ -1,14 +1,9 @@
 import * as helpers from '@redredsk/helpers/server';
-import * as t from 'io-ts';
 import * as types from '@redredsk/compiler/private/types';
 import Container from '@redredsk/pages/private/Container';
 import InputFile from './InputFile';
 import OutputFile from './OutputFile';
 import path from 'path';
-
-type CompilerOutputFilePackage = t.TypeOf<
-  typeof types.CompilerOutputFilePackage
->;
 
 const webpack = __non_webpack_require__('webpack');
 
@@ -28,7 +23,13 @@ class Compiler {
   addMessage (text: types.typescript.CompilerMessage['text']) {
     this.messages = [{ date: +new Date(), text, }, ...this.messages, ];
 
-    console.log(text);
+    if (helpers.isArray(text)) {
+      console.log(text[1]);
+    }
+
+    if (helpers.isString(text)) {
+      console.log(text);
+    }
 
     return this.messages;
   }
@@ -36,46 +37,39 @@ class Compiler {
   afterCompilation (
     inputFilePackage: types.typescript.CompilerInputFilePackage,
     outputFile: types.typescript.CompilerOutputFile,
-    outputFilePackage: CompilerOutputFilePackage
+    outputFilePackage: types.typescript.CompilerOutputFilePackage
   ) {
-    if (inputFilePackage.filesToCompile.length === outputFilePackage.compiledFiles.length) {
-      try {
-        const $ = path.resolve(inputFilePackage.path, 'public/server.js');
+    try {
+      const $ = path.resolve(inputFilePackage.path, 'public/server.js');
 
-        delete __non_webpack_require__.cache[__non_webpack_require__.resolve($)];
+      delete __non_webpack_require__.cache[__non_webpack_require__.resolve($)];
 
-        const compiledContainer: Container = __non_webpack_require__($).default;
+      const compiledContainer: Container = __non_webpack_require__($).default;
 
-        for (let i = 0; i < compiledContainer.pages.length; i += 1) {
-          const compiledContainerPage = compiledContainer.pages[i];
+      for (let i = 0; i < compiledContainer.pages.length; i += 1) {
+        const compiledContainerPage = compiledContainer.pages[i];
 
-          compiledContainerPage.context = {
-            ...compiledContainerPage.context,
-            compiledContainer,
-            inputFilePackage,
-            outputFilePackage,
-          };
+        compiledContainerPage.context = {
+          ...compiledContainerPage.context,
+          compiledContainer,
+          inputFilePackage,
+          outputFilePackage,
+        };
 
-          compiledContainerPage.toHTML();
+        compiledContainerPage.toHTML();
 
-          if (typeof compiledContainerPage.html === 'string') {
-            helpers.writeFile(
-              `${inputFilePackage.path}/public/${compiledContainerPage.name}.html`,
-              compiledContainerPage.html
-            );
-          }
+        if (typeof compiledContainerPage.html === 'string') {
+          helpers.writeFile(`${inputFilePackage.path}/public/${compiledContainerPage.name}.html`, compiledContainerPage.html);
 
           this.addMessage(`The file "${inputFilePackage.path}/public/${compiledContainerPage.name}.html" was written.`);
         }
-
-        outputFilePackage.compiledContainer = compiledContainer.toJSON();
-
-        this.outputFile.writeFile(outputFile);
-      } catch (error) {
-        this.addMessage([ error.message, error.stack, ]);
       }
 
-      outputFilePackage.compiledFiles = [];
+      outputFilePackage.compiledContainer = compiledContainer.toJSON();
+
+      this.outputFile.writeFile(outputFile);
+    } catch (error) {
+      this.addMessage([ error.message, error.stack, ]);
     }
   }
 
@@ -114,26 +108,23 @@ class Compiler {
       const w = webpack(__non_webpack_require__(packageFileToCompile.path)(inputFilePackage, version));
 
       w.watch(
-        {},
+        { poll: 1000, },
         (left: Error, right: { toJson: () => Record<string, unknown> }) => {
+          this.addMessage(`The path "${packageFileToCompile.path}" was compiled in the ${version} version.`);
+
           for (let ii = 0; ii < outputFile.packages.length; ii += 1) {
             const outputFilePackage = outputFile.packages[ii];
 
             if (outputFilePackage.path === inputFilePackage.path) {
-              outputFilePackage.compiledFiles = [
-                ...outputFilePackage.compiledFiles,
-                { ...right.toJson(), path: packageFileToCompile.path, },
-              ];
+              outputFilePackage.compiledFiles = [ ...outputFilePackage.compiledFiles, { ...right.toJson(), path: packageFileToCompile.path, }, ];
 
-              this.afterCompilation(
-                inputFilePackage,
-                outputFile,
-                outputFilePackage
-              );
+              if (inputFilePackage.filesToCompile.length === outputFilePackage.compiledFiles.length) {
+                this.afterCompilation(inputFilePackage, outputFile, outputFilePackage);
+
+                outputFilePackage.compiledFiles = [];
+              }
             }
           }
-
-          this.addMessage(`The path "${packageFileToCompile.path}" was compiled in the ${version} version.`);
         }
       );
     }
