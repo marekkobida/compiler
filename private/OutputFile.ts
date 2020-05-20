@@ -2,10 +2,10 @@ import * as helpers from '@redredsk/helpers/server';
 import * as types from '@redredsk/compiler/private/types';
 
 class OutputFile {
-  name = 'compiled.json';
+  fileName = 'compiled.json';
 
-  async packageByPath (path: types.typescript.CompilerOutputFilePackage['path']) {
-    const outputFile = await this.read();
+  async packageByPath (path: types.typescript.CompilerOutputFilePackage['path']): Promise<types.typescript.CompilerOutputFilePackage> {
+    const outputFile = await this.readFile();
 
     const outputFilePackages = outputFile.packages;
 
@@ -16,19 +16,28 @@ class OutputFile {
         return outputFilePackage;
       }
     }
+
+    throw new Error(`The package "${path}" does not exist in the output file.`);
   }
 
-  async read () {
-    return await helpers.validateInputFromFile(
-      types.CompilerOutputFile,
-      this.name
-    );
+  async readFile (): Promise<types.typescript.CompilerOutputFile> {
+    const data = await helpers.readFile(this.fileName);
+
+    let json;
+
+    try {
+      json = JSON.parse(data);
+    } catch (error) {
+      throw new Error(`The output file "${this.fileName}" is not valid.`);
+    }
+
+    return helpers.validateInput(types.CompilerOutputFile, json);
   }
 
-  write (data: types.typescript.CompilerOutputFile) {
+  writeFile (data: types.typescript.CompilerOutputFile): void {
     const validatedData = helpers.validateInput(types.CompilerOutputFile, data);
 
-    helpers.writeFile(this.name, `${JSON.stringify(validatedData)}\n`);
+    helpers.writeFile(this.fileName, `${JSON.stringify(validatedData)}\n`);
   }
 }
 

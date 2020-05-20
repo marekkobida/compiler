@@ -2,10 +2,10 @@ import * as helpers from '@redredsk/helpers/server';
 import * as types from '@redredsk/compiler/private/types';
 
 class InputFile {
-  name = 'compiler.json';
+  fileName = 'compiler.json';
 
-  async packageByPath (path: types.typescript.CompilerInputFilePackage['path']) {
-    const inputFile = await this.read();
+  async packageByPath (path: types.typescript.CompilerInputFilePackage['path']): Promise<types.typescript.CompilerInputFilePackage> {
+    const inputFile = await this.readFile();
 
     const inputFilePackages = inputFile.packages;
 
@@ -16,13 +16,22 @@ class InputFile {
         return inputFilePackage;
       }
     }
+
+    throw new Error(`The package "${path}" does not exist in the input file.`);
   }
 
-  async read () {
-    return await helpers.validateInputFromFile(
-      types.CompilerInputFile,
-      this.name
-    );
+  async readFile (): Promise<types.typescript.CompilerInputFile> {
+    const data = await helpers.readFile(this.fileName);
+
+    let json;
+
+    try {
+      json = JSON.parse(data);
+    } catch (error) {
+      throw new Error(`The input file "${this.fileName}" is not valid.`);
+    }
+
+    return helpers.validateInput(types.CompilerInputFile, json);
   }
 }
 
