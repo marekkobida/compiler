@@ -20,7 +20,7 @@ class Compiler {
     this.compile('./packages/compiler', 'development');
   }
 
-  addMessage (text: types.typescript.CompilerMessage['text']) {
+  private addMessage (text: types.typescript.CompilerMessage['text']): void {
     this.messages = [{ date: +new Date(), text, }, ...this.messages, ];
 
     if (helpers.isArray(text)) {
@@ -30,15 +30,9 @@ class Compiler {
     if (helpers.isString(text)) {
       console.log(text);
     }
-
-    return this.messages;
   }
 
-  afterCompilation (
-    inputFilePackage: types.typescript.CompilerInputFilePackage,
-    outputFile: types.typescript.CompilerOutputFile,
-    outputFilePackage: types.typescript.CompilerOutputFilePackage
-  ) {
+  private afterCompilation (inputFilePackage: types.typescript.CompilerInputFilePackage, outputFilePackage: types.typescript.CompilerOutputFilePackage) {
     try {
       const $ = path.resolve(inputFilePackage.path, 'public/server.js');
 
@@ -66,8 +60,6 @@ class Compiler {
       }
 
       outputFilePackage.compiledContainer = compiledContainer.toJSON();
-
-      this.outputFile.writeFile(outputFile);
     } catch (error) {
       this.addMessage([ error.message, error.stack, ]);
     }
@@ -87,7 +79,7 @@ class Compiler {
     }
 
     if (outputFilePackage) {
-      throw new Error(`The path "${path}" exists in the output file.`);
+      throw new Error(`The package "${path}" exists in the output file.`);
     }
 
     // 2.
@@ -97,6 +89,8 @@ class Compiler {
     outputFile.packages = [ ...outputFile.packages, { compiledFiles: [], path, version, }, ];
 
     this.outputFile.writeFile(outputFile);
+
+    this.addMessage(`The output file "${this.outputFile.fileName}" was written.`);
 
     // 3.
 
@@ -110,7 +104,7 @@ class Compiler {
       w.watch(
         { poll: 1000, },
         (left: Error, right: { toJson: () => Record<string, unknown> }) => {
-          this.addMessage(`The path "${packageFileToCompile.path}" was compiled in the ${version} version.`);
+          this.addMessage(`The file "${packageFileToCompile.path}" was compiled in the ${version} version.`);
 
           for (let ii = 0; ii < outputFile.packages.length; ii += 1) {
             const outputFilePackage = outputFile.packages[ii];
@@ -119,7 +113,11 @@ class Compiler {
               outputFilePackage.compiledFiles = [ ...outputFilePackage.compiledFiles, { ...right.toJson(), path: packageFileToCompile.path, }, ];
 
               if (inputFilePackage.filesToCompile.length === outputFilePackage.compiledFiles.length) {
-                this.afterCompilation(inputFilePackage, outputFile, outputFilePackage);
+                this.afterCompilation(inputFilePackage, outputFilePackage);
+
+                this.outputFile.writeFile(outputFile);
+
+                this.addMessage(`The output file "${this.outputFile.fileName}" was written.`);
 
                 outputFilePackage.compiledFiles = [];
               }
