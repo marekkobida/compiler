@@ -21,7 +21,10 @@ module.exports = {
     path: path.resolve(__dirname, '..'),
   },
   resolve: {
-    extensions: ['.js', '.ts'],
+    extensions: [
+      '.js',
+      '.ts',
+    ],
   },
   target: 'node',
 };

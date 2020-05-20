@@ -91,8 +91,6 @@ const server = http.createServer(async (request, response) => {
     response.statusCode = 500;
 
     response.end(JSON.stringify({ errors: [[ error.message, error.stack, ], ], }));
-
-    compiler.addMessage([ error.message, error.stack, ]);
   }
 });
 
