@@ -32,7 +32,9 @@ class InputFile {
     try {
       json = JSON.parse(data);
     } catch (error) {
-      throw new Error(`The input file "${this.fileName}" is not valid.`);
+      this.writeFile({ packages: [], });
+
+      return await this.readFile();
     }
 
     return helpers.validateInput(types.CompilerInputFile, json);
