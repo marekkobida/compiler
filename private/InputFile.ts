@@ -2,7 +2,11 @@ import * as helpers from '@redredsk/helpers/server';
 import * as types from '@redredsk/compiler/private/types';
 
 class InputFile {
-  fileName = 'compiler.json';
+  fileName: string;
+
+  constructor (fileName: string = 'compiler.json') {
+    this.fileName = fileName;
+  }
 
   async packageByPath (path: types.typescript.CompilerInputFilePackage['path']): Promise<types.typescript.CompilerInputFilePackage> {
     const inputFile = await this.readFile();

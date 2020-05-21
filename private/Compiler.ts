@@ -8,16 +8,17 @@ import path from 'path';
 const webpack = __non_webpack_require__('webpack');
 
 class Compiler {
-  inputFile = new InputFile();
+  inputFile: InputFile;
 
   messages: types.typescript.CompilerMessages = [];
 
-  outputFile = new OutputFile();
+  outputFile: OutputFile;
 
-  constructor () {
-    this.outputFile.writeFile({ packages: [], });
+  constructor (inputFile: InputFile = new InputFile(), outputFile: OutputFile = new OutputFile()) {
+    this.inputFile = inputFile;
+    this.outputFile = outputFile;
 
-    this.compile('./packages/compiler', 'development');
+    this.test();
   }
 
   private addMessage (text: types.typescript.CompilerMessage['text']): void {
@@ -125,6 +126,22 @@ class Compiler {
           }
         }
       );
+    }
+  }
+
+  private async test (): Promise<void> {
+    this.outputFile.writeFile({ packages: [], });
+
+    const inputFile = await this.inputFile.readFile();
+
+    const inputFilePackages = inputFile.packages;
+
+    for (let i = 0; i < inputFilePackages.length; i += 1) {
+      const inputFilePackage = inputFilePackages[i];
+
+      if (inputFilePackage.isActive) {
+        await this.compile(inputFilePackage.path, inputFilePackage.version);
+      }
     }
   }
 }
