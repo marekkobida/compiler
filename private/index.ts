@@ -23,22 +23,12 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    const areCompilerMessagesRequested
-      = requestedURL.pathname === '/compiler/messages';
     const isCompilerCompileFunctionRequested
       = requestedURL.pathname === '/compiler/compile';
     const isInputFileRequested
       = requestedURL.pathname === `/${compiler.inputFile.fileName}`;
     const isOutputFileRequested
       = requestedURL.pathname === `/${compiler.outputFile.fileName}`;
-
-    if (areCompilerMessagesRequested) {
-      const compilerMessages = await helpers.validateInput(types.CompilerMessages, compiler.messages);
-
-      response.end(JSON.stringify(compilerMessages));
-
-      return;
-    }
 
     if (isCompilerCompileFunctionRequested) {
       const requestedURLParameters = requestedURL.searchParams;
