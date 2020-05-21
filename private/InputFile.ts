@@ -37,6 +37,12 @@ class InputFile {
 
     return helpers.validateInput(types.CompilerInputFile, json);
   }
+
+  writeFile (data: types.typescript.CompilerInputFile): void {
+    const validatedData = helpers.validateInput(types.CompilerInputFile, data);
+
+    helpers.writeFile(this.fileName, `${JSON.stringify(validatedData)}\n`);
+  }
 }
 
 export default InputFile;
