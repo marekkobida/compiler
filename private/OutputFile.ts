@@ -44,6 +44,8 @@ class OutputFile {
     const validatedData = helpers.validateInput(types.CompilerOutputFile, data);
 
     helpers.writeFile(this.fileName, `${JSON.stringify(validatedData)}\n`);
+
+    console.log(`The output file "${this.fileName}" was written.`);
   }
 }
 

@@ -77,8 +77,6 @@ class Compiler {
 
     this.outputFile.writeFile(outputFile);
 
-    console.log(`The output file "${this.outputFile.fileName}" was written.`);
-
     // 3.
 
     for (let i = 0; i < inputFilePackage.filesToCompile.length; i += 1) {
@@ -103,8 +101,6 @@ class Compiler {
                 this.afterCompilation(inputFilePackage, outputFilePackage);
 
                 this.outputFile.writeFile(outputFile);
-
-                console.log(`The output file "${this.outputFile.fileName}" was written.`);
 
                 outputFilePackage.compiledFiles = [];
               }

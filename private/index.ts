@@ -1,5 +1,4 @@
 import * as helpers from '@redredsk/helpers/server';
-import * as types from '@redredsk/compiler/private/types';
 import Compiler from './Compiler';
 import http from 'http';
 import path from 'path';
