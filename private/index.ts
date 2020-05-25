@@ -1,7 +1,8 @@
-import * as helpers from '@redredsk/helpers/server';
 import Compiler from './Compiler';
 import http from 'http';
+import mime from '@redredsk/helpers/private/mime';
 import path from 'path';
+import readFile from '@redredsk/helpers/private/readFile';
 
 const compiler = new Compiler();
 
@@ -57,11 +58,11 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    const mime = helpers.mime(path.extname(requestedURL.pathname));
+    const $ = mime(path.extname(requestedURL.pathname));
 
-    response.setHeader('Content-Type', mime.charset ? `${mime.typeName}; charset=${mime.charset}` : mime.typeName);
+    response.setHeader('Content-Type', $.charset ? `${$.typeName}; charset=${$.charset}` : $.typeName);
 
-    response.end(await helpers.readFile(`.${requestedURL.pathname}`, 'base64'), 'base64');
+    response.end(await readFile(`.${requestedURL.pathname}`, 'base64'), 'base64');
   } catch (error) {
     response.statusCode = 500;
 

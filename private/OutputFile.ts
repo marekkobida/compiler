@@ -1,5 +1,8 @@
-import * as helpers from '@redredsk/helpers/server';
-import * as types from '@redredsk/compiler/private/types';
+import * as t from 'io-ts';
+import readFile from '@redredsk/helpers/private/readFile';
+import validateInput from '@redredsk/helpers/private/types/validateInput';
+import writeFile from '@redredsk/helpers/private/writeFile';
+import { CompilerOutputFile, CompilerOutputFilePackage, } from '@redredsk/compiler/private/types/CompilerOutputFile';
 
 class OutputFile {
   fileName: string;
@@ -8,7 +11,7 @@ class OutputFile {
     this.fileName = fileName;
   }
 
-  async packageByPath (path: types.typescript.CompilerOutputFilePackage['path']): Promise<types.typescript.CompilerOutputFilePackage> {
+  async packageByPath (path: t.TypeOf<typeof CompilerOutputFilePackage>['path']): Promise<t.TypeOf<typeof CompilerOutputFilePackage>> {
     const outputFile = await this.readFile();
 
     const outputFilePackages = outputFile.packages;
@@ -24,8 +27,8 @@ class OutputFile {
     throw new Error(`The package "${path}" does not exist in the output file.`);
   }
 
-  async readFile (): Promise<types.typescript.CompilerOutputFile> {
-    const data = await helpers.readFile(this.fileName);
+  async readFile (): Promise<t.TypeOf<typeof CompilerOutputFile>> {
+    const data = await readFile(this.fileName);
 
     let json;
 
@@ -37,13 +40,13 @@ class OutputFile {
       return await this.readFile();
     }
 
-    return helpers.validateInput(types.CompilerOutputFile, json);
+    return validateInput(CompilerOutputFile, json);
   }
 
-  writeFile (data: types.typescript.CompilerOutputFile): void {
-    const validatedData = helpers.validateInput(types.CompilerOutputFile, data);
+  writeFile (data: t.TypeOf<typeof CompilerOutputFile>): void {
+    const validatedData = validateInput(CompilerOutputFile, data);
 
-    helpers.writeFile(this.fileName, `${JSON.stringify(validatedData)}\n`);
+    writeFile(this.fileName, `${JSON.stringify(validatedData)}\n`);
   }
 }
 

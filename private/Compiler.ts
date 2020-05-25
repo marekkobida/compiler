@@ -1,9 +1,11 @@
-import * as helpers from '@redredsk/helpers/server';
-import * as types from '@redredsk/compiler/private/types';
+import * as t from 'io-ts';
 import Container from '@redredsk/pages/private/Container';
 import InputFile from './InputFile';
 import OutputFile from './OutputFile';
 import path from 'path';
+import writeFile from '@redredsk/helpers/private/writeFile';
+import { CompilerInputFilePackage, } from '@redredsk/compiler/private/types/CompilerInputFile';
+import { CompilerOutputFilePackage, } from '@redredsk/compiler/private/types/CompilerOutputFile';
 
 const webpack = __non_webpack_require__('webpack');
 
@@ -19,7 +21,7 @@ class Compiler {
     this.test();
   }
 
-  private afterCompilation (inputFilePackage: types.typescript.CompilerInputFilePackage, outputFilePackage: types.typescript.CompilerOutputFilePackage) {
+  private afterCompilation (inputFilePackage: t.TypeOf<typeof CompilerInputFilePackage>, outputFilePackage: t.TypeOf<typeof CompilerOutputFilePackage>) {
     try {
       const $ = path.resolve(inputFilePackage.path, 'public/server.js');
 
@@ -40,7 +42,7 @@ class Compiler {
         compiledContainerPage.toHTML();
 
         if (typeof compiledContainerPage.html === 'string') {
-          helpers.writeFile(`${inputFilePackage.path}/public/${compiledContainerPage.name}.html`, compiledContainerPage.html);
+          writeFile(`${inputFilePackage.path}/public/${compiledContainerPage.name}.html`, compiledContainerPage.html);
 
           console.log(`The file "${inputFilePackage.path}/public/${compiledContainerPage.name}.html" was written.`);
         }
@@ -52,7 +54,7 @@ class Compiler {
     }
   }
 
-  async compile (path: types.typescript.CompilerInputFilePackage['path'], version: types.typescript.CompilerInputFilePackage['version']) {
+  async compile (path: t.TypeOf<typeof CompilerInputFilePackage>['path'], version: t.TypeOf<typeof CompilerInputFilePackage>['version']) {
     // 1.
 
     const inputFilePackage = await this.inputFile.packageByPath(path);
