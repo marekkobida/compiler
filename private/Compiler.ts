@@ -18,7 +18,9 @@ class Compiler {
     this.inputFile = inputFile;
     this.outputFile = outputFile;
 
-    this.test();
+    this.outputFile.writeFile({ packages: [], });
+
+    this.compile('./packages/compiler', 'development');
   }
 
   private afterCompilation (inputFilePackage: t.TypeOf<typeof CompilerInputFilePackage>, outputFilePackage: t.TypeOf<typeof CompilerOutputFilePackage>) {
@@ -110,22 +112,6 @@ class Compiler {
           }
         }
       );
-    }
-  }
-
-  private async test (): Promise<void> {
-    this.outputFile.writeFile({ packages: [], });
-
-    const inputFile = await this.inputFile.readFile();
-
-    const inputFilePackages = inputFile.packages;
-
-    for (let i = 0; i < inputFilePackages.length; i += 1) {
-      const inputFilePackage = inputFilePackages[i];
-
-      if (inputFilePackage.isActive) {
-        await this.compile(inputFilePackage.path, inputFilePackage.version);
-      }
     }
   }
 }
