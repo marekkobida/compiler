@@ -65,7 +65,7 @@ const server = http.createServer(async (request, response) => {
   } catch (error) {
     response.statusCode = 500;
 
-    response.end(JSON.stringify({ errors: [[ error.message, error.stack, ], ], }));
+    response.end(JSON.stringify({ errors: [ error.message, ], }));
   }
 });
 
