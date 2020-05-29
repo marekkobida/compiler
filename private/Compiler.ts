@@ -20,7 +20,7 @@ class Compiler {
 
     this.outputFile.writeFile({ packages: [], });
 
-    this.compile('./packages/compiler', 'development');
+    this.compile('./packages/compiler');
   }
 
   private afterCompilation (inputFilePackage: t.TypeOf<typeof CompilerInputFilePackage>, outputFilePackage: t.TypeOf<typeof CompilerOutputFilePackage>) {
@@ -56,7 +56,7 @@ class Compiler {
     }
   }
 
-  async compile (path: t.TypeOf<typeof CompilerInputFilePackage>['path'], version: t.TypeOf<typeof CompilerInputFilePackage>['version']) {
+  async compile (path: t.TypeOf<typeof CompilerInputFilePackage>['path']) {
     // 1.
 
     const inputFilePackage = await this.inputFile.packageByPath(path);
@@ -77,7 +77,7 @@ class Compiler {
 
     const outputFile = await this.outputFile.readFile();
 
-    outputFile.packages = [ ...outputFile.packages, { compiledFiles: [], path, version, }, ];
+    outputFile.packages = [ ...outputFile.packages, { compiledFiles: [], path, version: inputFilePackage.version, }, ];
 
     this.outputFile.writeFile(outputFile);
 
@@ -88,12 +88,12 @@ class Compiler {
 
       delete __non_webpack_require__.cache[__non_webpack_require__.resolve(packageFileToCompile.path)];
 
-      const w = webpack(__non_webpack_require__(packageFileToCompile.path)(inputFilePackage, version));
+      const w = webpack(__non_webpack_require__(packageFileToCompile.path)(inputFilePackage, inputFilePackage.version));
 
       w.watch(
         { poll: 1000, },
         (left: Error, right: { toJson: () => Record<string, unknown> }) => {
-          console.log(`The file "${packageFileToCompile.path}" was compiled in the ${version} version.`);
+          console.log(`The file "${packageFileToCompile.path}" was compiled in the ${inputFilePackage.version} version.`);
 
           for (let ii = 0; ii < outputFile.packages.length; ii += 1) {
             const outputFilePackage = outputFile.packages[ii];

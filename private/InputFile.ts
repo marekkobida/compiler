@@ -30,17 +30,7 @@ class InputFile {
   async readFile (): Promise<t.TypeOf<typeof CompilerInputFile>> {
     const data = await readFile(this.fileName);
 
-    let json;
-
-    try {
-      json = JSON.parse(data);
-    } catch (error) {
-      this.writeFile({ packages: [], });
-
-      return await this.readFile();
-    }
-
-    return validateInput(CompilerInputFile, json);
+    return validateInput(CompilerInputFile, JSON.parse(data));
   }
 
   writeFile (data:t.TypeOf<typeof CompilerInputFile>): void {

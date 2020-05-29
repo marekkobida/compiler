@@ -35,10 +35,8 @@ const server = http.createServer(async (request, response) => {
 
       const pathFromRequestedURLParameters = requestedURLParameters.get('path');
 
-      const versionFromRequestedURLParameters = requestedURLParameters.get('version');
-
-      if (pathFromRequestedURLParameters && versionFromRequestedURLParameters) {
-        await compiler.compile(pathFromRequestedURLParameters, versionFromRequestedURLParameters);
+      if (pathFromRequestedURLParameters) {
+        await compiler.compile(pathFromRequestedURLParameters);
 
         response.end();
 
