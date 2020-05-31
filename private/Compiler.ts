@@ -88,10 +88,10 @@ class Compiler {
 
       delete __non_webpack_require__.cache[__non_webpack_require__.resolve(packageFileToCompile.path)];
 
-      const w = webpack(__non_webpack_require__(packageFileToCompile.path)(inputFilePackage, inputFilePackage.version));
+      const w = webpack(__non_webpack_require__(packageFileToCompile.path)(inputFilePackage));
 
       w.watch(
-        { poll: 1000, },
+        {},
         (left: Error, right: { toJson: () => Record<string, unknown> }) => {
           console.log(`The file "${packageFileToCompile.path}" was compiled in the ${inputFilePackage.version} version.`);
 
