@@ -99,8 +99,6 @@ class Compiler {
             const outputFilePackage = outputFile.packages[ii];
 
             if (outputFilePackage.path === inputFilePackage.path) {
-              console.log(typeof right.toJson().assets, right.toJson().assets, Object.prototype.toString.call(right.toJson().assets));
-              console.log('t', { assets: right.toJson().assets, });
               outputFilePackage.compiledFiles = [ ...outputFilePackage.compiledFiles, { ...right.toJson(), path: packageFileToCompile.path, }, ];
 
               if (inputFilePackage.filesToCompile.length === outputFilePackage.compiledFiles.length) {
