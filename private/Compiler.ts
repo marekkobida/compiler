@@ -47,8 +47,6 @@ class Compiler {
 
         if (typeof compiledContainerPage.html === 'string') {
           writeFile(`${inputFilePackage.path}/public/${compiledContainerPage.name}.html`, compiledContainerPage.html);
-
-          console.log(`The file "${inputFilePackage.path}/public/${compiledContainerPage.name}.html" was written.`);
         }
       }
 
@@ -95,8 +93,6 @@ class Compiler {
       w.watch(
         {},
         (left: Error, right: { toJson: () => Record<string, unknown> }) => {
-          console.log(`The file "${packageFileToCompile.path}" was compiled in the ${inputFilePackage.version} version.`);
-
           for (let ii = 0; ii < outputFile.packages.length; ii += 1) {
             const outputFilePackage = outputFile.packages[ii];
 
