@@ -15,6 +15,16 @@ const server = http.createServer(async (request, response) => {
 
     const requestedURL = new URL(`file://${request.url}`);
 
+    if (requestedURL.pathname === '/') {
+      response.statusCode = 302;
+
+      response.setHeader('Location', '/packages/compiler/public/Compiler.html');
+
+      response.end();
+
+      return;
+    }
+
     if (requestedURL.pathname === '/favicon.ico') {
       response.setHeader('Content-Type', 'image/x-icon');
 
