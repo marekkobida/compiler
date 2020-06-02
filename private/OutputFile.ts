@@ -11,7 +11,7 @@ class OutputFile {
     this.fileName = fileName;
   }
 
-  async packageByPath (path: t.TypeOf<typeof CompilerOutputFilePackage>['path']): Promise<t.TypeOf<typeof CompilerOutputFilePackage>> {
+  async packageByPath (path: t.TypeOf<typeof CompilerOutputFilePackage>['path']): Promise<t.TypeOf<typeof CompilerOutputFilePackage> | undefined> {
     const outputFile = await this.readFile();
 
     const outputFilePackages = outputFile.packages;
@@ -23,8 +23,6 @@ class OutputFile {
         return outputFilePackage;
       }
     }
-
-    throw new Error(`The package "${path}" does not exist in the output file.`);
   }
 
   async readFile (): Promise<t.TypeOf<typeof CompilerOutputFile>> {

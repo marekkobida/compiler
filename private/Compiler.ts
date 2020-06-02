@@ -61,13 +61,11 @@ class Compiler {
 
     const inputFilePackage = await this.inputFile.packageByPath(path);
 
-    let outputFilePackage;
-
-    try {
-      outputFilePackage  = await this.outputFile.packageByPath(path);
-    } catch (error) {
-
+    if (!inputFilePackage) {
+      throw new Error(`The package "${path}" does not exist in the input file.`);
     }
+
+    const outputFilePackage  = await this.outputFile.packageByPath(path);
 
     if (outputFilePackage) {
       throw new Error(`The package "${path}" exists in the output file.`);
