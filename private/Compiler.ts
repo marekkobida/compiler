@@ -7,6 +7,8 @@ import writeFile from '@redredsk/helpers/private/writeFile';
 import { CompilerInputFilePackage, } from '@redredsk/compiler/private/types/CompilerInputFile';
 import { CompilerOutputFilePackage, } from '@redredsk/compiler/private/types/CompilerOutputFile';
 
+process.chdir(process.mainModule.path);
+
 const webpack = __non_webpack_require__('webpack');
 
 class Compiler {
