@@ -18,7 +18,7 @@ const server = http.createServer(async (request, response) => {
     if (requestedURL.pathname === '/') {
       response.statusCode = 302;
 
-      response.setHeader('Location', '/packages/compiler/public/Compiler.html');
+      response.setHeader('Location', '/packages/compiler/public/compiler.html');
 
       response.end();
 
