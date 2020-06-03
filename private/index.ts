@@ -35,9 +35,9 @@ const server = http.createServer(async (request, response) => {
 
     const isCompilerCompileFunctionRequested
       = requestedURL.pathname === '/compiler/compile';
-    const isInputFileRequested
+    const isCompilerInputFileRequested
       = requestedURL.pathname === `/${compiler.inputFile.fileName}`;
-    const isOutputFileRequested
+    const isCompilerOutputFileRequested
       = requestedURL.pathname === `/${compiler.outputFile.fileName}`;
 
     if (isCompilerCompileFunctionRequested) {
@@ -54,13 +54,13 @@ const server = http.createServer(async (request, response) => {
       }
     }
 
-    if (isInputFileRequested) {
+    if (isCompilerInputFileRequested) {
       response.end(JSON.stringify(await compiler.inputFile.readFile()));
 
       return;
     }
 
-    if (isOutputFileRequested) {
+    if (isCompilerOutputFileRequested) {
       response.end(JSON.stringify(await compiler.outputFile.readFile()));
 
       return;
