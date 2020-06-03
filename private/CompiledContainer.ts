@@ -32,9 +32,7 @@ class CompiledContainer {
       }
 
       outputFilePackage.compiledContainer = compiledContainer.toJSON();
-    } catch (error) {
-      console.log([ error.message, error.stack, ]);
-    }
+    } catch (error) {}
   }
 }
 
