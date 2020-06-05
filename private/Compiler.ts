@@ -64,13 +64,9 @@ class Compiler {
             if (outputFilePackage.path === inputFilePackage.path) {
               outputFilePackage.compiledFiles = [ ...outputFilePackage.compiledFiles, { ...right.toJson(), path: packageFileToCompile.path, }, ];
 
-              if (inputFilePackage.filesToCompile.length === outputFilePackage.compiledFiles.length) {
-                new CompiledContainer(inputFilePackage, outputFilePackage);
+              new CompiledContainer(inputFilePackage, outputFilePackage);
 
-                this.outputFile.writeFile(outputFile);
-
-                outputFilePackage.compiledFiles = [];
-              }
+              this.outputFile.writeFile(outputFile);
             }
           }
         }
