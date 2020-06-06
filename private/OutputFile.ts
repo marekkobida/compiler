@@ -13,7 +13,7 @@ class OutputFile {
     this.writeFile({ packages: [], });
   }
 
-  async packageByPath (path: t.TypeOf<typeof CompilerOutputFilePackage>['path']): Promise<t.TypeOf<typeof CompilerOutputFilePackage> | undefined> {
+  async packageByPath (path: t.TypeOf<typeof CompilerOutputFilePackage>['path']): Promise<[ number, t.TypeOf<typeof CompilerOutputFilePackage>, ] | undefined> {
     const outputFile = await this.readFile();
 
     const outputFilePackages = outputFile.packages;
@@ -22,7 +22,7 @@ class OutputFile {
       const outputFilePackage = outputFilePackages[i];
 
       if (outputFilePackage.path === path) {
-        return outputFilePackage;
+        return [ i, outputFilePackage, ];
       }
     }
   }

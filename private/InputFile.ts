@@ -11,7 +11,7 @@ class InputFile {
     this.fileName = fileName;
   }
 
-  async packageByPath (path: t.TypeOf<typeof CompilerInputFilePackage>['path']): Promise<t.TypeOf<typeof CompilerInputFilePackage> | undefined> {
+  async packageByPath (path: t.TypeOf<typeof CompilerInputFilePackage>['path']): Promise<[ number, t.TypeOf<typeof CompilerInputFilePackage>, ] | undefined> {
     const inputFile = await this.readFile();
 
     const inputFilePackages = inputFile.packages;
@@ -20,7 +20,7 @@ class InputFile {
       const inputFilePackage = inputFilePackages[i];
 
       if (inputFilePackage.path === path) {
-        return inputFilePackage;
+        return [ i, inputFilePackage, ];
       }
     }
   }

@@ -102,5 +102,5 @@ if (l < r) {
     }
   });
 
-  server.listen(1337, () => process.stdout.write(`       x  x\n    x        x\n   x          x\n   x          x\n    x        x\n       x  x\n\n@redredsk/compiler\n2.0.0`));
+  server.listen(1337, () => process.stdout.write(`       x  x\n    x        x\n   x          x\n   x          x\n    x        x\n       x  x\n\n@redredsk/compiler\n2.1.0`));
 }

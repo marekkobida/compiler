@@ -9,13 +9,13 @@ class CompiledContainer {
   constructor (inputFilePackage: t.TypeOf<typeof CompilerInputFilePackage>, outputFilePackage: t.TypeOf<typeof CompilerOutputFilePackage>) {
     try {
       for (let i = 0; i < outputFilePackage.compiledFiles.length; i += 1) {
-        const compilerOutputFilePackageCompiledFile = outputFilePackage.compiledFiles[i];
+        const outputFilePackageCompiledFile = outputFilePackage.compiledFiles[i];
 
-        for (let ii = 0; ii < compilerOutputFilePackageCompiledFile.assets.length; ii += 1) {
-          const compilerOutputFilePackageCompiledFileAsset = compilerOutputFilePackageCompiledFile.assets[ii];
+        for (let ii = 0; ii < outputFilePackageCompiledFile.assets.length; ii += 1) {
+          const outputFilePackageCompiledFileAsset = outputFilePackageCompiledFile.assets[ii];
 
-          if (/\.js(?!\.map)/.test(compilerOutputFilePackageCompiledFileAsset.name)) {
-            const $ = path.resolve(`${compilerOutputFilePackageCompiledFile.outputPath}/${compilerOutputFilePackageCompiledFileAsset.name}`);
+          if (/\.js(?!\.map)/.test(outputFilePackageCompiledFileAsset.name)) {
+            const $ = path.resolve(`${outputFilePackageCompiledFile.outputPath}/${outputFilePackageCompiledFileAsset.name}`);
 
             delete __non_webpack_require__.cache[__non_webpack_require__.resolve($)];
 
@@ -34,7 +34,7 @@ class CompiledContainer {
               compiledContainerPage.toHTML();
 
               if (typeof compiledContainerPage.html === 'string') {
-                writeFile(`${compilerOutputFilePackageCompiledFile.outputPath}/${compiledContainerPage.name}.html`, compiledContainerPage.html);
+                writeFile(`${outputFilePackageCompiledFile.outputPath}/${compiledContainerPage.name}.html`, compiledContainerPage.html);
               }
             }
 
