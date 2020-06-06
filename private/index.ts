@@ -18,6 +18,7 @@ if (l < r) {
       response.statusCode = 200;
 
       const requestedURL = new URL(`file://${request.url}`);
+      const requestedURLParameters = requestedURL.searchParams;
 
       if (requestedURL.pathname === '/favicon.ico') {
         response.setHeader('Content-Type', 'image/x-icon');
@@ -37,8 +38,6 @@ if (l < r) {
         = requestedURL.pathname === `/${compiler.statisticsFile.fileName}`;
 
       if (isCompilerCompileFunctionRequested) {
-        const requestedURLParameters = requestedURL.searchParams;
-
         const pathFromRequestedURLParameters = requestedURLParameters.get('path');
 
         if (pathFromRequestedURLParameters) {
@@ -63,13 +62,11 @@ if (l < r) {
       }
 
       if (isCompilerStatisticsFileRequested) {
-        const requestedURLParameters = requestedURL.searchParams;
+        const compilerStatisticsFile = await compiler.statisticsFile.readFile();
 
-        const URLFromRequestedURLParameters = requestedURLParameters.get('url');
+        const urlFromRequestedUrlParameters = requestedURLParameters.get('url');
 
-        if (request.headers.referer && request.headers['user-agent'] && URLFromRequestedURLParameters) {
-          const compilerStatisticsFile = await compiler.statisticsFile.readFile();
-
+        if (request.headers.referer && request.headers['user-agent'] && urlFromRequestedUrlParameters) {
           compilerStatisticsFile.requests = [
             ...compilerStatisticsFile.requests,
             {
@@ -77,7 +74,7 @@ if (l < r) {
                 referer: request.headers.referer,
                 'user-agent': request.headers['user-agent'],
               },
-              url: new URL(URLFromRequestedURLParameters).toString(),
+              url: new URL(urlFromRequestedUrlParameters).toString(),
             },
           ];
 
@@ -88,7 +85,7 @@ if (l < r) {
           return;
         }
 
-        response.end(JSON.stringify(await compiler.statisticsFile.readFile()));
+        response.end(JSON.stringify(compilerStatisticsFile));
 
         return;
       }

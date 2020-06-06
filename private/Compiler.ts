@@ -2,10 +2,10 @@ import * as t from 'io-ts';
 import CompiledContainer from './CompiledContainer';
 import InputFile from './InputFile';
 import OutputFile from './OutputFile';
+import StatisticsFile from './StatisticsFile';
 import path from 'path';
 import { CompilerInputFilePackage, } from '@redredsk/compiler/private/types/CompilerInputFile';
-
-process.chdir(process.mainModule.path);
+import { CompilerOutputFilePackageCompiledFile, } from '@redredsk/compiler/private/types/CompilerOutputFile';
 
 const webpack = __non_webpack_require__('webpack');
 
@@ -14,11 +14,12 @@ class Compiler {
 
   outputFile: OutputFile;
 
-  constructor (inputFile: InputFile = new InputFile(), outputFile: OutputFile = new OutputFile()) {
+  statisticsFile: StatisticsFile;
+
+  constructor (inputFile: InputFile = new InputFile(), outputFile: OutputFile = new OutputFile(), statisticsFile: StatisticsFile = new StatisticsFile()) {
     this.inputFile = inputFile;
     this.outputFile = outputFile;
-
-    this.outputFile.writeFile({ packages: [], });
+    this.statisticsFile = statisticsFile;
 
     this.compile('./packages/compiler');
   }
@@ -57,12 +58,26 @@ class Compiler {
 
       w.watch(
         {},
-        (left: Error, right: { toJson: () => Record<string, unknown> }) => {
-          for (let ii = 0; ii < outputFile.packages.length; ii += 1) {
-            const outputFilePackage = outputFile.packages[ii];
+        async (left: Error, right: { toJson: () => t.TypeOf<typeof CompilerOutputFilePackageCompiledFile>, }) => {
+          const outputFilePackage  = await this.outputFile.packageByPath(path);
 
+          if (outputFilePackage) {
             if (outputFilePackage.path === inputFilePackage.path) {
-              outputFilePackage.compiledFiles = [ ...outputFilePackage.compiledFiles, { ...right.toJson(), path: packageFileToCompile.path, }, ];
+              let $ = false;
+
+              for (let ii = 0; ii < outputFilePackage.compiledFiles.length; ii += 1) {
+                let compilerOutputFilePackageCompiledFile = outputFilePackage.compiledFiles[ii];
+
+                if (compilerOutputFilePackageCompiledFile.path === packageFileToCompile.path) {
+                  outputFilePackage.compiledFiles[ii] = { ...right.toJson(), path: packageFileToCompile.path, };
+
+                  $ = true;
+                }
+              }
+
+              if (!$) {
+                outputFilePackage.compiledFiles = [ ...outputFilePackage.compiledFiles, { ...right.toJson(), path: packageFileToCompile.path, }, ];
+              }
 
               new CompiledContainer(inputFilePackage, outputFilePackage);
 
