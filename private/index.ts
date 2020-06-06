@@ -28,13 +28,13 @@ if (l < r) {
       }
 
       const isCompilerCompileFunctionRequested
-        = request.method === 'GET' && requestedURL.pathname === '/compiler/compile';
+        = requestedURL.pathname === '/compiler/compile';
       const isCompilerInputFileRequested
-        = request.method === 'GET' && requestedURL.pathname === `/${compiler.inputFile.fileName}`;
+        = requestedURL.pathname === `/${compiler.inputFile.fileName}`;
       const isCompilerOutputFileRequested
-        = request.method === 'GET' && requestedURL.pathname === `/${compiler.outputFile.fileName}`;
+        = requestedURL.pathname === `/${compiler.outputFile.fileName}`;
       const isCompilerStatisticsFileRequested
-        = request.method === 'GET' && requestedURL.pathname === `/${compiler.statisticsFile.fileName}`;
+        = requestedURL.pathname === `/${compiler.statisticsFile.fileName}`;
 
       if (isCompilerCompileFunctionRequested) {
         const requestedURLParameters = requestedURL.searchParams;
