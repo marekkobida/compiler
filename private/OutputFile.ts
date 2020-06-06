@@ -9,6 +9,8 @@ class OutputFile {
 
   constructor (fileName: string = 'compiled.json') {
     this.fileName = fileName;
+
+    this.writeFile({ packages: [], });
   }
 
   async packageByPath (path: t.TypeOf<typeof CompilerOutputFilePackage>['path']): Promise<t.TypeOf<typeof CompilerOutputFilePackage> | undefined> {
