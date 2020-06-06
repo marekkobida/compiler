@@ -28,16 +28,16 @@ if (l < r) {
         return;
       }
 
-      const isCompilerCompileFunctionRequested
+      const isCompileFunctionRequested
         = requestedURL.pathname === '/compiler/compile';
-      const isCompilerInputFileRequested
+      const isInputFileRequested
         = requestedURL.pathname === `/${compiler.inputFile.fileName}`;
-      const isCompilerOutputFileRequested
+      const isOutputFileRequested
         = requestedURL.pathname === `/${compiler.outputFile.fileName}`;
-      const isCompilerStatisticsFileRequested
+      const isStatisticsFileRequested
         = requestedURL.pathname === `/${compiler.statisticsFile.fileName}`;
 
-      if (isCompilerCompileFunctionRequested) {
+      if (isCompileFunctionRequested) {
         const pathFromRequestedURLParameters = requestedURLParameters.get('path');
 
         if (pathFromRequestedURLParameters) {
@@ -49,26 +49,26 @@ if (l < r) {
         }
       }
 
-      if (isCompilerInputFileRequested) {
+      if (isInputFileRequested) {
         response.end(JSON.stringify(await compiler.inputFile.readFile()));
 
         return;
       }
 
-      if (isCompilerOutputFileRequested) {
+      if (isOutputFileRequested) {
         response.end(JSON.stringify(await compiler.outputFile.readFile()));
 
         return;
       }
 
-      if (isCompilerStatisticsFileRequested) {
-        const compilerStatisticsFile = await compiler.statisticsFile.readFile();
+      if (isStatisticsFileRequested) {
+        const statisticsFile = await compiler.statisticsFile.readFile();
 
         const urlFromRequestedUrlParameters = requestedURLParameters.get('url');
 
         if (request.headers.referer && request.headers['user-agent'] && urlFromRequestedUrlParameters) {
-          compilerStatisticsFile.requests = [
-            ...compilerStatisticsFile.requests,
+          statisticsFile.requests = [
+            ...statisticsFile.requests,
             {
               headers: {
                 referer: request.headers.referer,
@@ -78,14 +78,14 @@ if (l < r) {
             },
           ];
 
-          compiler.statisticsFile.writeFile(compilerStatisticsFile);
+          compiler.statisticsFile.writeFile(statisticsFile);
 
           response.end();
 
           return;
         }
 
-        response.end(JSON.stringify(compilerStatisticsFile));
+        response.end(JSON.stringify(statisticsFile));
 
         return;
       }
