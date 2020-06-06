@@ -2,7 +2,7 @@ import * as t from 'io-ts';
 import readFile from '@redredsk/helpers/private/readFile';
 import validateInput from '@redredsk/helpers/private/types/validateInput';
 import writeFile from '@redredsk/helpers/private/writeFile';
-import { OutputFile as OutputFileType, OutputFilePackage, } from '@redredsk/compiler/private/types/OutputFile';
+import { OutputFile as T, OutputFilePackage, } from '@redredsk/compiler/private/types/OutputFile';
 
 class OutputFile {
   fileName: string;
@@ -27,16 +27,16 @@ class OutputFile {
     }
   }
 
-  async readFile (): Promise<t.TypeOf<typeof OutputFileType>> {
+  async readFile (): Promise<t.TypeOf<typeof T>> {
     const data = await readFile(this.fileName);
 
-    return validateInput(OutputFileType, JSON.parse(data));
+    return validateInput(T, JSON.parse(data));
   }
 
-  writeFile (data: t.TypeOf<typeof OutputFileType>): void {
-    const validatedData = validateInput(OutputFileType, data);
+  writeFile (outputFile: t.TypeOf<typeof T>): void {
+    const validatedOutputFile = validateInput(T, outputFile);
 
-    writeFile(this.fileName, `${JSON.stringify(validatedData)}\n`);
+    writeFile(this.fileName, `${JSON.stringify(validatedOutputFile)}\n`);
   }
 }
 
