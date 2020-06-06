@@ -2,7 +2,7 @@ import * as t from 'io-ts';
 import readFile from '@redredsk/helpers/private/readFile';
 import validateInput from '@redredsk/helpers/private/types/validateInput';
 import writeFile from '@redredsk/helpers/private/writeFile';
-import { CompilerInputFile, CompilerInputFilePackage, } from '@redredsk/compiler/private/types/CompilerInputFile';
+import { InputFile as InputFileType, InputFilePackage, } from '@redredsk/compiler/private/types/InputFile';
 
 class InputFile {
   fileName: string;
@@ -11,7 +11,7 @@ class InputFile {
     this.fileName = fileName;
   }
 
-  async packageByPath (path: t.TypeOf<typeof CompilerInputFilePackage>['path']): Promise<[ number, t.TypeOf<typeof CompilerInputFilePackage>, ] | undefined> {
+  async packageByPath (path: t.TypeOf<typeof InputFilePackage>['path']): Promise<[ number, t.TypeOf<typeof InputFilePackage>, ] | undefined> {
     const inputFile = await this.readFile();
 
     const inputFilePackages = inputFile.packages;
@@ -25,14 +25,14 @@ class InputFile {
     }
   }
 
-  async readFile (): Promise<t.TypeOf<typeof CompilerInputFile>> {
+  async readFile (): Promise<t.TypeOf<typeof InputFileType>> {
     const data = await readFile(this.fileName);
 
-    return validateInput(CompilerInputFile, JSON.parse(data));
+    return validateInput(InputFileType, JSON.parse(data));
   }
 
-  writeFile (data:t.TypeOf<typeof CompilerInputFile>): void {
-    const validatedData = validateInput(CompilerInputFile, data);
+  writeFile (data:t.TypeOf<typeof InputFileType>): void {
+    const validatedData = validateInput(InputFileType, data);
 
     writeFile(this.fileName, `${JSON.stringify(validatedData)}\n`);
   }

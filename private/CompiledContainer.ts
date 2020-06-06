@@ -2,11 +2,11 @@ import * as t from 'io-ts';
 import Container from '@redredsk/pages/private/Container';
 import path from 'path';
 import writeFile from '@redredsk/helpers/private/writeFile';
-import { CompilerInputFilePackage, } from '@redredsk/compiler/private/types/CompilerInputFile';
-import { CompilerOutputFilePackage, } from '@redredsk/compiler/private/types/CompilerOutputFile';
+import { InputFilePackage, } from '@redredsk/compiler/private/types/InputFile';
+import { OutputFilePackage, } from '@redredsk/compiler/private/types/OutputFile';
 
 class CompiledContainer {
-  constructor (inputFilePackage: t.TypeOf<typeof CompilerInputFilePackage>, outputFilePackage: t.TypeOf<typeof CompilerOutputFilePackage>) {
+  constructor (inputFilePackage: t.TypeOf<typeof InputFilePackage>, outputFilePackage: t.TypeOf<typeof OutputFilePackage>) {
     try {
       for (let i = 0; i < outputFilePackage.compiledFiles.length; i += 1) {
         const outputFilePackageCompiledFile = outputFilePackage.compiledFiles[i];

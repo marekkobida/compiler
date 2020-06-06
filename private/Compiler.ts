@@ -4,8 +4,8 @@ import InputFile from './InputFile';
 import OutputFile from './OutputFile';
 import StatisticsFile from './StatisticsFile';
 import path from 'path';
-import { CompilerInputFilePackage, CompilerInputFilePackageFileToCompile, } from '@redredsk/compiler/private/types/CompilerInputFile';
-import { CompilerOutputFilePackageCompiledFile, } from '@redredsk/compiler/private/types/CompilerOutputFile';
+import { InputFilePackage, InputFilePackageFileToCompile, } from '@redredsk/compiler/private/types/InputFile';
+import { OutputFilePackageCompiledFile, } from '@redredsk/compiler/private/types/OutputFile';
 
 const webpack = __non_webpack_require__('webpack');
 
@@ -24,8 +24,8 @@ class Compiler {
     this.compile('./packages/compiler');
   }
 
-  afterCompilation (inputFilePackage: t.TypeOf<typeof CompilerInputFilePackage>, inputFilePackageFileToCompile: t.TypeOf<typeof CompilerInputFilePackageFileToCompile>) {
-    return async (left: Error, right: { toJson: () => t.TypeOf<typeof CompilerOutputFilePackageCompiledFile>, }): Promise<void> => {
+  afterCompilation (inputFilePackage: t.TypeOf<typeof InputFilePackage>, inputFilePackageFileToCompile: t.TypeOf<typeof InputFilePackageFileToCompile>) {
+    return async (left: Error, right: { toJson: () => t.TypeOf<typeof OutputFilePackageCompiledFile>, }): Promise<void> => {
       const outputFilePackage  = await this.outputFile.packageByPath(inputFilePackage.path);
 
       if (outputFilePackage) {
@@ -64,7 +64,7 @@ class Compiler {
     };
   }
 
-  async compile (path: t.TypeOf<typeof CompilerInputFilePackage>['path']): Promise<void> {
+  async compile (path: t.TypeOf<typeof InputFilePackage>['path']): Promise<void> {
     // 1.
 
     const inputFilePackage = await this.inputFile.packageByPath(path);
