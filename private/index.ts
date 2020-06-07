@@ -11,7 +11,6 @@ if (l < r) {
   const compiler = new Compiler();
 
   const server = http.createServer(async (request, response) => {
-    response.setHeader('Access-Control-Allow-Origin', '*');
     response.setHeader('Content-Type', 'application/json; charset=utf-8');
 
     try {
