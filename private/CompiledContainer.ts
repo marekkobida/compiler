@@ -1,9 +1,8 @@
 import * as t from 'io-ts';
 import Container from '@redredsk/pages/private/Container';
-import path from 'path';
 import writeFile from '@redredsk/helpers/private/writeFile';
 import { InputFilePackage, } from '@redredsk/compiler/private/types/InputFile';
-import { OutputFilePackage, } from '@redredsk/compiler/private/types/OutputFile';
+import { OutputFilePackage, OutputFilePackageCompiledFile, OutputFilePackageCompiledFileAsset, } from '@redredsk/compiler/private/types/OutputFile';
 
 class CompiledContainer {
   constructor (inputFilePackage: t.TypeOf<typeof InputFilePackage>, outputFilePackage: t.TypeOf<typeof OutputFilePackage>) {
@@ -11,40 +10,40 @@ class CompiledContainer {
       for (let i = 0; i < outputFilePackage.compiledFiles.length; i += 1) {
         const outputFilePackageCompiledFile = outputFilePackage.compiledFiles[i];
 
-        for (let ii = 0; ii < outputFilePackageCompiledFile.assets.length; ii += 1) {
-          const outputFilePackageCompiledFileAsset = outputFilePackageCompiledFile.assets[ii];
+        const $ = this.$(outputFilePackageCompiledFile);
 
-          if (/\.js(?!\.map)/.test(outputFilePackageCompiledFileAsset.name)) {
-            const $ = path.resolve(`${outputFilePackageCompiledFile.outputPath}/${outputFilePackageCompiledFileAsset.name}`);
+        if ($) {
+          delete __non_webpack_require__.cache[__non_webpack_require__.resolve(`${outputFilePackageCompiledFile.outputPath}/${$}`)];
 
-            delete __non_webpack_require__.cache[__non_webpack_require__.resolve($)];
+          const compiledContainer: Container = __non_webpack_require__(`${outputFilePackageCompiledFile.outputPath}/${$}`).default;
 
-            const compiledContainer: Container = __non_webpack_require__($).default;
+          for (let ii = 0; ii < compiledContainer.pages.length; ii += 1) {
+            const compiledContainerPage = compiledContainer.pages[ii];
 
-            for (let i = 0; i < compiledContainer.pages.length; i += 1) {
-              const compiledContainerPage = compiledContainer.pages[i];
+            compiledContainerPage.context = {
+              ...compiledContainerPage.context,
+              compiledContainer,
+              inputFilePackage,
+              outputFilePackage,
+            };
 
-              compiledContainerPage.context = {
-                ...compiledContainerPage.context,
-                compiledContainer,
-                inputFilePackage,
-                outputFilePackage,
-              };
-
-              compiledContainerPage.toHTML();
-
-              if (typeof compiledContainerPage.html === 'string') {
-                writeFile(`${outputFilePackageCompiledFile.outputPath}/${compiledContainerPage.name}.html`, compiledContainerPage.html);
-              }
-            }
-
-            outputFilePackage.compiledContainer = compiledContainer.toJSON();
-
-            return;
+            writeFile(`${outputFilePackageCompiledFile.outputPath}/${compiledContainerPage.name}.html`, compiledContainerPage.toHTML());
           }
+
+          outputFilePackage.compiledContainer = compiledContainer.toJSON();
         }
       }
     } catch (error) {}
+  }
+
+  $ (outputFilePackageCompiledFile: t.TypeOf<typeof OutputFilePackageCompiledFile>): t.TypeOf<typeof OutputFilePackageCompiledFileAsset>['name'] | undefined {
+    for (let i = 0; i < outputFilePackageCompiledFile.assets.length; i += 1) {
+      const outputFilePackageCompiledFileAsset = outputFilePackageCompiledFile.assets[i];
+
+      if (/\.js/.test(outputFilePackageCompiledFileAsset.name)) {
+        return outputFilePackageCompiledFileAsset.name;
+      }
+    }
   }
 }
 
