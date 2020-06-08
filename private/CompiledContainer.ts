@@ -23,7 +23,7 @@ class CompiledContainer {
         const $ = this.$(outputFilePackageCompiledFile);
 
         if ($) {
-          const compiledContainer: Container = (await import(/* webpackIgnore: true */ `${outputFilePackageCompiledFile.outputPath}/${$}`)).default;
+          const compiledContainer: Container = (await import(/* webpackIgnore: true */ `${outputFilePackageCompiledFile.outputPath}/${$}`)).default.default;
 
           for (let ii = 0; ii < compiledContainer.pages.length; ii += 1) {
             const compiledContainerPage = compiledContainer.pages[ii];
@@ -41,7 +41,9 @@ class CompiledContainer {
           outputFilePackage.compiledContainer = compiledContainer.toJSON();
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
