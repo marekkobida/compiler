@@ -92,7 +92,14 @@ class Compiler {
 
       const w = webpack((await import(/* webpackIgnore: true */ inputFilePackageFileToCompile.path)).default(inputFilePackage[1]));
 
-      w.watch({}, this.afterCompilation(inputFilePackage[1], inputFilePackageFileToCompile));
+      w.watch(
+        {
+          aggregateTimeout: 500,
+          ignored: 'node_modules',
+          poll: 1000,
+        },
+        this.afterCompilation(inputFilePackage[1], inputFilePackageFileToCompile)
+      );
     }
   }
 }
