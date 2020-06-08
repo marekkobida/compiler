@@ -102,5 +102,5 @@ if (l < r) {
     }
   });
 
-  server.listen(1337, () => process.stdout.write(`       x  x\n    x        x\n   x          x\n   x          x\n    x        x\n       x  x\n\n@redredsk/compiler\n2.3.1\n\nwebpack\n${webpack.version}\n\n`));
+  server.listen(1337, () => process.stdout.write(`       x  x\n    x        x\n   x          x\n   x          x\n    x        x\n       x  x\n\ncompiler\n2.4.0\n\nwebpack\n${webpack.version}\n\n`));
 }

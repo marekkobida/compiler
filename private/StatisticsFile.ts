@@ -9,8 +9,6 @@ class StatisticsFile {
 
   constructor (fileName: string = 'statistics.json') {
     this.fileName = fileName;
-
-    this.writeFile({ requests: [], });
   }
 
   async readFile (): Promise<t.TypeOf<typeof T>> {
