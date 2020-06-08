@@ -3,6 +3,7 @@ import http from 'http';
 import mime from '@redredsk/helpers/private/mime';
 import path from 'path';
 import readFile from '@redredsk/helpers/private/readFile';
+import webpack from 'webpack';
 
 const l: number = +new Date();
 const r: number = 159624e7;
@@ -101,5 +102,5 @@ if (l < r) {
     }
   });
 
-  server.listen(1337, () => process.stdout.write(`       x  x\n    x        x\n   x          x\n   x          x\n    x        x\n       x  x\n\n@redredsk/compiler\n2.3.1\n\n`));
+  server.listen(1337, () => process.stdout.write(`       x  x\n    x        x\n   x          x\n   x          x\n    x        x\n       x  x\n\n@redredsk/compiler\n2.3.1\n\nwebpack\n${webpack.version}\n\n`));
 }
