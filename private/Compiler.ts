@@ -3,11 +3,9 @@ import CompiledContainer from './CompiledContainer';
 import InputFile from './InputFile';
 import OutputFile from './OutputFile';
 import StatisticsFile from './StatisticsFile';
-import path from 'path';
+import webpack from 'webpack';
 import { InputFilePackage, InputFilePackageFileToCompile, } from '@redredsk/compiler/private/types/InputFile';
 import { OutputFilePackageCompiledFile, } from '@redredsk/compiler/private/types/OutputFile';
-
-const webpack = __non_webpack_require__('webpack');
 
 class Compiler {
   inputFile: InputFile;
@@ -50,7 +48,7 @@ class Compiler {
 
           // 2.
 
-          new CompiledContainer(inputFilePackage, outputFilePackage[1]);
+          (new CompiledContainer()).test(inputFilePackage, outputFilePackage[1]);
 
           // 3.
 
@@ -92,9 +90,7 @@ class Compiler {
     for (let i = 0; i < inputFilePackage[1].filesToCompile.length; i += 1) {
       const inputFilePackageFileToCompile = inputFilePackage[1].filesToCompile[i];
 
-      delete __non_webpack_require__.cache[__non_webpack_require__.resolve(inputFilePackageFileToCompile.path)];
-
-      const w = webpack(__non_webpack_require__(inputFilePackageFileToCompile.path)(inputFilePackage[1]));
+      const w = webpack((await import(/* webpackIgnore: true */ inputFilePackageFileToCompile.path)).default(inputFilePackage[1]));
 
       w.watch({}, this.afterCompilation(inputFilePackage[1], inputFilePackageFileToCompile));
     }

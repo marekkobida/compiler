@@ -3,6 +3,9 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: path.resolve(__dirname, './private/index.ts'),
+  externals: {
+    webpack: 'commonjs webpack',
+  },
   mode: 'production',
   module: {
     rules: [
