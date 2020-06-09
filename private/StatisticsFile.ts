@@ -12,9 +12,9 @@ class StatisticsFile {
   }
 
   async readFile (): Promise<t.TypeOf<typeof T>> {
-    const data = await readFile(this.fileName);
+    const statisticsFile = await readFile(this.fileName);
 
-    return validateInput(T, JSON.parse(data));
+    return validateInput(T, JSON.parse(statisticsFile));
   }
 
   writeFile (statisticsFile: t.TypeOf<typeof T>): void {

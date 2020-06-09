@@ -28,9 +28,9 @@ class OutputFile {
   }
 
   async readFile (): Promise<t.TypeOf<typeof T>> {
-    const data = await readFile(this.fileName);
+    const outputFile = await readFile(this.fileName);
 
-    return validateInput(T, JSON.parse(data));
+    return validateInput(T, JSON.parse(outputFile));
   }
 
   writeFile (outputFile: t.TypeOf<typeof T>): void {

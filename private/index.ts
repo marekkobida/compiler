@@ -1,6 +1,7 @@
 import Compiler from './Compiler';
 import http from 'http';
 import mime from '@redredsk/helpers/private/mime';
+import p from '../package.json';
 import path from 'path';
 import readFile from '@redredsk/helpers/private/readFile';
 import webpack from 'webpack';
@@ -103,5 +104,5 @@ if (l < r) {
     }
   });
 
-  server.listen(1337, () => process.stdout.write(`\x1b[31m       x  x\n    x        x\n   x          x\n   x          x\n    x        x\n       x  x\x1b[0m\n\n     compiler\n     2.5.0\n\n     webpack\n     ${webpack.version}\n\n`));
+  server.listen(1337, () => process.stdout.write(`\x1b[31m       x  x\n    x        x\n   x          x\n   x          x\n    x        x\n       x  x\x1b[0m\n\n     ${p.name}\n     ${p.version}\n\n     webpack\n     ${webpack.version}\n\n`));
 }
