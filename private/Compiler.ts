@@ -18,8 +18,6 @@ class Compiler {
     this.inputFile = inputFile;
     this.outputFile = outputFile;
     this.statisticsFile = statisticsFile;
-
-    this.compile('./packages/compiler');
   }
 
   afterCompilation (inputFilePackage: t.TypeOf<typeof InputFilePackage>, inputFilePackageFileToCompile: t.TypeOf<typeof InputFilePackageFileToCompile>) {
