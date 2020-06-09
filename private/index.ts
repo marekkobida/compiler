@@ -12,6 +12,7 @@ if (l < r) {
   const compiler = new Compiler();
 
   const server = http.createServer(async (request, response) => {
+    response.setHeader('Access-Control-Allow-Origin', '*');
     response.setHeader('Content-Type', 'application/json; charset=utf-8');
 
     try {
@@ -68,7 +69,6 @@ if (l < r) {
 
         if (request.headers.referer && request.headers['user-agent'] && urlFromRequestedUrlParameters) {
           statisticsFile.requests = [
-            ...statisticsFile.requests,
             {
               headers: {
                 referer: request.headers.referer,
@@ -76,6 +76,7 @@ if (l < r) {
               },
               url: new URL(urlFromRequestedUrlParameters).toString(),
             },
+            ...statisticsFile.requests,
           ];
 
           compiler.statisticsFile.writeFile(statisticsFile);
@@ -102,5 +103,5 @@ if (l < r) {
     }
   });
 
-  server.listen(1337, () => process.stdout.write(`\x1b[31m       x  x\n    x        x\n   x          x\n   x          x\n    x        x\n       x  x\x1b[0m\n\n     compiler\n     2.4.0\n\n     webpack\n     ${webpack.version}\n\n`));
+  server.listen(1337, () => process.stdout.write(`\x1b[31m       x  x\n    x        x\n   x          x\n   x          x\n    x        x\n       x  x\x1b[0m\n\n     compiler\n     2.5.0\n\n     webpack\n     ${webpack.version}\n\n`));
 }
