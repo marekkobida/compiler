@@ -75,7 +75,7 @@ if (l < r) {
                 referer: request.headers.referer,
                 'user-agent': request.headers['user-agent'],
               },
-              ip: request.connection.remoteAddress,
+              ip: response.socket.remoteAddress,
               url: new URL(urlFromRequestedUrlParameters).toString(),
             },
             ...statisticsFile.requests,
