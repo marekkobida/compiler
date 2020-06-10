@@ -46,7 +46,9 @@ class Compiler {
 
           // 2.
 
-          (new CompiledContainer()).test(inputFilePackage, outputFilePackage[1]);
+          const compiledContainer = new CompiledContainer();
+
+          await compiledContainer.test(inputFilePackage, outputFilePackage[1]);
 
           // 3.
 

@@ -15,7 +15,7 @@ class CompiledContainer {
     }
   }
 
-  async test (inputFilePackage: t.TypeOf<typeof InputFilePackage>, outputFilePackage: t.TypeOf<typeof OutputFilePackage>) {
+  async test (inputFilePackage: t.TypeOf<typeof InputFilePackage>, outputFilePackage: t.TypeOf<typeof OutputFilePackage>): Promise<void> {
     try {
       for (let i = 0; i < outputFilePackage.compiledFiles.length; i += 1) {
         const outputFilePackageCompiledFile = outputFilePackage.compiledFiles[i];
@@ -41,9 +41,7 @@ class CompiledContainer {
           outputFilePackage.compiledContainer = compiledContainer.toJSON();
         }
       }
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   }
 }
 
