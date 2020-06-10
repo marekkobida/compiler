@@ -34,14 +34,14 @@ class Compiler {
             let outputFilePackageCompiledFile = outputFilePackage[1].compiledFiles[ii];
 
             if (outputFilePackageCompiledFile.path === inputFilePackageFileToCompile.path) {
-              outputFilePackage[1].compiledFiles[ii] = { ...right.toJson(), path: inputFilePackageFileToCompile.path, };
+              outputFilePackage[1].compiledFiles[ii] = { ...right.toJson({ colors: false, }), path: inputFilePackageFileToCompile.path, };
 
               $ = true;
             }
           }
 
           if (!$) {
-            outputFilePackage[1].compiledFiles = [ ...outputFilePackage[1].compiledFiles, { ...right.toJson(), path: inputFilePackageFileToCompile.path, }, ];
+            outputFilePackage[1].compiledFiles = [ ...outputFilePackage[1].compiledFiles, { ...right.toJson({ colors: false, }), path: inputFilePackageFileToCompile.path, }, ];
           }
 
           // 2.
