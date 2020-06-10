@@ -4,6 +4,7 @@ import mime from '@redredsk/helpers/private/mime';
 import p from '../package.json';
 import path from 'path';
 import readFile from '@redredsk/helpers/private/readFile';
+import test from './test';
 import webpack from 'webpack';
 
 const l: number = +new Date();
@@ -21,6 +22,12 @@ if (l < r) {
 
       const requestedURL = new URL(`file://${request.url}`);
       const requestedURLParameters = requestedURL.searchParams;
+
+      if (requestedURL.pathname === '/devices.json') {
+        response.end(JSON.stringify(await test()));
+
+        return;
+      }
 
       if (requestedURL.pathname === '/favicon.ico') {
         response.setHeader('Content-Type', 'image/x-icon');
