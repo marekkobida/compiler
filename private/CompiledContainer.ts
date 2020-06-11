@@ -41,7 +41,9 @@ class CompiledContainer {
           outputFilePackage.compiledContainer = compiledContainer.toJSON();
         }
       }
-    } catch (error) {}
+    } catch (error) {
+
+    }
   }
 }
 

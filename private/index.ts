@@ -23,14 +23,6 @@ if (l < r) {
       const requestedURL = new URL(`file://${request.url}`);
       const requestedURLParameters = requestedURL.searchParams;
 
-      if (requestedURL.pathname === '/devices.json') {
-        const devices = await find();
-
-        response.end(JSON.stringify(devices.map((device) => device.ip)));
-
-        return;
-      }
-
       if (requestedURL.pathname === '/favicon.ico') {
         response.setHeader('Content-Type', 'image/x-icon');
 
@@ -41,6 +33,8 @@ if (l < r) {
 
       const isCompileFunctionRequested
         = requestedURL.pathname === '/compiler/compile';
+      const isDevicesFileRequested
+        = requestedURL.pathname === '/devices.json';
       const isInputFileRequested
         = requestedURL.pathname === `/${compiler.inputFile.fileName}`;
       const isOutputFileRequested
@@ -58,6 +52,12 @@ if (l < r) {
 
           return;
         }
+      }
+
+      if (isDevicesFileRequested) {
+        response.end(JSON.stringify((await find()).map((device) => device.ip)));
+
+        return;
       }
 
       if (isInputFileRequested) {
