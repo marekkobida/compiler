@@ -1,10 +1,10 @@
 import Compiler from './Compiler';
+import find from 'local-devices';
 import http from 'http';
 import mime from '@redredsk/helpers/private/mime';
 import p from '../package.json';
 import path from 'path';
 import readFile from '@redredsk/helpers/private/readFile';
-import test from './test';
 import webpack from 'webpack';
 
 const l: number = +new Date();
@@ -24,7 +24,9 @@ if (l < r) {
       const requestedURLParameters = requestedURL.searchParams;
 
       if (requestedURL.pathname === '/devices.json') {
-        response.end(JSON.stringify(await test()));
+        const devices = await find();
+
+        response.end(JSON.stringify(devices.map((device) => device.ip)));
 
         return;
       }
