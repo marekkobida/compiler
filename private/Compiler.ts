@@ -51,9 +51,7 @@ class Compiler {
 
       $.plugins = [ ...$.plugins, new CompiledContainer(inputFilePackage[1], inputFilePackageFileToCompile, this.outputFile), ];
 
-      const w = webpack($);
-
-      w.watch({ aggregateTimeout: 500, ignored: 'node_modules', poll: 1000, }, () => {});
+      webpack($).watch({}, () => {});
     }
   }
 }
