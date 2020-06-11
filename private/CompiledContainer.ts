@@ -1,10 +1,27 @@
 import * as t from 'io-ts';
 import Container from '@redredsk/pages/private/Container';
+import OutputFile from './OutputFile';
 import writeFile from '@redredsk/helpers/private/writeFile';
-import { InputFilePackage, } from '@redredsk/compiler/private/types/InputFile';
-import { OutputFilePackage, OutputFilePackageCompiledFile, OutputFilePackageCompiledFileAsset, } from '@redredsk/compiler/private/types/OutputFile';
+import { InputFilePackage, InputFilePackageFileToCompile, } from '@redredsk/compiler/private/types/InputFile';
+import { OutputFilePackageCompiledFile, OutputFilePackageCompiledFileAsset, } from '@redredsk/compiler/private/types/OutputFile';
 
 class CompiledContainer {
+  inputFilePackage: t.TypeOf<typeof InputFilePackage>;
+
+  inputFilePackageFileToCompile: t.TypeOf<typeof InputFilePackageFileToCompile>;
+
+  outputFile: OutputFile;
+
+  constructor (
+    inputFilePackage: t.TypeOf<typeof InputFilePackage>,
+    inputFilePackageFileToCompile: t.TypeOf<typeof InputFilePackageFileToCompile>,
+    outputFile: OutputFile
+  ) {
+    this.inputFilePackage = inputFilePackage;
+    this.inputFilePackageFileToCompile = inputFilePackageFileToCompile;
+    this.outputFile = outputFile;
+  }
+
   $ (outputFilePackageCompiledFile: t.TypeOf<typeof OutputFilePackageCompiledFile>): t.TypeOf<typeof OutputFilePackageCompiledFileAsset>['name'] | undefined {
     for (let i = 0; i < outputFilePackageCompiledFile.assets.length; i += 1) {
       const outputFilePackageCompiledFileAsset = outputFilePackageCompiledFile.assets[i];
@@ -15,35 +32,74 @@ class CompiledContainer {
     }
   }
 
-  async test (inputFilePackage: t.TypeOf<typeof InputFilePackage>, outputFilePackage: t.TypeOf<typeof OutputFilePackage>): Promise<void> {
-    try {
-      for (let i = 0; i < outputFilePackage.compiledFiles.length; i += 1) {
-        const outputFilePackageCompiledFile = outputFilePackage.compiledFiles[i];
+  apply (compiler) {
+    compiler.hooks.done.tap(
+      'CompiledContainer',
+      async (right: t.TypeOf<typeof OutputFilePackageCompiledFile>): Promise<void> => {
+        const outputFilePackage  = await this.outputFile.packageByPath(this.inputFilePackage.path);
 
-        const $ = this.$(outputFilePackageCompiledFile);
+        if (outputFilePackage) {
+          if (outputFilePackage[1].path === this.inputFilePackage.path) {
+            // 1.
 
-        if ($) {
-          const compiledContainer: Container = (await import(/* webpackIgnore: true */ `${outputFilePackageCompiledFile.outputPath}/${$}`)).default.default;
+            let $ = false;
 
-          for (let ii = 0; ii < compiledContainer.pages.length; ii += 1) {
-            const compiledContainerPage = compiledContainer.pages[ii];
+            for (let ii = 0; ii < outputFilePackage[1].compiledFiles.length; ii += 1) {
+              let outputFilePackageCompiledFile = outputFilePackage[1].compiledFiles[ii];
 
-            compiledContainerPage.context = {
-              ...compiledContainerPage.context,
-              compiledContainer,
-              inputFilePackage,
-              outputFilePackage,
-            };
+              if (outputFilePackageCompiledFile.path === this.inputFilePackageFileToCompile.path) {
+                outputFilePackage[1].compiledFiles[ii] = { ...right.toJson(), path: this.inputFilePackageFileToCompile.path, };
 
-            writeFile(`${outputFilePackageCompiledFile.outputPath}/${compiledContainerPage.name}.html`, compiledContainerPage.toHTML());
+                $ = true;
+              }
+            }
+
+            if (!$) {
+              outputFilePackage[1].compiledFiles = [ ...outputFilePackage[1].compiledFiles, { ...right.toJson(), path: this.inputFilePackageFileToCompile.path, }, ];
+            }
+
+            // 2.
+
+            try {
+              for (let i = 0; i < outputFilePackage[1].compiledFiles.length; i += 1) {
+                const outputFilePackageCompiledFile = outputFilePackage[1].compiledFiles[i];
+
+                const $ = this.$(outputFilePackageCompiledFile);
+
+                if ($) {
+                  const compiledContainer: Container = (await import(/* webpackIgnore: true */ `${outputFilePackageCompiledFile.outputPath}/${$}`)).default.default;
+
+                  for (let ii = 0; ii < compiledContainer.pages.length; ii += 1) {
+                    const compiledContainerPage = compiledContainer.pages[ii];
+
+                    compiledContainerPage.context = {
+                      ...compiledContainerPage.context,
+                      compiledContainer,
+                      inputFilePackage: this.inputFilePackage,
+                      outputFilePackage: outputFilePackage[1],
+                    };
+
+                    writeFile(`${outputFilePackageCompiledFile.outputPath}/${compiledContainerPage.name}.html`, compiledContainerPage.toHTML());
+                  }
+
+                  outputFilePackage[1].compiledContainer = compiledContainer.toJSON();
+                }
+              }
+            } catch (error) {
+
+            }
+
+            // 3.
+
+            const outputFile = await this.outputFile.readFile();
+
+            outputFile.packages[outputFilePackage[0]] = outputFilePackage[1];
+
+            this.outputFile.writeFile(outputFile);
           }
-
-          outputFilePackage.compiledContainer = compiledContainer.toJSON();
         }
       }
-    } catch (error) {
-
-    }
+    );
   }
 }
 
