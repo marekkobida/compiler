@@ -1,10 +1,11 @@
+// TODO
 import * as t from 'io-ts';
 import Container from '@redredsk/pages/private/Container';
 import OutputFile from './OutputFile';
-import evaluate from 'eval';
+import eval_ from 'eval';
+import { Compilation, Compiler, } from 'webpack';
 import { InputFilePackage, InputFilePackageFileToCompile, } from '@redredsk/compiler/private/types/InputFile';
-import { OutputFilePackageCompiledFile, OutputFilePackageCompiledFileAsset, } from '@redredsk/compiler/private/types/OutputFile';
-import { Compiler, } from 'webpack';
+import { OutputFilePackage, OutputFilePackageCompiledFile, OutputFilePackageCompiledFileAsset, } from '@redredsk/compiler/private/types/OutputFile';
 
 class CompiledContainer {
   inputFilePackage: t.TypeOf<typeof InputFilePackage>;
@@ -23,13 +24,39 @@ class CompiledContainer {
     this.outputFile = outputFile;
   }
 
-  // TODO toto vymeň za compilation.assets
-  $ (outputFilePackageCompiledFile: t.TypeOf<typeof OutputFilePackageCompiledFile>): t.TypeOf<typeof OutputFilePackageCompiledFileAsset>['name'] | undefined {
-    for (let i = 0; i < outputFilePackageCompiledFile.assets.length; i += 1) {
-      const outputFilePackageCompiledFileAsset = outputFilePackageCompiledFile.assets[i];
+  $ (compilation: Compilation, outputFilePackage: t.TypeOf<typeof OutputFilePackage>): void {
+    const right: { toJson: () => t.TypeOf<typeof OutputFilePackageCompiledFile>, } = compilation.getStats();
 
-      if (/\.js/.test(outputFilePackageCompiledFileAsset.name)) {
-        return outputFilePackageCompiledFileAsset.name;
+    let $ = false;
+
+    for (let i = 0; i < outputFilePackage.compiledFiles.length; i += 1) {
+      let outputFilePackageCompiledFile = outputFilePackage.compiledFiles[i];
+
+      if (outputFilePackageCompiledFile.path === this.inputFilePackageFileToCompile.path) {
+        outputFilePackage.compiledFiles[i] = {
+          ...right.toJson(),
+          path: this.inputFilePackageFileToCompile.path,
+        };
+
+        $ = true;
+      }
+    }
+
+    if (!$) {
+      outputFilePackage.compiledFiles = [
+        ...outputFilePackage.compiledFiles,
+        {
+          ...right.toJson(),
+          path: this.inputFilePackageFileToCompile.path,
+        },
+      ];
+    }
+  }
+
+  firstJSAsset (compilation: Compilation): t.TypeOf<typeof OutputFilePackageCompiledFileAsset>['name'] | undefined {
+    for (const assetName in compilation.assets) {
+      if (/\.js/.test(assetName)) {
+        return assetName;
       }
     }
   }
@@ -37,86 +64,61 @@ class CompiledContainer {
   apply (compiler: Compiler) {
     compiler.hooks.emit.tapAsync(
       'CompiledContainer',
-      async (compilation, callback): Promise<void> => {
+      async (compilation, $): Promise<void> => {
+        console.log(compilation);
+
         const outputFilePackage  = await this.outputFile.packageByPath(this.inputFilePackage.path);
 
         if (outputFilePackage) {
           // 1.
 
-          const right: { toJson: () => t.TypeOf<typeof OutputFilePackageCompiledFile>, } = compilation.getStats();
-
-          let $ = false;
-
-          for (let i = 0; i < outputFilePackage[1].compiledFiles.length; i += 1) {
-            let outputFilePackageCompiledFile = outputFilePackage[1].compiledFiles[i];
-
-            if (outputFilePackageCompiledFile.path === this.inputFilePackageFileToCompile.path) {
-              outputFilePackage[1].compiledFiles[i] = {
-                ...right.toJson(),
-                path: this.inputFilePackageFileToCompile.path,
-              };
-
-              $ = true;
-            }
-          }
-
-          if (!$) {
-            outputFilePackage[1].compiledFiles = [
-              ...outputFilePackage[1].compiledFiles,
-              {
-                ...right.toJson(),
-                path: this.inputFilePackageFileToCompile.path,
-              },
-            ];
-          }
+          this.$(compilation, outputFilePackage[1]);
 
           // 2.
 
           try {
-            for (let i = 0; i < outputFilePackage[1].compiledFiles.length; i += 1) {
-              const outputFilePackageCompiledFile = outputFilePackage[1].compiledFiles[i];
+            const firstJSAsset = this.firstJSAsset(compilation);
 
-              const $ = this.$(outputFilePackageCompiledFile);
+            if (firstJSAsset) {
+              const source = compilation.assets[firstJSAsset].source();
 
-              if ($) {
-                const source = compilation.assets[$].source();
+              const compiledContainer: Container = eval_(source, firstJSAsset).default;
 
-                const compiledContainer: Container = evaluate(source, $).default;
+              for (let i = 0; i < compiledContainer.pages.length; i += 1) {
+                const compiledContainerPage = compiledContainer.pages[i];
 
-                for (let ii = 0; ii < compiledContainer.pages.length; ii += 1) {
-                  const compiledContainerPage = compiledContainer.pages[ii];
+                compiledContainerPage.context = {
+                  ...compiledContainerPage.context,
+                  compiledContainer,
+                  inputFilePackage: this.inputFilePackage,
+                  outputFilePackage: outputFilePackage[1],
+                };
 
-                  compiledContainerPage.context = {
-                    ...compiledContainerPage.context,
-                    compiledContainer,
-                    inputFilePackage: this.inputFilePackage,
-                    outputFilePackage: outputFilePackage[1],
+                const html = compiledContainerPage.toHTML();
+
+                if (html) {
+                  compilation.assets[`${compiledContainerPage.name}.html`] = {
+                    size () {
+                      return Buffer.byteLength(html);
+                    },
+                    source () {
+                      return html;
+                    },
                   };
-
-                  const html = compiledContainerPage.toHTML();
-
-                  if (html) {
-                    compilation.assets[`${compiledContainerPage.name}.html`] = {
-                      size () {
-                        return Buffer.byteLength(html);
-                      },
-                      source () {
-                        return html;
-                      },
-                    };
-                  }
                 }
-
-                // outputFilePackage[1].compiledContainer = compiledContainer.toJSON();
               }
+
+              outputFilePackage[1].compiledContainer = compiledContainer.toJSON();
             }
           } catch (error) {
-            console.log('cicka', error);
+            console.log(error);
           }
 
-          console.log(compilation.assets);
-
           // 3.
+
+          this.$(compilation, outputFilePackage[1]);
+
+          // 4.
 
           const outputFile = await this.outputFile.readFile();
 
@@ -125,10 +127,11 @@ class CompiledContainer {
           this.outputFile.writeFile(outputFile);
         }
 
-        callback();
+        $();
       }
     );
   }
 }
 
 export default CompiledContainer;
+//

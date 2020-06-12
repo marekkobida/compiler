@@ -38,18 +38,18 @@ class Compiler {
 
     const outputFile = await this.outputFile.readFile();
 
-    outputFile.packages = [ ...outputFile.packages, { compiledFiles: [], path, version: inputFilePackage[1].version, }, ];
+    outputFile.packages = [ ...outputFile.packages, { compiledFiles: [], path, version: inputFilePackage.version, }, ];
 
     this.outputFile.writeFile(outputFile);
 
     // 3.
 
-    for (let i = 0; i < inputFilePackage[1].filesToCompile.length; i += 1) {
-      const inputFilePackageFileToCompile = inputFilePackage[1].filesToCompile[i];
+    for (let i = 0; i < inputFilePackage.filesToCompile.length; i += 1) {
+      const inputFilePackageFileToCompile = inputFilePackage.filesToCompile[i];
 
-      const $ = (await import(/* webpackIgnore: true */ inputFilePackageFileToCompile.path)).default(inputFilePackage[1]);
+      const $ = (await import(/* webpackIgnore: true */ inputFilePackageFileToCompile.path)).default(inputFilePackage);
 
-      $.plugins = [ ...$.plugins, new CompiledContainer(inputFilePackage[1], inputFilePackageFileToCompile, this.outputFile), ];
+      $.plugins = [ ...$.plugins, new CompiledContainer(inputFilePackage, inputFilePackageFileToCompile, this.outputFile), ];
 
       webpack($).watch({}, () => {});
     }
