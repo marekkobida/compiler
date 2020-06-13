@@ -1,5 +1,4 @@
 import * as t from 'io-ts';
-import p from '../package.json';
 import readFile from '@redredsk/helpers/private/readFile';
 import validateInput from '@redredsk/helpers/private/types/validateInput';
 import writeFile from '@redredsk/helpers/private/writeFile';
@@ -32,8 +31,6 @@ class InputFile {
 
   async readFile (): Promise<t.TypeOf<typeof T>> {
     let inputFile = JSON.parse(await readFile(this.fileName));
-
-    inputFile.version = p.version;
 
     const validatedInputFile = validateInput(T, inputFile);
 
