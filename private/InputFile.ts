@@ -6,14 +6,18 @@ import writeFile from '@redredsk/helpers/private/writeFile';
 import { InputFile as T, InputFilePackage, } from '@redredsk/compiler/private/types/InputFile';
 
 class InputFile {
+  $: t.TypeOf<typeof T> = { packages: [], };
+
   fileName: string;
 
   constructor (fileName: string = 'compiler.json') {
     this.fileName = fileName;
+
+    this.readFile();
   }
 
-  async packageByPath (path: t.TypeOf<typeof InputFilePackage>['path']): Promise<t.TypeOf<typeof InputFilePackage> | undefined> {
-    const inputFile = await this.readFile();
+  packageByPath (path: t.TypeOf<typeof InputFilePackage>['path']): t.TypeOf<typeof InputFilePackage> | undefined {
+    const inputFile = this.$;
 
     const inputFilePackages = inputFile.packages;
 
@@ -31,11 +35,17 @@ class InputFile {
 
     inputFile.version = p.version;
 
-    return validateInput(T, inputFile);
+    const validatedInputFile = validateInput(T, inputFile);
+
+    this.$ = validatedInputFile;
+
+    return validatedInputFile;
   }
 
-  writeFile (inputFile:t.TypeOf<typeof T>): void {
+  writeFile (inputFile: t.TypeOf<typeof T> = this.$): void {
     const validatedInputFile = validateInput(T, inputFile);
+
+    this.$ = validatedInputFile;
 
     writeFile(this.fileName, `${JSON.stringify(validatedInputFile)}\n`);
   }

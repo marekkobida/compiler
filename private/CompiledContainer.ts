@@ -65,14 +65,12 @@ class CompiledContainer {
     compiler.hooks.emit.tapAsync(
       'CompiledContainer',
       async (compilation, $): Promise<void> => {
-        console.log(compilation);
-
-        const outputFilePackage  = await this.outputFile.packageByPath(this.inputFilePackage.path);
+        const outputFilePackage  = this.outputFile.packageByPath(this.inputFilePackage.path);
 
         if (outputFilePackage) {
           // 1.
 
-          this.$(compilation, outputFilePackage[1]);
+          this.$(compilation, outputFilePackage);
 
           // 2.
 
@@ -91,7 +89,7 @@ class CompiledContainer {
                   ...compiledContainerPage.context,
                   compiledContainer,
                   inputFilePackage: this.inputFilePackage,
-                  outputFilePackage: outputFilePackage[1],
+                  outputFilePackage,
                 };
 
                 const html = compiledContainerPage.toHTML();
@@ -108,7 +106,7 @@ class CompiledContainer {
                 }
               }
 
-              outputFilePackage[1].compiledContainer = compiledContainer.toJSON();
+              outputFilePackage.compiledContainer = compiledContainer.toJSON();
             }
           } catch (error) {
             console.log(error);
@@ -116,15 +114,11 @@ class CompiledContainer {
 
           // 3.
 
-          this.$(compilation, outputFilePackage[1]);
+          this.$(compilation, outputFilePackage);
 
           // 4.
 
-          const outputFile = await this.outputFile.readFile();
-
-          outputFile.packages[outputFilePackage[0]] = outputFilePackage[1];
-
-          this.outputFile.writeFile(outputFile);
+          this.outputFile.writeFile();
         }
 
         $();

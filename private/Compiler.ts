@@ -22,13 +22,13 @@ class Compiler {
   async compile (path: t.TypeOf<typeof InputFilePackage>['path']): Promise<void> {
     // 1.
 
-    const inputFilePackage = await this.inputFile.packageByPath(path);
+    const inputFilePackage = this.inputFile.packageByPath(path);
 
     if (!inputFilePackage) {
       throw new Error(`The package "${path}" does not exist in the input file.`);
     }
 
-    const outputFilePackage  = await this.outputFile.packageByPath(path);
+    const outputFilePackage  = this.outputFile.packageByPath(path);
 
     if (outputFilePackage) {
       throw new Error(`The package "${path}" exists in the output file.`);

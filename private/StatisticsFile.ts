@@ -5,26 +5,36 @@ import writeFile from '@redredsk/helpers/private/writeFile';
 import { StatisticsFile as T, } from '@redredsk/compiler/private/types/StatisticsFile';
 
 class StatisticsFile {
+  $: t.TypeOf<typeof T> = { requests: [], };
+
   fileName: string;
 
   constructor (fileName: string = 'statistics.json') {
     this.fileName = fileName;
+
+    this.readFile();
   }
 
   async readFile (): Promise<t.TypeOf<typeof T>> {
     try {
       const statisticsFile = await readFile(this.fileName);
 
-      return validateInput(T, JSON.parse(statisticsFile));
+      const validatedStatisticsFile = validateInput(T, JSON.parse(statisticsFile));
+
+      this.$ = validatedStatisticsFile;
+
+      return validatedStatisticsFile;
     } catch (error) {
-      this.writeFile({ requests: [], });
+      this.writeFile();
 
       return this.readFile();
     }
   }
 
-  writeFile (statisticsFile: t.TypeOf<typeof T>): void {
+  writeFile (statisticsFile: t.TypeOf<typeof T> = this.$): void {
     const validatedStatisticsFile = validateInput(T, statisticsFile);
+
+    this.$ = validatedStatisticsFile;
 
     writeFile(this.fileName, `${JSON.stringify(validatedStatisticsFile)}\n`);
   }

@@ -10,6 +10,8 @@ import webpack from 'webpack';
 const l: number = +new Date();
 const r: number = 159624e7;
 
+let name: string = '';
+
 if (l < r) {
   const compiler = new Compiler();
 
@@ -20,8 +22,22 @@ if (l < r) {
     try {
       response.statusCode = 200;
 
-      const requestedURL = new URL(`file://${request.url}`);
+      const requestedURL = new URL(request.url, `http://${request.headers.host}`);
       const requestedURLParameters = requestedURL.searchParams;
+
+      if (requestedURL.pathname === '/about') {
+        if (requestedURL.host === '127.0.0.1:1337') {
+          const nameFromRequestedUrlParameters = requestedURLParameters.get('name');
+
+          if (nameFromRequestedUrlParameters) {
+            name = nameFromRequestedUrlParameters;
+          }
+        }
+
+        response.end(JSON.stringify({ name, version: p.version, }));
+
+        return;
+      }
 
       if (requestedURL.pathname === '/favicon.ico') {
         response.setHeader('Content-Type', 'image/x-icon');
@@ -61,24 +77,25 @@ if (l < r) {
       }
 
       if (isInputFileRequested) {
-        response.end(JSON.stringify(await compiler.inputFile.readFile()));
+        response.end(JSON.stringify(compiler.inputFile.$));
 
         return;
       }
 
       if (isOutputFileRequested) {
-        response.end(JSON.stringify(await compiler.outputFile.readFile()));
+        response.end(JSON.stringify(compiler.outputFile.$));
 
         return;
       }
 
+      // TODO
       if (isStatisticsFileRequested) {
-        const statisticsFile = await compiler.statisticsFile.readFile();
+        const statisticsFile = compiler.statisticsFile;
 
         const urlFromRequestedUrlParameters = requestedURLParameters.get('url');
 
         if (request.headers.referer && request.headers['user-agent'] && urlFromRequestedUrlParameters) {
-          statisticsFile.requests = [
+          statisticsFile.$.requests = [
             {
               headers: {
                 referer: request.headers.referer,
@@ -87,17 +104,17 @@ if (l < r) {
               ip: response.socket.remoteAddress,
               url: new URL(urlFromRequestedUrlParameters).toString(),
             },
-            ...statisticsFile.requests,
+            ...statisticsFile.$.requests,
           ];
 
-          compiler.statisticsFile.writeFile(statisticsFile);
+          compiler.statisticsFile.writeFile();
 
           response.end();
 
           return;
         }
 
-        response.end(JSON.stringify(statisticsFile));
+        response.end(JSON.stringify(statisticsFile.$));
 
         return;
       }

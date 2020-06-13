@@ -5,16 +5,18 @@ import writeFile from '@redredsk/helpers/private/writeFile';
 import { OutputFile as T, OutputFilePackage, } from '@redredsk/compiler/private/types/OutputFile';
 
 class OutputFile {
+  $: t.TypeOf<typeof T> = { packages: [], };
+
   fileName: string;
 
   constructor (fileName: string = 'compiled.json') {
     this.fileName = fileName;
 
-    this.writeFile({ packages: [], });
+    this.writeFile();
   }
 
-  async packageByPath (path: t.TypeOf<typeof OutputFilePackage>['path']): Promise<[ number, t.TypeOf<typeof OutputFilePackage>, ] | undefined> {
-    const outputFile = await this.readFile();
+  packageByPath (path: t.TypeOf<typeof OutputFilePackage>['path']): t.TypeOf<typeof OutputFilePackage> | undefined {
+    const outputFile = this.$;
 
     const outputFilePackages = outputFile.packages;
 
@@ -22,7 +24,7 @@ class OutputFile {
       const outputFilePackage = outputFilePackages[i];
 
       if (outputFilePackage.path === path) {
-        return [ i, outputFilePackage, ];
+        return outputFilePackage;
       }
     }
   }
@@ -30,11 +32,17 @@ class OutputFile {
   async readFile (): Promise<t.TypeOf<typeof T>> {
     const outputFile = await readFile(this.fileName);
 
-    return validateInput(T, JSON.parse(outputFile));
+    const validatedOutputFile = validateInput(T, JSON.parse(outputFile));
+
+    this.$ = validatedOutputFile;
+
+    return validatedOutputFile;
   }
 
-  writeFile (outputFile: t.TypeOf<typeof T>): void {
+  writeFile (outputFile: t.TypeOf<typeof T> = this.$): void {
     const validatedOutputFile = validateInput(T, outputFile);
+
+    this.$ = validatedOutputFile;
 
     writeFile(this.fileName, `${JSON.stringify(validatedOutputFile)}\n`);
   }
