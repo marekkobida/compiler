@@ -4,8 +4,8 @@ import Container from '@redredsk/pages/private/Container';
 import OutputFile from './OutputFile';
 import eval_ from 'eval';
 import { Compilation, Compiler, } from 'webpack';
-import { InputFilePackage, InputFilePackageFileToCompile, } from '@redredsk/compiler/private/types/InputFile';
-import { OutputFilePackage, OutputFilePackageCompiledFile, OutputFilePackageCompiledFileAsset, } from '@redredsk/compiler/private/types/OutputFile';
+import { InputFilePackage, InputFilePackageFileToCompile, } from '@redredsk/types/private/InputFile';
+import { OutputFilePackage, OutputFilePackageCompiledFile, OutputFilePackageCompiledFileAsset, } from '@redredsk/types/private/OutputFile';
 
 class CompiledContainer {
   inputFilePackage: t.TypeOf<typeof InputFilePackage>;

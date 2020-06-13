@@ -2,7 +2,7 @@ import * as t from 'io-ts';
 import readFile from '@redredsk/helpers/private/readFile';
 import validateInput from '@redredsk/helpers/private/types/validateInput';
 import writeFile from '@redredsk/helpers/private/writeFile';
-import { OutputFile as T, OutputFilePackage, } from '@redredsk/compiler/private/types/OutputFile';
+import { OutputFile as T, OutputFilePackage, } from '@redredsk/types/private/OutputFile';
 
 class OutputFile {
   $: t.TypeOf<typeof T> = { packages: [], };

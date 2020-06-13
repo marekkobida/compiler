@@ -2,7 +2,7 @@ import * as t from 'io-ts';
 import readFile from '@redredsk/helpers/private/readFile';
 import validateInput from '@redredsk/helpers/private/types/validateInput';
 import writeFile from '@redredsk/helpers/private/writeFile';
-import { StatisticsFile as T, } from '@redredsk/compiler/private/types/StatisticsFile';
+import { StatisticsFile as T, } from '@redredsk/types/private/StatisticsFile';
 
 class StatisticsFile {
   $: t.TypeOf<typeof T> = { requests: [], };

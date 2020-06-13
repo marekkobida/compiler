@@ -3,7 +3,7 @@ import CompiledContainer from './CompiledContainer';
 import InputFile from './InputFile';
 import OutputFile from './OutputFile';
 import webpack from 'webpack';
-import { InputFilePackage, } from '@redredsk/compiler/private/types/InputFile';
+import { InputFilePackage, } from '@redredsk/types/private/InputFile';
 
 class Compiler {
   inputFile: InputFile;
