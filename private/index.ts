@@ -1,135 +1,133 @@
 import Compiler from './Compiler';
+import StatisticsFile from './StatisticsFile';
 import find from 'local-devices';
 import http from 'http';
 import mime from '@redredsk/helpers/private/mime';
 import p from '../package.json';
 import path from 'path';
 import readFile from '@redredsk/helpers/private/readFile';
+import readline from 'readline';
 import webpack from 'webpack';
 
 const l: number = +new Date();
 const r: number = 159624e7;
 
-let name: string = '';
-
 if (l < r) {
-  const compiler = new Compiler();
+  const i = readline.createInterface({ input: process.stdin, output: process.stdout, });
 
-  const server = http.createServer(async (request, response) => {
-    response.setHeader('Access-Control-Allow-Origin', '*');
-    response.setHeader('Content-Type', 'application/json; charset=utf-8');
+  i.question('Name? ', (name) => {
+    const compiler = new Compiler();
 
-    try {
-      response.statusCode = 200;
+    const statisticsFile = new StatisticsFile();
 
-      const requestedURL = new URL(request.url, `http://${request.headers.host}`);
-      const requestedURLParameters = requestedURL.searchParams;
+    const server = http.createServer(async (request, response) => {
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      response.setHeader('Content-Type', 'application/json; charset=utf-8');
 
-      if (requestedURL.pathname === '/about') {
-        if (requestedURL.host === '127.0.0.1:1337') {
-          const nameFromRequestedUrlParameters = requestedURLParameters.get('name');
+      try {
+        response.statusCode = 200;
 
-          if (nameFromRequestedUrlParameters) {
-            name = nameFromRequestedUrlParameters;
+        const requestedURL = new URL(request.url, `http://${request.headers.host}`);
+        const requestedURLParameters = requestedURL.searchParams;
+
+        if (requestedURL.pathname === '/about') {
+          response.end(JSON.stringify({ name, version: p.version, }));
+
+          return;
+        }
+
+        if (requestedURL.pathname === '/devices.json') {
+          response.end(JSON.stringify((await find()).map((device) => device.ip)));
+
+          return;
+        }
+
+        if (requestedURL.pathname === '/favicon.ico') {
+          response.setHeader('Content-Type', 'image/x-icon');
+
+          response.end();
+
+          return;
+        }
+
+        // TODO
+        const isStatisticsFileRequested
+          = requestedURL.pathname === `/${statisticsFile.fileName}`;
+
+        if (isStatisticsFileRequested) {
+          const urlFromRequestedUrlParameters = requestedURLParameters.get('url');
+
+          if (request.headers.referer && request.headers['user-agent'] && urlFromRequestedUrlParameters) {
+            statisticsFile.$.requests = [
+              {
+                headers: {
+                  referer: request.headers.referer,
+                  'user-agent': request.headers['user-agent'],
+                },
+                url: new URL(urlFromRequestedUrlParameters).toString(),
+              },
+              ...statisticsFile.$.requests,
+            ];
+
+            statisticsFile.writeFile();
+
+            response.end();
+
+            return;
+          }
+
+          response.end(JSON.stringify(statisticsFile.$));
+
+          return;
+        }
+        //
+
+        // Compiler
+        const isCompileFunctionRequested
+          = requestedURL.pathname === '/compiler/compile';
+        const isInputFileRequested
+          = requestedURL.pathname === `/${compiler.inputFile.fileName}`;
+        const isOutputFileRequested
+          = requestedURL.pathname === `/${compiler.outputFile.fileName}`;
+
+        if (isCompileFunctionRequested) {
+          const pathFromRequestedURLParameters = requestedURLParameters.get('path');
+
+          if (pathFromRequestedURLParameters) {
+            await compiler.compile(pathFromRequestedURLParameters);
+
+            response.end();
+
+            return;
           }
         }
 
-        response.end(JSON.stringify({ name, version: p.version, }));
-
-        return;
-      }
-
-      if (requestedURL.pathname === '/favicon.ico') {
-        response.setHeader('Content-Type', 'image/x-icon');
-
-        response.end();
-
-        return;
-      }
-
-      const isCompileFunctionRequested
-        = requestedURL.pathname === '/compiler/compile';
-      const isDevicesFileRequested
-        = requestedURL.pathname === '/devices.json';
-      const isInputFileRequested
-        = requestedURL.pathname === `/${compiler.inputFile.fileName}`;
-      const isOutputFileRequested
-        = requestedURL.pathname === `/${compiler.outputFile.fileName}`;
-      const isStatisticsFileRequested
-        = requestedURL.pathname === `/${compiler.statisticsFile.fileName}`;
-
-      if (isCompileFunctionRequested) {
-        const pathFromRequestedURLParameters = requestedURLParameters.get('path');
-
-        if (pathFromRequestedURLParameters) {
-          await compiler.compile(pathFromRequestedURLParameters);
-
-          response.end();
-
-          return;
-        }
-      }
-
-      if (isDevicesFileRequested) {
-        response.end(JSON.stringify((await find()).map((device) => device.ip)));
-
-        return;
-      }
-
-      if (isInputFileRequested) {
-        response.end(JSON.stringify(compiler.inputFile.$));
-
-        return;
-      }
-
-      if (isOutputFileRequested) {
-        response.end(JSON.stringify(compiler.outputFile.$));
-
-        return;
-      }
-
-      // TODO
-      if (isStatisticsFileRequested) {
-        const statisticsFile = compiler.statisticsFile;
-
-        const urlFromRequestedUrlParameters = requestedURLParameters.get('url');
-
-        if (request.headers.referer && request.headers['user-agent'] && urlFromRequestedUrlParameters) {
-          statisticsFile.$.requests = [
-            {
-              headers: {
-                referer: request.headers.referer,
-                'user-agent': request.headers['user-agent'],
-              },
-              ip: response.socket.remoteAddress,
-              url: new URL(urlFromRequestedUrlParameters).toString(),
-            },
-            ...statisticsFile.$.requests,
-          ];
-
-          compiler.statisticsFile.writeFile();
-
-          response.end();
+        if (isInputFileRequested) {
+          response.end(JSON.stringify(compiler.inputFile.$));
 
           return;
         }
 
-        response.end(JSON.stringify(statisticsFile.$));
+        if (isOutputFileRequested) {
+          response.end(JSON.stringify(compiler.outputFile.$));
 
-        return;
+          return;
+        }
+
+        const $ = mime(path.extname(requestedURL.pathname));
+
+        response.setHeader('Content-Type', $.charset ? `${$.typeName}; charset=${$.charset}` : $.typeName);
+
+        response.end(await readFile(`.${requestedURL.pathname}`, 'base64'), 'base64');
+      } catch (error) {
+        response.statusCode = 500;
+
+        response.end(JSON.stringify({ errors: [ error.message, ], }));
       }
+    });
 
-      const $ = mime(path.extname(requestedURL.pathname));
+    server.listen(1337, () => process.stdout.write(`\x1b[31m       x  x\n    x        x\n   x          x\n   x          x\n    x        x\n       x  x\x1b[0m\n\n     ${p.name}\n     ${p.version}\n\n     webpack\n     ${webpack.version}\n\n`));
 
-      response.setHeader('Content-Type', $.charset ? `${$.typeName}; charset=${$.charset}` : $.typeName);
-
-      response.end(await readFile(`.${requestedURL.pathname}`, 'base64'), 'base64');
-    } catch (error) {
-      response.statusCode = 500;
-
-      response.end(JSON.stringify({ errors: [ error.message, ], }));
-    }
+    i.close();
   });
-
-  server.listen(1337, () => process.stdout.write(`\x1b[31m       x  x\n    x        x\n   x          x\n   x          x\n    x        x\n       x  x\x1b[0m\n\n     ${p.name}\n     ${p.version}\n\n     webpack\n     ${webpack.version}\n\n`));
 }

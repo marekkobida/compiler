@@ -2,7 +2,6 @@ import * as t from 'io-ts';
 import CompiledContainer from './CompiledContainer';
 import InputFile from './InputFile';
 import OutputFile from './OutputFile';
-import StatisticsFile from './StatisticsFile';
 import webpack from 'webpack';
 import { InputFilePackage, } from '@redredsk/compiler/private/types/InputFile';
 
@@ -11,12 +10,9 @@ class Compiler {
 
   outputFile: OutputFile;
 
-  statisticsFile: StatisticsFile;
-
-  constructor (inputFile: InputFile = new InputFile(), outputFile: OutputFile = new OutputFile(), statisticsFile: StatisticsFile = new StatisticsFile()) {
+  constructor (inputFile: InputFile = new InputFile(), outputFile: OutputFile = new OutputFile()) {
     this.inputFile = inputFile;
     this.outputFile = outputFile;
-    this.statisticsFile = statisticsFile;
   }
 
   async compile (path: t.TypeOf<typeof InputFilePackage>['path']): Promise<void> {
