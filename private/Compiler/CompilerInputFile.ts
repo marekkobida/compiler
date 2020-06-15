@@ -2,9 +2,9 @@ import * as t from 'io-ts';
 import readFile from '@redredsk/helpers/private/readFile';
 import validateInput from '@redredsk/helpers/private/types/validateInput';
 import writeFile from '@redredsk/helpers/private/writeFile';
-import { InputFile as T, InputFilePackage, } from '@redredsk/types/private/InputFile';
+import { CompilerInputFile as T, CompilerInputFilePackage, } from '@redredsk/types/private/CompilerInputFile';
 
-class InputFile {
+class CompilerInputFile {
   $: t.TypeOf<typeof T> = { packages: [], };
 
   fileName: string;
@@ -15,7 +15,7 @@ class InputFile {
     this.readFile();
   }
 
-  packageByPath (path: t.TypeOf<typeof InputFilePackage>['path']): t.TypeOf<typeof InputFilePackage> | undefined {
+  packageByPath (path: t.TypeOf<typeof CompilerInputFilePackage>['path']): t.TypeOf<typeof CompilerInputFilePackage> | undefined {
     const inputFile = this.$;
 
     const inputFilePackages = inputFile.packages;
@@ -30,9 +30,9 @@ class InputFile {
   }
 
   async readFile (): Promise<t.TypeOf<typeof T>> {
-    let inputFile = JSON.parse(await readFile(this.fileName));
+    const inputFile = await readFile(this.fileName);
 
-    const validatedInputFile = validateInput(T, inputFile);
+    const validatedInputFile = validateInput(T, JSON.parse(inputFile));
 
     this.$ = validatedInputFile;
 
@@ -48,4 +48,4 @@ class InputFile {
   }
 }
 
-export default InputFile;
+export default CompilerInputFile;

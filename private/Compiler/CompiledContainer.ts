@@ -1,32 +1,32 @@
 // TODO
 import * as t from 'io-ts';
+import CompilerOutputFile from './CompilerOutputFile';
 import Container from '@redredsk/pages/private/Container';
-import OutputFile from './OutputFile';
 import eval_ from 'eval';
 import { Compilation, Compiler, } from 'webpack';
+import { CompilerInputFilePackage, CompilerInputFilePackageFileToCompile, } from '@redredsk/types/private/CompilerInputFile';
+import { CompilerOutputFilePackage, CompilerOutputFilePackageCompiledFile, CompilerOutputFilePackageCompiledFileAsset, } from '@redredsk/types/private/CompilerOutputFile';
 import { ConcatSource, RawSource, } from 'webpack-sources';
-import { InputFilePackage, InputFilePackageFileToCompile, } from '@redredsk/types/private/InputFile';
-import { OutputFilePackage, OutputFilePackageCompiledFile, OutputFilePackageCompiledFileAsset, } from '@redredsk/types/private/OutputFile';
 
 class CompiledContainer {
-  inputFilePackage: t.TypeOf<typeof InputFilePackage>;
+  inputFilePackage: t.TypeOf<typeof CompilerInputFilePackage>;
 
-  inputFilePackageFileToCompile: t.TypeOf<typeof InputFilePackageFileToCompile>;
+  inputFilePackageFileToCompile: t.TypeOf<typeof CompilerInputFilePackageFileToCompile>;
 
-  outputFile: OutputFile;
+  outputFile: CompilerOutputFile;
 
   constructor (
-    inputFilePackage: t.TypeOf<typeof InputFilePackage>,
-    inputFilePackageFileToCompile: t.TypeOf<typeof InputFilePackageFileToCompile>,
-    outputFile: OutputFile
+    inputFilePackage: t.TypeOf<typeof CompilerInputFilePackage>,
+    inputFilePackageFileToCompile: t.TypeOf<typeof CompilerInputFilePackageFileToCompile>,
+    outputFile: CompilerOutputFile
   ) {
     this.inputFilePackage = inputFilePackage;
     this.inputFilePackageFileToCompile = inputFilePackageFileToCompile;
     this.outputFile = outputFile;
   }
 
-  $ (compilation: Compilation, outputFilePackage: t.TypeOf<typeof OutputFilePackage>): void {
-    const right: { toJson: () => t.TypeOf<typeof OutputFilePackageCompiledFile>, } = compilation.getStats();
+  $ (compilation: Compilation, outputFilePackage: t.TypeOf<typeof CompilerOutputFilePackage>): void {
+    const right: { toJson: () => t.TypeOf<typeof CompilerOutputFilePackageCompiledFile>, } = compilation.getStats();
 
     let $ = false;
 
@@ -54,7 +54,7 @@ class CompiledContainer {
     }
   }
 
-  firstJSAsset (compilation: Compilation): t.TypeOf<typeof OutputFilePackageCompiledFileAsset>['name'] | undefined {
+  firstJSAsset (compilation: Compilation): t.TypeOf<typeof CompilerOutputFilePackageCompiledFileAsset>['name'] | undefined {
     for (const assetName in compilation.assets) {
       if (/\.js/.test(assetName)) {
         return assetName;

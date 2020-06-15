@@ -2,9 +2,9 @@ import * as t from 'io-ts';
 import readFile from '@redredsk/helpers/private/readFile';
 import validateInput from '@redredsk/helpers/private/types/validateInput';
 import writeFile from '@redredsk/helpers/private/writeFile';
-import { OutputFile as T, OutputFilePackage, } from '@redredsk/types/private/OutputFile';
+import { CompilerOutputFile as T, CompilerOutputFilePackage, } from '@redredsk/types/private/CompilerOutputFile';
 
-class OutputFile {
+class CompilerOutputFile {
   $: t.TypeOf<typeof T> = { packages: [], };
 
   fileName: string;
@@ -15,7 +15,7 @@ class OutputFile {
     this.writeFile();
   }
 
-  packageByPath (path: t.TypeOf<typeof OutputFilePackage>['path']): t.TypeOf<typeof OutputFilePackage> | undefined {
+  packageByPath (path: t.TypeOf<typeof CompilerOutputFilePackage>['path']): t.TypeOf<typeof CompilerOutputFilePackage> | undefined {
     const outputFile = this.$;
 
     const outputFilePackages = outputFile.packages;
@@ -48,4 +48,4 @@ class OutputFile {
   }
 }
 
-export default OutputFile;
+export default CompilerOutputFile;

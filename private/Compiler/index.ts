@@ -1,21 +1,21 @@
 import * as t from 'io-ts';
 import CompiledContainer from './CompiledContainer';
-import InputFile from './InputFile';
-import OutputFile from './OutputFile';
+import CompilerInputFile from './CompilerInputFile';
+import CompilerOutputFile from './CompilerOutputFile';
 import webpack from 'webpack';
-import { InputFilePackage, } from '@redredsk/types/private/InputFile';
+import { CompilerInputFilePackage, } from '@redredsk/types/private/CompilerInputFile';
 
 class Compiler {
-  inputFile: InputFile;
+  inputFile: CompilerInputFile;
 
-  outputFile: OutputFile;
+  outputFile: CompilerOutputFile;
 
-  constructor (inputFile: InputFile = new InputFile(), outputFile: OutputFile = new OutputFile()) {
+  constructor (inputFile: CompilerInputFile = new CompilerInputFile(), outputFile: CompilerOutputFile = new CompilerOutputFile()) {
     this.inputFile = inputFile;
     this.outputFile = outputFile;
   }
 
-  async compile (path: t.TypeOf<typeof InputFilePackage>['path']): Promise<void> {
+  async compile (path: t.TypeOf<typeof CompilerInputFilePackage>['path']): Promise<void> {
     // 1.
 
     const inputFilePackage = this.inputFile.packageByPath(path);
