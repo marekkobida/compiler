@@ -104,7 +104,7 @@ if (l < r) {
 
     server.listen(1338);
 
-    process.stdout.write(`\x1b[31m       x  x\n    x        x\n   x          x\n   x          x\n    x        x\n       x  x\x1b[0m\n\n      redred\n\n      ${p.name}\n      ${p.version}\n\n      webpack\n      ${webpack.version}\n\n`);
+    process.stdout.write(`\x1b[31m    x  x\n x        x\nx          x\nx          x\n x        x\n    x  x\x1b[0m\n\n${p.name}\n${p.version}\n\nwebpack\n${webpack.version}\n`);
 
     i.close();
   });
