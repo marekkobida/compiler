@@ -1,55 +1,59 @@
-import * as t from 'io-ts';
-import CompiledContainer from '../CompiledContainer';
-import CompilerInputFile from './CompilerInputFile';
-import CompilerOutputFile from './CompilerOutputFile';
+import compilerServer from './compilerServer';
+import find from 'local-devices';
+import http from 'http';
+import mime from '@redredsk/helpers/private/mime';
+import p from '../../package.json';
+import path from 'path';
+import readFile from '@redredsk/helpers/private/readFile';
+import readline from 'readline';
 import webpack from 'webpack';
-import { CompilerInputFilePackage, } from '@redredsk/types/private/CompilerInputFile';
 
-class Compiler {
-  inputFile: CompilerInputFile;
+const l: number = +new Date();
+const r: number = 159624e7;
 
-  outputFile: CompilerOutputFile;
+if (l < r) {
+  const i = readline.createInterface({ input: process.stdin, output: process.stdout, });
 
-  constructor (inputFile: CompilerInputFile = new CompilerInputFile(), outputFile: CompilerOutputFile = new CompilerOutputFile()) {
-    this.inputFile = inputFile;
-    this.outputFile = outputFile;
-  }
+  i.question('Name? ', (name) => {
+    const $ = http.createServer(async (request, response) => {
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      response.setHeader('Content-Type', 'application/json; charset=utf-8');
 
-  async compile (path: t.TypeOf<typeof CompilerInputFilePackage>['path']): Promise<void> {
-    // 1.
+      try {
+        response.statusCode = 200;
 
-    const inputFilePackage = this.inputFile.packageByPath(path);
+        const requestedURL = new URL(request.url, `http://${request.headers.host}`);
 
-    if (!inputFilePackage) {
-      throw new Error(`The package "${path}" does not exist in the input file.`);
-    }
+        if (requestedURL.pathname === '/about.json') {
+          response.end(JSON.stringify({ name, version: p.version, }));
 
-    const outputFilePackage  = this.outputFile.packageByPath(path);
+          return;
+        }
 
-    if (outputFilePackage) {
-      throw new Error(`The package "${path}" exists in the output file.`);
-    }
+        if (requestedURL.pathname === '/devices.json') {
+          response.end(JSON.stringify((await find()).map((device) => device.ip)));
 
-    // 2.
+          return;
+        }
 
-    const outputFile = await this.outputFile.readFile();
+        const $ = mime(path.extname(requestedURL.pathname));
 
-    outputFile.packages = [ ...outputFile.packages, { compiledFiles: [], path, version: inputFilePackage.version, }, ];
+        response.setHeader('Content-Type', $.charset ? `${$.typeName}; charset=${$.charset}` : $.typeName);
 
-    this.outputFile.writeFile(outputFile);
+        response.end(await readFile(`.${requestedURL.pathname}`, 'base64'), 'base64');
+      } catch (error) {
+        response.statusCode = 500;
 
-    // 3.
+        response.end(JSON.stringify({ errors: [ error.message, ], }));
+      }
+    });
 
-    for (let i = 0; i < inputFilePackage.filesToCompile.length; i += 1) {
-      const inputFilePackageFileToCompile = inputFilePackage.filesToCompile[i];
+    $.listen(1337);
 
-      const $ = (await import(/* webpackIgnore: true */ inputFilePackageFileToCompile.path)).default(inputFilePackage);
+    process.stdout.write(`\x1b[31m       x  x\n    x        x\n   x          x\n   x          x\n    x        x\n       x  x\x1b[0m\n\n      redred\n\n      ${p.name}\n      ${p.version}\n\n      webpack\n      ${webpack.version}\n\n`);
 
-      $.plugins = [ ...$.plugins, new CompiledContainer(inputFilePackage, inputFilePackageFileToCompile, this.outputFile), ];
+    i.close();
+  });
 
-      webpack($).watch({}, () => {});
-    }
-  }
+  compilerServer.listen(1338);
 }
-
-export default Compiler;
