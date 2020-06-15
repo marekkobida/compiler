@@ -6,6 +6,7 @@ import eval_ from 'eval';
 import { Compilation, Compiler, } from 'webpack';
 import { InputFilePackage, InputFilePackageFileToCompile, } from '@redredsk/types/private/InputFile';
 import { OutputFilePackage, OutputFilePackageCompiledFile, OutputFilePackageCompiledFileAsset, } from '@redredsk/types/private/OutputFile';
+import { RawSource, } from 'webpack-sources';
 
 class CompiledContainer {
   inputFilePackage: t.TypeOf<typeof InputFilePackage>;
@@ -95,14 +96,7 @@ class CompiledContainer {
                 const html = compiledContainerPage.toHTML();
 
                 if (html) {
-                  compilation.assets[`${compiledContainerPage.name}.html`] = {
-                    size () {
-                      return Buffer.byteLength(html);
-                    },
-                    source () {
-                      return html;
-                    },
-                  };
+                  compilation.assets[`${compiledContainerPage.name}.html`] = new RawSource(`<!-- Copyright 2020 Marek Kobida -->\n${html}`);
                 }
               }
 
