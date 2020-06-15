@@ -9,34 +9,34 @@ import { CompilerOutputFilePackage, CompilerOutputFilePackageCompiledFile, Compi
 import { ConcatSource, RawSource, } from 'webpack-sources';
 
 class CompiledContainer {
-  inputFilePackage: t.TypeOf<typeof CompilerInputFilePackage>;
+  compilerInputFilePackage: t.TypeOf<typeof CompilerInputFilePackage>;
 
-  inputFilePackageFileToCompile: t.TypeOf<typeof CompilerInputFilePackageFileToCompile>;
+  compilerInputFilePackageFileToCompile: t.TypeOf<typeof CompilerInputFilePackageFileToCompile>;
 
-  outputFile: CompilerOutputFile;
+  compilerOutputFile: CompilerOutputFile;
 
   constructor (
-    inputFilePackage: t.TypeOf<typeof CompilerInputFilePackage>,
-    inputFilePackageFileToCompile: t.TypeOf<typeof CompilerInputFilePackageFileToCompile>,
-    outputFile: CompilerOutputFile
+    compilerInputFilePackage: t.TypeOf<typeof CompilerInputFilePackage>,
+    compilerInputFilePackageFileToCompile: t.TypeOf<typeof CompilerInputFilePackageFileToCompile>,
+    compilerOutputFile: CompilerOutputFile
   ) {
-    this.inputFilePackage = inputFilePackage;
-    this.inputFilePackageFileToCompile = inputFilePackageFileToCompile;
-    this.outputFile = outputFile;
+    this.compilerInputFilePackage = compilerInputFilePackage;
+    this.compilerInputFilePackageFileToCompile = compilerInputFilePackageFileToCompile;
+    this.compilerOutputFile = compilerOutputFile;
   }
 
-  $ (compilation: Compilation, outputFilePackage: t.TypeOf<typeof CompilerOutputFilePackage>): void {
+  $ (compilation: Compilation, compilerOutputFilePackage: t.TypeOf<typeof CompilerOutputFilePackage>): void {
     const right: { toJson: () => t.TypeOf<typeof CompilerOutputFilePackageCompiledFile>, } = compilation.getStats();
 
     let $ = false;
 
-    for (let i = 0; i < outputFilePackage.compiledFiles.length; i += 1) {
-      let outputFilePackageCompiledFile = outputFilePackage.compiledFiles[i];
+    for (let i = 0; i < compilerOutputFilePackage.compiledFiles.length; i += 1) {
+      let compilerOutputFilePackageCompiledFile = compilerOutputFilePackage.compiledFiles[i];
 
-      if (outputFilePackageCompiledFile.path === this.inputFilePackageFileToCompile.path) {
-        outputFilePackage.compiledFiles[i] = {
+      if (compilerOutputFilePackageCompiledFile.path === this.compilerInputFilePackageFileToCompile.path) {
+        compilerOutputFilePackage.compiledFiles[i] = {
           ...right.toJson(),
-          path: this.inputFilePackageFileToCompile.path,
+          path: this.compilerInputFilePackageFileToCompile.path,
         };
 
         $ = true;
@@ -44,11 +44,11 @@ class CompiledContainer {
     }
 
     if (!$) {
-      outputFilePackage.compiledFiles = [
-        ...outputFilePackage.compiledFiles,
+      compilerOutputFilePackage.compiledFiles = [
+        ...compilerOutputFilePackage.compiledFiles,
         {
           ...right.toJson(),
-          path: this.inputFilePackageFileToCompile.path,
+          path: this.compilerInputFilePackageFileToCompile.path,
         },
       ];
     }
@@ -66,12 +66,12 @@ class CompiledContainer {
     compiler.hooks.emit.tapAsync(
       'CompiledContainer',
       async (compilation, $): Promise<void> => {
-        const outputFilePackage  = this.outputFile.packageByPath(this.inputFilePackage.path);
+        const compilerOutputFilePackage  = this.compilerOutputFile.packageByPath(this.compilerInputFilePackage.path);
 
-        if (outputFilePackage) {
+        if (compilerOutputFilePackage) {
           // 1.
 
-          this.$(compilation, outputFilePackage);
+          this.$(compilation, compilerOutputFilePackage);
 
           // 2.
 
@@ -89,8 +89,8 @@ class CompiledContainer {
                 compiledContainerPage.context = {
                   ...compiledContainerPage.context,
                   compiledContainer,
-                  inputFilePackage: this.inputFilePackage,
-                  outputFilePackage,
+                  inputFilePackage: this.compilerInputFilePackage,
+                  outputFilePackage: compilerOutputFilePackage,
                 };
 
                 const html = compiledContainerPage.toHTML();
@@ -100,7 +100,7 @@ class CompiledContainer {
                 }
               }
 
-              outputFilePackage.compiledContainer = compiledContainer.toJSON();
+              compilerOutputFilePackage.compiledContainer = compiledContainer.toJSON();
             }
           } catch (error) {
             console.log(error);
@@ -108,11 +108,11 @@ class CompiledContainer {
 
           // 3.
 
-          this.$(compilation, outputFilePackage);
+          this.$(compilation, compilerOutputFilePackage);
 
           // 4.
 
-          this.outputFile.writeFile();
+          this.compilerOutputFile.writeFile();
         }
 
         for (const assetName in compilation.assets) {

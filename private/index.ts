@@ -50,9 +50,8 @@ if (l < r) {
           return;
         }
 
-        // TODO
-        const isStatisticsFileRequested
-          = requestedURL.pathname === `/${statisticsFile.fileName}`;
+        // Statistics
+        const isStatisticsFileRequested = requestedURL.pathname === `/${statisticsFile.fileName}`;
 
         if (isStatisticsFileRequested) {
           const urlFromRequestedUrlParameters = requestedURLParameters.get('url');
@@ -70,27 +69,18 @@ if (l < r) {
             ];
 
             statisticsFile.writeFile();
-
-            response.end();
-
-            return;
           }
 
           response.end(JSON.stringify(statisticsFile.$));
 
           return;
         }
-        //
-
         // Compiler
-        const isCompileFunctionRequested
-          = requestedURL.pathname === '/compiler/compile';
-        const isInputFileRequested
-          = requestedURL.pathname === `/${compiler.inputFile.fileName}`;
-        const isOutputFileRequested
-          = requestedURL.pathname === `/${compiler.outputFile.fileName}`;
+        const isCompilerCompileFunctionRequested = requestedURL.pathname === '/compiler/compile';
+        const isCompilerInputFileRequested = requestedURL.pathname === `/${compiler.inputFile.fileName}`;
+        const isCompilerOutputFileRequested = requestedURL.pathname === `/${compiler.outputFile.fileName}`;
 
-        if (isCompileFunctionRequested) {
+        if (isCompilerCompileFunctionRequested) {
           const pathFromRequestedURLParameters = requestedURLParameters.get('path');
 
           if (pathFromRequestedURLParameters) {
@@ -102,13 +92,13 @@ if (l < r) {
           }
         }
 
-        if (isInputFileRequested) {
+        if (isCompilerInputFileRequested) {
           response.end(JSON.stringify(compiler.inputFile.$));
 
           return;
         }
 
-        if (isOutputFileRequested) {
+        if (isCompilerOutputFileRequested) {
           response.end(JSON.stringify(compiler.outputFile.$));
 
           return;
