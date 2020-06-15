@@ -75,6 +75,7 @@ if (l < r) {
 
           return;
         }
+
         // Compiler
         const isCompilerCompileFunctionRequested = requestedURL.pathname === '/compiler/compile';
         const isCompilerInputFileRequested = requestedURL.pathname === `/${compiler.inputFile.fileName}`;
