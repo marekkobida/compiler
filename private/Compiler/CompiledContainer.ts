@@ -4,9 +4,9 @@ import Container from '@redredsk/pages/private/Container';
 import OutputFile from './OutputFile';
 import eval_ from 'eval';
 import { Compilation, Compiler, } from 'webpack';
+import { ConcatSource, RawSource, } from 'webpack-sources';
 import { InputFilePackage, InputFilePackageFileToCompile, } from '@redredsk/types/private/InputFile';
 import { OutputFilePackage, OutputFilePackageCompiledFile, OutputFilePackageCompiledFileAsset, } from '@redredsk/types/private/OutputFile';
-import { RawSource, } from 'webpack-sources';
 
 class CompiledContainer {
   inputFilePackage: t.TypeOf<typeof InputFilePackage>;
@@ -96,7 +96,7 @@ class CompiledContainer {
                 const html = compiledContainerPage.toHTML();
 
                 if (html) {
-                  compilation.assets[`${compiledContainerPage.name}.html`] = new RawSource(`<!-- Copyright 2020 Marek Kobida -->\n${html}`);
+                  compilation.assets[`${compiledContainerPage.name}.html`] = new RawSource(html);
                 }
               }
 
@@ -113,6 +113,16 @@ class CompiledContainer {
           // 4.
 
           this.outputFile.writeFile();
+        }
+
+        for (const assetName in compilation.assets) {
+          if (/\.css|\.js/.test(assetName)) {
+            compilation.assets[assetName] = new ConcatSource('/*! Copyright 2020 Marek Kobida */\n', compilation.assets[assetName]);
+          }
+
+          if (/\.html/.test(assetName)) {
+            compilation.assets[assetName] = new ConcatSource('<!-- Copyright 2020 Marek Kobida -->\n', compilation.assets[assetName]);
+          }
         }
 
         $();
