@@ -1,8 +1,11 @@
 const path = require('path');
-const webpack = require('webpack');
+// const webpack = require('webpack');
 
 module.exports = {
-  entry: path.resolve(__dirname, './private/index.ts'),
+  entry: {
+    compiler: path.resolve(__dirname, './private/Compiler/index.ts'),
+    statistics: path.resolve(__dirname, './private/Statistics/index.ts'),
+  },
   externals: {
     webpack: 'commonjs webpack',
   },
@@ -21,15 +24,15 @@ module.exports = {
     ],
   },
   output: {
-    filename: 'compiler.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, '..'),
   },
-  plugins: [
-    new webpack.BannerPlugin({
-      banner: '#!/usr/bin/env node --no-deprecation',
-      raw: true,
-    }),
-  ],
+  // plugins: [
+  //   new webpack.BannerPlugin({
+  //     banner: '#!/usr/bin/env node --no-deprecation',
+  //     raw: true,
+  //   }),
+  // ],
   resolve: {
     extensions: [
       '.js',

@@ -1,4 +1,4 @@
-import Compiler from './index';
+import Compiler from './Compiler';
 import http from 'http';
 import mime from '@redredsk/helpers/private/mime';
 import path from 'path';
