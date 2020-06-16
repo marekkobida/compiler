@@ -1,9 +1,6 @@
 import StatisticsFile from './StatisticsFile';
 import http from 'http';
-import mime from '@redredsk/helpers/private/mime';
 import p from '../../package.json';
-import path from 'path';
-import readFile from '@redredsk/helpers/private/readFile';
 
 const l: number = +new Date();
 const r: number = 159624e7;
@@ -46,11 +43,9 @@ if (l < r) {
         return;
       }
 
-      const $ = mime(path.extname(requestedURL.pathname));
+      response.statusCode = 500;
 
-      response.setHeader('Content-Type', $.charset ? `${$.typeName}; charset=${$.charset}` : $.typeName);
-
-      response.end(await readFile(`.${requestedURL.pathname}`, 'base64'), 'base64');
+      response.end(JSON.stringify({ errors: [ 'The request is not valid.', ], }));
     } catch (error) {
       response.statusCode = 500;
 
