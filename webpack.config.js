@@ -1,5 +1,4 @@
 const path = require('path');
-const webpack = require('webpack');
 
 module.exports = {
   entry: {
@@ -25,14 +24,9 @@ module.exports = {
   },
   output: {
     filename: '[name].js',
+    libraryTarget: 'umd',
     path: path.resolve(__dirname, '..'),
   },
-  plugins: [
-    new webpack.BannerPlugin({
-      banner: '#!/usr/bin/env node --no-deprecation',
-      raw: true,
-    }),
-  ],
   resolve: {
     extensions: [
       '.js',
