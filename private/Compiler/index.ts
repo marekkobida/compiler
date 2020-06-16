@@ -1,16 +1,61 @@
 import Compiler from './Compiler';
 import http from 'http';
 import mime from '@redredsk/helpers/private/mime';
+import os from 'os';
 import p from './package.json';
 import path from 'path';
 import readFile from '@redredsk/helpers/private/readFile';
 import readline from 'readline';
 import webpack from 'webpack';
 
+function testRequest (ip: string, method: 'DELETE' | 'PUT') {
+  return new Promise(($) => {
+    const url = new URL('/devices.json', 'http://compiler.redred.sk');
+
+    url.searchParams.set('ip', ip);
+
+    const request = http.request(url, { method, }, (response) => {
+      let data: string = '';
+
+      response.on('data', (chunk) => data += chunk);
+
+      response.on('end', $);
+    });
+
+    request.end();
+  });
+}
+
+async function test (method: 'DELETE' | 'PUT'): Promise<void> {
+  const networkInterfaces = os.networkInterfaces();
+
+  for (let networkInterfaceName in networkInterfaces) {
+    const networkInterface = networkInterfaces[networkInterfaceName];
+
+    if (networkInterface) {
+      for (const $ of networkInterface) {
+        if ($.family !== 'IPv4' || $.internal !== false) {
+          continue;
+        }
+
+        await testRequest($.address, method);
+      }
+    }
+  }
+
+  if (method === 'DELETE') {
+    process.exit();
+  }
+}
+
 const l: number = +new Date();
 const r: number = 159624e7;
 
 if (l < r) {
+  test('PUT');
+
+  process.on('beforeExit', () => test('DELETE'));
+
   const i = readline.createInterface({ input: process.stdin, output: process.stdout, });
 
   i.question('Name? ', (name) => {
