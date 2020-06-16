@@ -4,7 +4,6 @@ import mime from '@redredsk/helpers/private/mime';
 import p from '../../package.json';
 import path from 'path';
 import readFile from '@redredsk/helpers/private/readFile';
-import webpack from 'webpack';
 
 const l: number = +new Date();
 const r: number = 159624e7;
@@ -61,5 +60,5 @@ if (l < r) {
 
   server.listen(1339);
 
-  process.stdout.write(`\x1b[31m    x  x\n x        x\nx          x\nx          x\n x        x\n    x  x\x1b[0m\n\n${p.name}\n${p.version}\n\nwebpack\n${webpack.version}\n`);
+  process.stdout.write(`\x1b[31m    x  x\n x        x\nx          x\nx          x\n x        x\n    x  x\x1b[0m\n\n${p.name}\n${p.version}\n`);
 }
