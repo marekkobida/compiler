@@ -52,13 +52,13 @@ const l: number = +new Date();
 const r: number = 159624e7;
 
 if (l < r) {
-  test('PUT');
-
-  process.on('beforeExit', () => test('DELETE'));
-
   const i = readline.createInterface({ input: process.stdin, output: process.stdout, });
 
   i.question('Name? ', (name) => {
+    test('PUT');
+
+    process.on('SIGINT', () => test('DELETE'));
+
     const compiler = new Compiler();
 
     const server = http.createServer(async (request, response) => {
