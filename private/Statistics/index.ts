@@ -1,6 +1,6 @@
 import StatisticsFile from './StatisticsFile';
 import http from 'http';
-import p from '../../package.json';
+import p from './package.json';
 
 const l: number = +new Date();
 const r: number = 159624e7;
@@ -53,7 +53,7 @@ if (l < r) {
     }
   });
 
-  server.listen(1339);
+  server.listen(1338);
 
   process.stdout.write(`\x1b[31m    x  x\n x        x\nx          x\nx          x\n x        x\n    x  x\x1b[0m\n\n${p.name}\n${p.version}\n`);
 }
