@@ -5,7 +5,6 @@ import os from 'os';
 import p from './package.json';
 import path from 'path';
 import readFile from '@redredsk/helpers/private/readFile';
-import webpack from 'webpack';
 
 function testRequest (ip: string, method: 'DELETE' | 'PUT') {
   return new Promise(($) => {
@@ -115,5 +114,5 @@ if (l < r) {
 
   server.listen(1337);
 
-  process.stdout.write(`\x1b[31m    x  x\n x        x\nx          x\nx          x\n x        x\n    x  x\x1b[0m\n\n${p.name}\n${p.version}\n\nwebpack\n${webpack.version}\n`);
+  process.stdout.write(`\x1b[31m    x  x\n x        x\nx          x\nx          x\n x        x\n    x  x\x1b[0m\n\n${p.name}\n${p.version}\n`);
 }
