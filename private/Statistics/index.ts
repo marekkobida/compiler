@@ -26,10 +26,10 @@ if (l < r) {
         if (request.headers.referer && request.headers['user-agent'] && urlFromRequestedUrlParameters) {
           statisticsFile.$.requests = [
             {
-              headers: {
-                referer: request.headers.referer,
-                'user-agent': request.headers['user-agent'],
-              },
+              headers: [
+                [ 'referer', request.headers.referer, ],
+                [ 'user-agent', request.headers['user-agent'], ],
+              ],
               url: new URL(urlFromRequestedUrlParameters).toString(),
             },
             ...statisticsFile.$.requests,
@@ -43,9 +43,7 @@ if (l < r) {
         return;
       }
 
-      response.statusCode = 500;
-
-      response.end(JSON.stringify({ errors: [ 'The request is not valid.', ], }));
+      throw new Error('The request is not valid.');
     } catch (error) {
       response.statusCode = 500;
 

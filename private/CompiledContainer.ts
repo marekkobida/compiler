@@ -2,11 +2,29 @@
 import * as t from 'io-ts';
 import CompilerOutputFile from './Compiler/CompilerOutputFile';
 import Container from '@redredsk/pages/private/Container';
-import eval_ from 'eval';
+import vm from 'vm';
 import { Compilation, Compiler, } from 'webpack';
 import { CompilerInputFilePackage, CompilerInputFilePackageFileToCompile, } from '@redredsk/types/private/CompilerInputFile';
 import { CompilerOutputFilePackage, CompilerOutputFilePackageCompiledFile, CompilerOutputFilePackageCompiledFileAsset, } from '@redredsk/types/private/CompilerOutputFile';
 import { ConcatSource, RawSource, } from 'webpack-sources';
+
+function test ($: Buffer | string): any {
+  if (Buffer.isBuffer($)) {
+    $ = $.toString();
+  }
+
+  const sandbox: any = {};
+
+  sandbox.exports = exports;
+
+  sandbox.module = { exports: exports, };
+
+  const script = new vm.Script($, { displayErrors: false, });
+
+  script.runInNewContext(sandbox, { displayErrors: false, });
+
+  return sandbox.module.exports;
+}
 
 class CompiledContainer {
   compilerInputFilePackage: t.TypeOf<typeof CompilerInputFilePackage>;
@@ -81,7 +99,7 @@ class CompiledContainer {
             if (firstJSAsset) {
               const source = compilation.assets[firstJSAsset].source();
 
-              const compiledContainer: Container = eval_(source, firstJSAsset).default;
+              const compiledContainer: Container = test(source).default;
 
               for (let i = 0; i < compiledContainer.pages.length; i += 1) {
                 const compiledContainerPage = compiledContainer.pages[i];
