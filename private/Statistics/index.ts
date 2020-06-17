@@ -18,6 +18,12 @@ if (l < r) {
       const requestedURL = new URL(request.url, `http://${request.headers.host}`);
       const requestedURLParameters = requestedURL.searchParams;
 
+      if (requestedURL.pathname === '/about.json') {
+        response.end(JSON.stringify({ version: p.version, }));
+
+        return;
+      }
+
       const isStatisticsFileRequested = requestedURL.pathname === `/${statisticsFile.fileName}`;
 
       if (isStatisticsFileRequested) {
