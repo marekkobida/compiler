@@ -19,6 +19,8 @@ function test ($: Buffer | string): any {
 
   sandbox.module = { exports: exports, };
 
+  sandbox.global = sandbox;
+
   const script = new vm.Script($, { displayErrors: false, });
 
   script.runInNewContext(sandbox, { displayErrors: false, });
@@ -121,7 +123,7 @@ class CompiledContainer {
               compilerOutputFilePackage.compiledContainer = compiledContainer.toJSON();
             }
           } catch (error) {
-
+            console.log(error);
           }
 
           // 3.
