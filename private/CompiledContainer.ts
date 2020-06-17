@@ -123,7 +123,7 @@ class CompiledContainer {
               compilerOutputFilePackage.compiledContainer = compiledContainer.toJSON();
             }
           } catch (error) {
-            console.log(error);
+
           }
 
           // 3.

@@ -32,11 +32,9 @@ class Compiler {
 
     // 2.
 
-    const outputFile = await this.outputFile.readFile();
+    this.outputFile.$.packages = [ ...this.outputFile.$.packages, { compiledFiles: [], path, version: inputFilePackage.version, }, ];
 
-    outputFile.packages = [ ...outputFile.packages, { compiledFiles: [], path, version: inputFilePackage.version, }, ];
-
-    this.outputFile.writeFile(outputFile);
+    this.outputFile.writeFile();
 
     // 3.
 
