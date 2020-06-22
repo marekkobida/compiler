@@ -2,8 +2,7 @@ const path = require('path');
 
 module.exports = {
   entry: {
-    compiler: path.resolve(__dirname, './private/Compiler/index.ts'),
-    statistics: path.resolve(__dirname, './private/Statistics/index.ts'),
+    compiler: path.resolve(__dirname, './private/index.ts'),
   },
   externals: {
     webpack: 'commonjs webpack',
