@@ -105,5 +105,5 @@ if (l < r) {
     createdServer.listen(1337);
   }
 
-  createServer('?', '3.0.0-beta.21');
+  createServer('?', '3.0.0-beta.22');
 }
