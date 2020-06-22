@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import CompiledContainer from '../CompiledContainer';
+import CompilerCompiledContainer from '../CompilerCompiledContainer';
 import CompilerInputFile from './CompilerInputFile';
 import CompilerOutputFile from './CompilerOutputFile';
 import webpack from 'webpack';
@@ -43,7 +43,7 @@ class Compiler {
 
       const $ = (await import(/* webpackIgnore: true */ inputFilePackageFileToCompile.path)).default(inputFilePackage);
 
-      $.plugins = [ ...$.plugins, new CompiledContainer(inputFilePackage, inputFilePackageFileToCompile, this.outputFile), ];
+      $.plugins = [ ...$.plugins, new CompilerCompiledContainer(inputFilePackage, inputFilePackageFileToCompile, this.outputFile), ];
 
       webpack($).watch({}, () => {});
     }

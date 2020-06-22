@@ -2,11 +2,12 @@
 import * as t from 'io-ts';
 import CompilerOutputFile from './Compiler/CompilerOutputFile';
 import Container from '@redredsk/pages/private/Container';
+import copyright from './Compiler/copyright';
 import vm from 'vm';
 import { Compilation, Compiler, } from 'webpack';
 import { CompilerInputFilePackage, CompilerInputFilePackageFileToCompile, } from '@redredsk/types/private/CompilerInputFile';
 import { CompilerOutputFilePackage, CompilerOutputFilePackageCompiledFile, CompilerOutputFilePackageCompiledFileAsset, } from '@redredsk/types/private/CompilerOutputFile';
-import { ConcatSource, RawSource, } from 'webpack-sources';
+import { RawSource, } from 'webpack-sources';
 
 function test ($: Buffer | string): any {
   if (Buffer.isBuffer($)) {
@@ -28,7 +29,7 @@ function test ($: Buffer | string): any {
   return sandbox.module.exports;
 }
 
-class CompiledContainer {
+class CompilerCompiledContainer {
   compilerInputFilePackage: t.TypeOf<typeof CompilerInputFilePackage>;
 
   compilerInputFilePackageFileToCompile: t.TypeOf<typeof CompilerInputFilePackageFileToCompile>;
@@ -84,7 +85,7 @@ class CompiledContainer {
 
   apply (compiler: Compiler) {
     compiler.hooks.emit.tapAsync(
-      'CompiledContainer',
+      'CompilerCompiledContainer',
       async (compilation, $): Promise<void> => {
         const compilerOutputFilePackage  = this.compilerOutputFile.packageByPath(this.compilerInputFilePackage.path);
 
@@ -101,26 +102,26 @@ class CompiledContainer {
             if (firstJSAsset) {
               const source = compilation.assets[firstJSAsset].source();
 
-              const compiledContainer: Container = test(source).default;
+              const compilerCompiledContainer: Container = test(source).default;
 
-              for (let i = 0; i < compiledContainer.pages.length; i += 1) {
-                const compiledContainerPage = compiledContainer.pages[i];
+              for (let i = 0; i < compilerCompiledContainer.pages.length; i += 1) {
+                const compilerCompiledContainerPage = compilerCompiledContainer.pages[i];
 
-                compiledContainerPage.context = {
-                  ...compiledContainerPage.context,
-                  compiledContainer,
+                compilerCompiledContainerPage.context = {
+                  ...compilerCompiledContainerPage.context,
+                  compiledContainer: compilerCompiledContainer,
                   inputFilePackage: this.compilerInputFilePackage,
                   outputFilePackage: compilerOutputFilePackage,
                 };
 
-                const html = compiledContainerPage.toHTML();
+                const html = compilerCompiledContainerPage.toHTML();
 
                 if (html) {
-                  compilation.assets[`${compiledContainerPage.name}.html`] = new RawSource(html);
+                  compilation.assets[`${compilerCompiledContainerPage.name}.html`] = new RawSource(html);
                 }
               }
 
-              compilerOutputFilePackage.compiledContainer = compiledContainer.toJSON();
+              compilerOutputFilePackage.compiledContainer = compilerCompiledContainer.toJSON();
             }
           } catch (error) {
 
@@ -135,15 +136,9 @@ class CompiledContainer {
           this.compilerOutputFile.writeFile();
         }
 
-        for (const assetName in compilation.assets) {
-          if (/(\.css|\.js)$/.test(assetName)) {
-            compilation.assets[assetName] = new ConcatSource(Buffer.from('2f2a2120436f707972696768742032303230204d6172656b204b6f62696461202a2f', 'hex').toString('utf-8'), '\n', compilation.assets[assetName]);
-          }
+        // 5.
 
-          if (/\.html$/.test(assetName)) {
-            compilation.assets[assetName] = new ConcatSource(Buffer.from('3c212d2d20436f707972696768742032303230204d6172656b204b6f62696461202d2d3e', 'hex').toString('utf-8'), '\n', compilation.assets[assetName]);
-          }
-        }
+        copyright(compilation);
 
         $();
       }
@@ -151,5 +146,5 @@ class CompiledContainer {
   }
 }
 
-export default CompiledContainer;
+export default CompilerCompiledContainer;
 //
