@@ -4,6 +4,9 @@ module.exports = {
   entry: {
     compiler: path.resolve(__dirname, './private/index.ts'),
   },
+  experiments: {
+    topLevelAwait: true,
+  },
   externals: {
     webpack: 'commonjs webpack',
   },

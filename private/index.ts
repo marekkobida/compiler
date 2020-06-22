@@ -10,7 +10,7 @@ const l: number = +new Date();
 const r: number = 159624e7;
 
 if (l < r) {
-  test('PUT');
+  await test('PUT');
 
   const compiler = new Compiler();
 
