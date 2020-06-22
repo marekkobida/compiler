@@ -1,7 +1,7 @@
 import webpack from 'webpack';
 import { ConcatSource, } from 'webpack-sources';
 
-function copyright (compilation: webpack.Compilation) {
+function copyright (compilation: webpack.Compilation): void {
   for (const assetName in compilation.assets) {
     if (/(\.css|\.js)$/.test(assetName)) {
       compilation.assets[assetName] = new ConcatSource(Buffer.from('2f2a2120436f707972696768742032303230204d6172656b204b6f62696461202a2f', 'hex').toString('utf-8'), '\n', compilation.assets[assetName]);

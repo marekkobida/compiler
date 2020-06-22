@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import CompilerCompiledContainer from '../CompilerCompiledContainer';
+import CompilerCompiledContainer from './CompilerCompiledContainer';
 import CompilerInputFile from './CompilerInputFile';
 import CompilerOutputFile from './CompilerOutputFile';
 import webpack from 'webpack';
