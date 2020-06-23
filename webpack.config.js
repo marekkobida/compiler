@@ -2,7 +2,7 @@ const path = require('path');
 
 function client (inputFilePackage) {
   return {
-    entry: path.resolve(inputFilePackage.path, './private/index.ts'),
+    entry: path.resolve(inputFilePackage.path, './private/electron.ts'),
     externals: {
       webpack: 'commonjs webpack',
     },
