@@ -2,6 +2,7 @@ import * as t from 'io-ts';
 import CompilerCompiledContainer from './CompilerCompiledContainer';
 import CompilerInputFile from './CompilerInputFile';
 import CompilerOutputFile from './CompilerOutputFile';
+import electronPath from './electronPath';
 import webpack from 'webpack';
 import { CompilerInputFilePackage, } from '@redredsk/types/private/CompilerInputFile';
 
@@ -41,7 +42,9 @@ class Compiler {
     for (let i = 0; i < inputFilePackage.filesToCompile.length; i += 1) {
       const inputFilePackageFileToCompile = inputFilePackage.filesToCompile[i];
 
-      const $ = (await import(/* webpackIgnore: true */ inputFilePackageFileToCompile.path)).default(inputFilePackage);
+      delete __non_webpack_require__.cache[__non_webpack_require__.resolve(`${electronPath()}/${inputFilePackageFileToCompile.path}`)];
+
+      const $ = __non_webpack_require__(`${electronPath()}/${inputFilePackageFileToCompile.path}`)(inputFilePackage);
 
       $.plugins = [ ...$.plugins, new CompilerCompiledContainer(inputFilePackage, inputFilePackageFileToCompile, this.outputFile), ];
 

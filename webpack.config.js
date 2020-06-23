@@ -2,10 +2,7 @@ const path = require('path');
 
 module.exports = {
   entry: {
-    redredsk: path.resolve(__dirname, './private/index.ts'),
-  },
-  experiments: {
-    topLevelAwait: true,
+    index: path.resolve(__dirname, './private/index.ts'),
   },
   externals: {
     webpack: 'commonjs webpack',
@@ -26,7 +23,7 @@ module.exports = {
   },
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, '..'),
+    path: path.resolve(__dirname, '../redredsk.app/Contents/Resources/app/'),
   },
   resolve: {
     extensions: [
