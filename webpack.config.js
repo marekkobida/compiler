@@ -1,35 +1,38 @@
 const path = require('path');
 
-module.exports = {
-  entry: {
-    index: path.resolve(__dirname, './private/index.ts'),
-  },
-  externals: {
-    webpack: 'commonjs webpack',
-  },
-  mode: 'production',
-  module: {
-    rules: [
-      {
-        exclude: /node_modules/,
-        test: /\.(js|ts)$/,
-        use: [
-          {
-            loader: 'babel-loader',
-          },
-        ],
-      },
-    ],
-  },
-  output: {
-    filename: '[name].js',
-    path: path.resolve(__dirname),
-  },
-  resolve: {
-    extensions: [
-      '.js',
-      '.ts',
-    ],
-  },
-  target: 'electron-main',
-};
+function client (inputFilePackage) {
+  return {
+    entry: path.resolve(inputFilePackage.path, './private/index.ts'),
+    externals: {
+      webpack: 'commonjs webpack',
+    },
+    mode: inputFilePackage.version,
+    module: {
+      rules: [
+        {
+          exclude: /node_modules/,
+          test: /\.(js|ts)$/,
+          use: [
+            {
+              loader: 'babel-loader',
+            },
+          ],
+        },
+      ],
+    },
+    output: {
+      filename: 'index.js',
+      path: path.resolve(inputFilePackage.path),
+    },
+    plugins: [],
+    resolve: {
+      extensions: [
+        '.js',
+        '.ts',
+      ],
+    },
+    target: 'electron-main',
+  };
+}
+
+module.exports = client;
