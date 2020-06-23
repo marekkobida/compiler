@@ -38,11 +38,11 @@ app.on('ready', () => {
 
   tray = new Tray(path.join(`${app.getAppPath()}/iconTemplate@2x.png`));
 
-  menu.append(new MenuItem({ click: () => app.quit(), label: 'Ukončiť server', }));
+  menu.append(new MenuItem({ click: () => app.quit(), label: 'Ukončiť', }));
 
   tray.setContextMenu(menu);
 
   ipcMain.on('startServer', async (event, name) => {
-    server(name, '3.0.0-beta.25').listen(1337);
+    server(name, '3.0.0').listen(1337);
   });
 });

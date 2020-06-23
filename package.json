@@ -1,9 +1,7 @@
 {
   "build": {
-    "appId": "redredsk",
-    "asar": false,
-    "mac": {
-      "category": "redredsk"
+    "directories": {
+      "output": "public"
     }
   },
   "dependencies": {
@@ -12,6 +10,6 @@
   "devDependencies": {
     "electron": "^9.0.5"
   },
-  "name": "@redredsk/compiler",
-  "version": "3.0.0-beta.25"
+  "name": "redredsk",
+  "version": "3.0.0"
 }
