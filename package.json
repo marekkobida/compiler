@@ -1,6 +1,16 @@
 {
+  "build": {
+    "appId": "redredsk",
+    "asar": false,
+    "mac": {
+      "category": "redredsk"
+    }
+  },
   "dependencies": {
-    "webpack": "^5.0.0-beta.18"
+    "webpack": "^4.43.0"
+  },
+  "devDependencies": {
+    "electron": "^9.0.5"
   },
   "name": "@redredsk/compiler",
   "version": "3.0.0-beta.25"
