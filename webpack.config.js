@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
   entry: {
-    compiler: path.resolve(__dirname, './private/index.ts'),
+    redredsk: path.resolve(__dirname, './private/index.ts'),
   },
   experiments: {
     topLevelAwait: true,
@@ -26,7 +26,6 @@ module.exports = {
   },
   output: {
     filename: '[name].js',
-    libraryTarget: 'umd',
     path: path.resolve(__dirname, '..'),
   },
   resolve: {
@@ -35,5 +34,5 @@ module.exports = {
       '.ts',
     ],
   },
-  target: 'node',
+  target: 'electron-main',
 };

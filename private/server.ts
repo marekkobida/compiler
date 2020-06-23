@@ -6,18 +6,18 @@ import path from 'path';
 import readFile from '@redredsk/helpers/private/readFile';
 import test from './test';
 
-const l: number = +new Date();
-const r: number = 159624e7;
+function server (name: string, version: string): http.Server {
+  const l: number = +new Date();
+  const r: number = 159624e7;
 
-if (l < r) {
-  await test('PUT');
+  if (l < r) {
+    test('PUT');
 
-  const compiler = new Compiler();
+    const compiler = new Compiler();
 
-  const statisticsFile = new StatisticsFile();
+    const statisticsFile = new StatisticsFile();
 
-  function createServer (name: string, version: string): void {
-    const createdServer = http.createServer(async (request, response) => {
+    return http.createServer(async (request, response) => {
       response.setHeader('Access-Control-Allow-Origin', '*');
       response.setHeader('Content-Type', 'application/json; charset=utf-8');
 
@@ -101,9 +101,7 @@ if (l < r) {
         response.end(JSON.stringify({ errors: [ error.message, ], }));
       }
     });
-
-    createdServer.listen(1337);
   }
-
-  createServer('', '3.0.0-beta.23');
 }
+
+export default server;
