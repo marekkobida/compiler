@@ -2,7 +2,15 @@
   "build": {
     "directories": {
       "output": "public"
-    }
+    },
+    "files": [
+      "./icon.png",
+      "./iconTemplate@2x.png",
+      "./index.html",
+      "./index.js",
+      "./node_modules/**/*",
+      "./package.json"
+    ]
   },
   "dependencies": {
     "webpack": "^4.43.0"
