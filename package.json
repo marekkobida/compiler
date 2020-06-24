@@ -1,8 +1,5 @@
 {
   "build": {
-    "directories": {
-      "output": "public"
-    },
     "files": [
       "./icon.png",
       "./iconTemplate@2x.png",
