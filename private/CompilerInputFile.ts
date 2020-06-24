@@ -1,4 +1,5 @@
 import * as t from 'io-ts';
+import path from 'path';
 import readFile from '@redredsk/helpers/private/readFile';
 import validateInput from '@redredsk/helpers/private/types/validateInput';
 import writeFile from '@redredsk/helpers/private/writeFile';
@@ -33,6 +34,20 @@ class CompilerInputFile {
     const inputFile = await readFile(this.fileName);
 
     const validatedInputFile = validateInput(T, JSON.parse(inputFile));
+
+    const inputFilePackages = validatedInputFile.packages;
+
+    for (let i = 0; i < validatedInputFile.packages.length; i += 1) {
+      const inputFilePackage = inputFilePackages[i];
+
+      inputFilePackage.path = path.resolve(process.cwd(), inputFilePackage.path);
+
+      for (let ii = 0; ii < inputFilePackage.filesToCompile.length; ii += 1) {
+        const inputFilePackageFileToCompile = inputFilePackage.filesToCompile[ii];
+
+        inputFilePackageFileToCompile.path = path.resolve(process.cwd(), inputFilePackageFileToCompile.path);
+      }
+    }
 
     this.$ = validatedInputFile;
 

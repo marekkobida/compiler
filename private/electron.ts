@@ -1,4 +1,3 @@
-import electronPath from './electronPath';
 import path from 'path';
 import server from './server';
 import { Menu, MenuItem, Tray, app, } from 'electron';
@@ -6,7 +5,7 @@ import { Menu, MenuItem, Tray, app, } from 'electron';
 let menu: Menu | null = null;
 let tray: Tray | null = null;
 
-process.chdir(electronPath());
+process.chdir(path.resolve(app.getAppPath(), '../../../../'));
 
 app.on('ready', () => {
   if (process.platform === 'darwin') {
