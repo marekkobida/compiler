@@ -25,18 +25,18 @@ class StatisticsFile {
 
       return validatedStatisticsFile;
     } catch (error) {
-      this.writeFile();
-
-      return this.readFile();
+      return this.writeFile();
     }
   }
 
-  writeFile (statisticsFile: t.TypeOf<typeof T> = this.$): void {
+  writeFile (statisticsFile: t.TypeOf<typeof T> = this.$): t.TypeOf<typeof T> {
     const validatedStatisticsFile = validateInput(T, statisticsFile);
+
+    writeFile(this.fileName, `${JSON.stringify(validatedStatisticsFile)}\n`);
 
     this.$ = validatedStatisticsFile;
 
-    writeFile(this.fileName, `${JSON.stringify(validatedStatisticsFile)}\n`);
+    return validatedStatisticsFile;
   }
 }
 

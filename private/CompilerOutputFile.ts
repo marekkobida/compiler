@@ -39,12 +39,14 @@ class CompilerOutputFile {
     return validatedOutputFile;
   }
 
-  writeFile (outputFile: t.TypeOf<typeof T> = this.$): void {
+  writeFile (outputFile: t.TypeOf<typeof T> = this.$): t.TypeOf<typeof T> {
     const validatedOutputFile = validateInput(T, outputFile);
+
+    writeFile(this.fileName, `${JSON.stringify(validatedOutputFile)}\n`);
 
     this.$ = validatedOutputFile;
 
-    writeFile(this.fileName, `${JSON.stringify(validatedOutputFile)}\n`);
+    return validatedOutputFile;
   }
 }
 
