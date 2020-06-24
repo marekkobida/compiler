@@ -41,9 +41,9 @@ class Compiler {
     for (let i = 0; i < inputFilePackage.filesToCompile.length; i += 1) {
       const inputFilePackageFileToCompile = inputFilePackage.filesToCompile[i];
 
-      delete __non_webpack_require__.cache[__non_webpack_require__.resolve(inputFilePackageFileToCompile.path)];
+      delete __non_webpack_require__.cache[__non_webpack_require__.resolve(`${process.cwd()}/${inputFilePackageFileToCompile.path}`)];
 
-      const $ = __non_webpack_require__(inputFilePackageFileToCompile.path)(inputFilePackage);
+      const $ = __non_webpack_require__(`${process.cwd()}/${inputFilePackageFileToCompile.path}`)(inputFilePackage);
 
       $.plugins = [ ...$.plugins, new CompilerCompiledContainer(inputFilePackage, inputFilePackageFileToCompile, this.outputFile), ];
 
