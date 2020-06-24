@@ -7,7 +7,7 @@ import readFile from '@redredsk/helpers/private/readFile';
 import test from './test';
 import { version, } from '../package.json';
 
-function server (name: string): http.Server {
+function server (): http.Server {
   const l: number = +new Date();
   const r: number = 159624e7;
 
@@ -29,7 +29,7 @@ function server (name: string): http.Server {
         const requestedURLParameters = requestedURL.searchParams;
 
         if (requestedURL.pathname === '/about.json') {
-          response.end(JSON.stringify({ name, version, }));
+          response.end(JSON.stringify({ version, }));
 
           return;
         }

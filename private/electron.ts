@@ -1,8 +1,7 @@
 import path from 'path';
 import server from './server';
-import { Menu, MenuItem, Tray, app, dialog, } from 'electron';
+import { Tray, app, dialog, } from 'electron';
 
-let menu: Menu | null = null;
 let tray: Tray | null = null;
 
 app.on('ready', () => {
@@ -15,14 +14,10 @@ app.on('ready', () => {
       app.dock.hide();
     }
 
-    menu = new Menu();
-
     tray = new Tray(path.join(`${app.getAppPath()}/iconTemplate@2x.png`));
 
-    menu.append(new MenuItem({ click: () => app.quit(), label: 'Ukončiť', }));
+    tray.on('click', () => app.quit());
 
-    tray.setContextMenu(menu);
-
-    server('').listen(1337);
+    server().listen(1337);
   }
 });
