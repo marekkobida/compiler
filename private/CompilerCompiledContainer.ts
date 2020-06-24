@@ -138,7 +138,7 @@ class CompilerCompiledContainer {
 
         // 5.
 
-        copyright(compilation);
+        compilation = copyright(compilation);
 
         $();
       }
