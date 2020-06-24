@@ -5,8 +5,9 @@ import mime from '@redredsk/helpers/private/mime';
 import path from 'path';
 import readFile from '@redredsk/helpers/private/readFile';
 import test from './test';
+import { version, } from '../package.json';
 
-function server (name: string, version: string): http.Server {
+function server (name: string): http.Server {
   const l: number = +new Date();
   const r: number = 159624e7;
 

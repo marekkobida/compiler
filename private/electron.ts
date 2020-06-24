@@ -43,6 +43,6 @@ app.on('ready', () => {
   tray.setContextMenu(menu);
 
   ipcMain.on('startServer', async (event, name) => {
-    server(name, '3.0.1').listen(1337);
+    server(name).listen(1337);
   });
 });
