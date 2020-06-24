@@ -8,7 +8,6 @@
     "files": [
       "./icon.png",
       "./iconTemplate@2x.png",
-      "./index.html",
       "./index.js",
       "./node_modules/**/*",
       "./package.json"
@@ -21,5 +20,5 @@
     "electron": "^9.0.5"
   },
   "name": "redredsk",
-  "version": "3.0.3"
+  "version": "3.1.0"
 }
