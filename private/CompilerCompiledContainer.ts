@@ -104,24 +104,21 @@ class CompilerCompiledContainer {
 
               const compiledContainer: Container = test(source).default;
 
+              const context = {
+                compiledContainer,
+                inputFilePackage: this.inputFilePackage,
+                outputFilePackage: outputFilePackage,
+              };
+
               for (let i = 0; i < compiledContainer.pages.length; i += 1) {
                 const compiledContainerPage = compiledContainer.pages[i];
 
-                compiledContainerPage.context = {
-                  ...compiledContainerPage.context,
-                  compiledContainer,
-                  inputFilePackage: this.inputFilePackage,
-                  outputFilePackage: outputFilePackage,
-                };
+                const html = compiledContainerPage.toHTML(context);
 
-                const html = compiledContainerPage.toHTML();
-
-                if (html) {
-                  compilation.assets[`${compiledContainerPage.name}.html`] = new RawSource(html);
-                }
+                compilation.assets[`${compiledContainerPage.name}.html`] = new RawSource(html);
               }
 
-              outputFilePackage.compiledContainer = compiledContainer.toJSON();
+              outputFilePackage.compiledContainer = compiledContainer.toJSON(context);
             }
           } catch (error) {
 
