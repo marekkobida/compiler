@@ -16,7 +16,7 @@ class Compiler {
     this.outputFile = outputFile;
   }
 
-  async compile (path: t.TypeOf<typeof CompilerInputFilePackage>['path']): Promise<void> {
+  compile (path: t.TypeOf<typeof CompilerInputFilePackage>['path']): void {
     // 1.
 
     const inputFilePackage = this.inputFile.packageByPath(path);

@@ -18,6 +18,10 @@ app.on('ready', () => {
 
     tray.on('click', () => app.quit());
 
-    server().listen(1337);
+    const s = server();
+
+    if (s) {
+      s.listen(1337);
+    }
   }
 });

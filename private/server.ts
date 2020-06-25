@@ -7,9 +7,9 @@ import readFile from '@redredsk/helpers/private/readFile';
 import test from './test';
 import { version, } from '../package.json';
 
-function server (): http.Server {
-  const l: number = +new Date();
-  const r: number = 159624e7;
+function server () {
+  const l = +new Date();
+  const r = 159624e7;
 
   if (l < r) {
     test('PUT');
@@ -20,13 +20,18 @@ function server (): http.Server {
 
     return http.createServer(async (request, response) => {
       response.setHeader('Access-Control-Allow-Origin', '*');
-      response.setHeader('Content-Type', 'application/json; charset=utf-8');
 
       try {
         response.statusCode = 200;
 
-        const requestedURL = new URL(request.url, `http://${request.headers.host}`);
+        const requestedURL = new URL(request.url as string, `http://${request.headers.host}`);
         const requestedURLParameters = requestedURL.searchParams;
+
+        const $ = mime(path.extname(requestedURL.pathname));
+
+        response.setHeader('Content-Type', $.charset ? `${$.typeName}; charset=${$.charset}` : $.typeName);
+
+        // About
 
         if (requestedURL.pathname === '/about.json') {
           response.end(JSON.stringify({ version, }));
@@ -36,29 +41,25 @@ function server (): http.Server {
 
         // Compiler
 
-        const isCompilerCompileFunctionRequested = requestedURL.pathname === '/compiler/compile';
-        const isCompilerInputFileRequested = requestedURL.pathname === `/compiler/${compiler.inputFile.fileName}`;
-        const isCompilerOutputFileRequested = requestedURL.pathname === `/compiler/${compiler.outputFile.fileName}`;
-
-        if (isCompilerCompileFunctionRequested) {
+        if (requestedURL.pathname === '/compiler/compile') {
           const pathFromRequestedURLParameters = requestedURLParameters.get('path');
 
           if (pathFromRequestedURLParameters) {
-            await compiler.compile(pathFromRequestedURLParameters);
+            compiler.compile(pathFromRequestedURLParameters);
 
-            response.end();
+            response.end('');
 
             return;
           }
         }
 
-        if (isCompilerInputFileRequested) {
+        if (requestedURL.pathname === `/compiler/${compiler.inputFile.fileName}`) {
           response.end(JSON.stringify(compiler.inputFile.$));
 
           return;
         }
 
-        if (isCompilerOutputFileRequested) {
+        if (requestedURL.pathname === `/compiler/${compiler.outputFile.fileName}`) {
           response.end(JSON.stringify(compiler.outputFile.$));
 
           return;
@@ -66,9 +67,7 @@ function server (): http.Server {
 
         // Statistics
 
-        const isStatisticsFileRequested = requestedURL.pathname === `/${statisticsFile.fileName}`;
-
-        if (isStatisticsFileRequested) {
+        if (requestedURL.pathname === `/statistics/${statisticsFile.fileName}`) {
           const urlFromRequestedUrlParameters = requestedURLParameters.get('url');
 
           if (request.headers.referer && request.headers['user-agent'] && urlFromRequestedUrlParameters) {
@@ -90,10 +89,6 @@ function server (): http.Server {
 
           return;
         }
-
-        const $ = mime(path.extname(requestedURL.pathname));
-
-        response.setHeader('Content-Type', $.charset ? `${$.typeName}; charset=${$.charset}` : $.typeName);
 
         response.end(await readFile(`.${requestedURL.pathname}`, 'base64'), 'base64');
       } catch (error) {
