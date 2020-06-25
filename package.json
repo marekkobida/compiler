@@ -17,7 +17,8 @@
     "webpack": "^4.43.0"
   },
   "devDependencies": {
-    "electron": "^9.0.5"
+    "electron": "^9.0.5",
+    "electron-builder": "^22.7.0"
   },
   "name": "redredsk",
   "version": "3.6.0"
