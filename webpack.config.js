@@ -1,12 +1,42 @@
 const path = require('path');
 
-function client (inputFilePackage) {
-  return {
-    entry: path.resolve(inputFilePackage.path, './private/electron.ts'),
+module.exports = [
+  {
+    entry: path.resolve(__dirname, './private/CompilerCompiledContainer.ts'),
+    mode: 'production',
+    module: {
+      rules: [
+        {
+          exclude: /node_modules/,
+          test: /\.(js|ts)$/,
+          use: [
+            {
+              loader: 'babel-loader',
+            },
+          ],
+        },
+      ],
+    },
+    output: {
+      filename: 'CompilerCompiledContainer.js',
+      libraryTarget: 'umd',
+      path: path.resolve(__dirname, '../packages/compiler'),
+    },
+    plugins: [],
+    resolve: {
+      extensions: [
+        '.js',
+        '.ts',
+      ],
+    },
+    target: 'node',
+  },
+  {
+    entry: path.resolve(__dirname, './private/electron.ts'),
     externals: {
       webpack: 'commonjs webpack',
     },
-    mode: inputFilePackage.version,
+    mode: 'production',
     module: {
       rules: [
         {
@@ -22,7 +52,7 @@ function client (inputFilePackage) {
     },
     output: {
       filename: 'index.js',
-      path: path.resolve(inputFilePackage.path),
+      path: path.resolve(__dirname),
     },
     plugins: [],
     resolve: {
@@ -32,7 +62,5 @@ function client (inputFilePackage) {
       ],
     },
     target: 'electron-main',
-  };
-}
-
-module.exports = client;
+  },
+];

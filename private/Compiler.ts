@@ -1,5 +1,4 @@
 import * as t from 'io-ts';
-import CompilerCompiledContainer from './CompilerCompiledContainer';
 import CompilerInputFile from './CompilerInputFile';
 import CompilerOutputFile from './CompilerOutputFile';
 import messages from '@redredsk/compiler/private/messages.json';
@@ -44,9 +43,7 @@ class Compiler {
 
       delete __non_webpack_require__.cache[__non_webpack_require__.resolve(`${process.cwd()}/${inputFilePackageFileToCompile.path}`)];
 
-      const $ = __non_webpack_require__(`${process.cwd()}/${inputFilePackageFileToCompile.path}`)(inputFilePackage);
-
-      $.plugins = [ ...$.plugins, new CompilerCompiledContainer(inputFilePackage, inputFilePackageFileToCompile, this.outputFile), ];
+      const $ = __non_webpack_require__(`${process.cwd()}/${inputFilePackageFileToCompile.path}`)(inputFilePackage, inputFilePackageFileToCompile, this.outputFile);
 
       webpack($).watch({}, () => {});
     }
