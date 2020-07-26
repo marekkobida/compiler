@@ -1,7 +1,4 @@
 {
-  "dependencies": {
-    "webpack": "^4.44.0"
-  },
   "name": "redredsk",
   "version": "3.9.0"
 }
