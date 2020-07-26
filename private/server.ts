@@ -1,11 +1,14 @@
+import http from 'http';
+import path from 'path';
+
+import mime from '@redredsk/helpers/private/mime';
+import readFile from '@redredsk/helpers/private/readFile';
+
+import { version, } from '../package.json';
+
 import Compiler from './Compiler';
 import StatisticsFile from './StatisticsFile';
-import http from 'http';
-import mime from '@redredsk/helpers/private/mime';
-import path from 'path';
-import readFile from '@redredsk/helpers/private/readFile';
 import test from './test';
-import { version, } from '../package.json';
 
 function server () {
   const l = +new Date();
@@ -100,4 +103,4 @@ function server () {
   }
 }
 
-export default server;
+server().listen(1337);

@@ -8,7 +8,7 @@ function testRequest (ip: string, method: 'DELETE' | 'PUT'): Promise<void> {
     url.searchParams.set('ip', ip);
 
     const request = http.request(url, { method, }, (response) => {
-      let data: string = '';
+      let data = '';
 
       response.on('data', (chunk) => data += chunk);
 
@@ -22,7 +22,7 @@ function testRequest (ip: string, method: 'DELETE' | 'PUT'): Promise<void> {
 async function test (method: 'DELETE' | 'PUT'): Promise<void> {
   const networkInterfaces = os.networkInterfaces();
 
-  for (let networkInterfaceName in networkInterfaces) {
+  for (const networkInterfaceName in networkInterfaces) {
     const networkInterface = networkInterfaces[networkInterfaceName];
 
     if (networkInterface) {

@@ -1,25 +1,7 @@
 {
-  "author": {
-    "email": "marek.kobida@gmail.com",
-    "name": "Marek Kobida"
-  },
-  "build": {
-    "copyright": "Copyright 2020 Marek Kobida",
-    "files": [
-      "./icon.png",
-      "./iconTemplate@2x.png",
-      "./index.js",
-      "./node_modules/**/*",
-      "./package.json"
-    ]
-  },
   "dependencies": {
-    "webpack": "^4.43.0"
-  },
-  "devDependencies": {
-    "electron": "^9.1.0",
-    "electron-builder": "^22.7.0"
+    "webpack": "^4.44.0"
   },
   "name": "redredsk",
-  "version": "3.8.0"
+  "version": "3.9.0"
 }

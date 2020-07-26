@@ -1,9 +1,10 @@
+import messages from '@redredsk/compiler/private/messages.json';
+import { CompilerInputFilePackage, } from '@redredsk/types/private/CompilerInputFile';
 import * as t from 'io-ts';
+import webpack from 'webpack';
+
 import CompilerInputFile from './CompilerInputFile';
 import CompilerOutputFile from './CompilerOutputFile';
-import messages from '@redredsk/compiler/private/messages.json';
-import webpack from 'webpack';
-import { CompilerInputFilePackage, } from '@redredsk/types/private/CompilerInputFile';
 
 class Compiler {
   inputFile: CompilerInputFile;

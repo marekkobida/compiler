@@ -1,13 +1,15 @@
 // TODO
-import * as t from 'io-ts';
-import CompilerOutputFile from './CompilerOutputFile';
-import Container from '@redredsk/pages/private/Container';
-import copyright from './copyright';
 import vm from 'vm';
-import { Compilation, Compiler, } from 'webpack';
+
+import Container from '@redredsk/pages/private/Container';
 import { CompilerInputFilePackage, CompilerInputFilePackageFileToCompile, } from '@redredsk/types/private/CompilerInputFile';
 import { CompilerOutputFilePackage, CompilerOutputFilePackageCompiledFile, CompilerOutputFilePackageCompiledFileAsset, } from '@redredsk/types/private/CompilerOutputFile';
+import * as t from 'io-ts';
+import { Compilation, Compiler, } from 'webpack';
 import { RawSource, } from 'webpack-sources';
+
+import CompilerOutputFile from './CompilerOutputFile';
+import copyright from './copyright';
 
 function test ($: Buffer | string): any {
   if (Buffer.isBuffer($)) {
@@ -47,12 +49,12 @@ class CompilerCompiledContainer {
   }
 
   $ (compilation: Compilation, outputFilePackage: t.TypeOf<typeof CompilerOutputFilePackage>): void {
-    const right: { toJson: () => t.TypeOf<typeof CompilerOutputFilePackageCompiledFile>, } = compilation.getStats();
+    const right: { toJson: () => t.TypeOf<typeof CompilerOutputFilePackageCompiledFile>; } = compilation.getStats();
 
     let $ = false;
 
     for (let i = 0; i < outputFilePackage.compiledFiles.length; i += 1) {
-      let outputFilePackageCompiledFile = outputFilePackage.compiledFiles[i];
+      const outputFilePackageCompiledFile = outputFilePackage.compiledFiles[i];
 
       if (outputFilePackageCompiledFile.path === this.inputFilePackageFileToCompile.path) {
         outputFilePackage.compiledFiles[i] = {

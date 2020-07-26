@@ -1,15 +1,15 @@
-import * as t from 'io-ts';
 import readFile from '@redredsk/helpers/private/readFile';
 import validateInput from '@redredsk/helpers/private/types/validateInput';
 import writeFile from '@redredsk/helpers/private/writeFile';
 import { StatisticsFile as T, } from '@redredsk/types/private/StatisticsFile';
+import * as t from 'io-ts';
 
 class StatisticsFile {
   $: t.TypeOf<typeof T> = { requests: [], };
 
   fileName: string;
 
-  constructor (fileName: string = 'statistics.json') {
+  constructor (fileName = 'statistics.json') {
     this.fileName = fileName;
 
     this.readFile();

@@ -1,15 +1,15 @@
-import * as t from 'io-ts';
 import readFile from '@redredsk/helpers/private/readFile';
 import validateInput from '@redredsk/helpers/private/types/validateInput';
 import writeFile from '@redredsk/helpers/private/writeFile';
 import { CompilerOutputFile as T, CompilerOutputFilePackage, } from '@redredsk/types/private/CompilerOutputFile';
+import * as t from 'io-ts';
 
 class CompilerOutputFile {
   $: t.TypeOf<typeof T> = { packages: [], };
 
   fileName: string;
 
-  constructor (fileName: string = 'compiled.json') {
+  constructor (fileName = 'compiled.json') {
     this.fileName = fileName;
 
     this.writeFile();

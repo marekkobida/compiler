@@ -32,7 +32,7 @@ module.exports = [
     target: 'node',
   },
   {
-    entry: path.resolve(__dirname, './private/electron.ts'),
+    entry: path.resolve(__dirname, './private/server.ts'),
     externals: {
       webpack: 'commonjs webpack',
     },
@@ -51,8 +51,8 @@ module.exports = [
       ],
     },
     output: {
-      filename: 'index.js',
-      path: path.resolve(__dirname),
+      filename: 'compiler.js',
+      path: path.resolve(__dirname, '..'),
     },
     plugins: [],
     resolve: {
@@ -61,6 +61,6 @@ module.exports = [
         '.ts',
       ],
     },
-    target: 'electron-main',
+    target: 'node',
   },
 ];
