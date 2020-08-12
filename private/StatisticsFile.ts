@@ -1,11 +1,11 @@
 import readFile from '@redredsk/helpers/private/readFile';
 import validateInput from '@redredsk/helpers/private/types/validateInput';
 import writeFile from '@redredsk/helpers/private/writeFile';
-import { StatisticsFile as T, } from '@redredsk/types/private/StatisticsFile';
+import * as types from '@redredsk/types/private';
 import * as t from 'io-ts';
 
 class StatisticsFile {
-  $: t.TypeOf<typeof T> = { requests: [], };
+  $: t.TypeOf<typeof types.StatisticsFile> = { requests: [], };
 
   fileName: string;
 
@@ -15,11 +15,11 @@ class StatisticsFile {
     this.readFile();
   }
 
-  async readFile (): Promise<t.TypeOf<typeof T>> {
+  async readFile (): Promise<t.TypeOf<typeof types.StatisticsFile>> {
     try {
       const statisticsFile = await readFile(this.fileName);
 
-      const validatedStatisticsFile = validateInput(T, JSON.parse(statisticsFile));
+      const validatedStatisticsFile = validateInput(types.StatisticsFile, JSON.parse(statisticsFile));
 
       this.$ = validatedStatisticsFile;
 
@@ -29,8 +29,8 @@ class StatisticsFile {
     }
   }
 
-  writeFile (statisticsFile: t.TypeOf<typeof T> = this.$): t.TypeOf<typeof T> {
-    const validatedStatisticsFile = validateInput(T, statisticsFile);
+  writeFile (statisticsFile: t.TypeOf<typeof types.StatisticsFile> = this.$): t.TypeOf<typeof types.StatisticsFile> {
+    const validatedStatisticsFile = validateInput(types.StatisticsFile, statisticsFile);
 
     writeFile(this.fileName, `${JSON.stringify(validatedStatisticsFile)}\n`);
 

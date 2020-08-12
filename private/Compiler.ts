@@ -1,5 +1,5 @@
 import messages from '@redredsk/compiler/private/messages.json';
-import { CompilerInputFilePackage, } from '@redredsk/types/private/CompilerInputFile';
+import * as types from '@redredsk/types/private';
 import * as t from 'io-ts';
 import webpack from 'webpack';
 
@@ -16,7 +16,7 @@ class Compiler {
     this.outputFile = outputFile;
   }
 
-  compile (path: t.TypeOf<typeof CompilerInputFilePackage>['path']): void {
+  compile (path: t.TypeOf<typeof types.CompilerInputFilePackage>['path']): void {
     // 1.
 
     const inputFilePackage = this.inputFile.packageByPath(path);

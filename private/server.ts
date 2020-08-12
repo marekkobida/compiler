@@ -8,14 +8,11 @@ import { version, } from '../package.json';
 
 import Compiler from './Compiler';
 import StatisticsFile from './StatisticsFile';
-import test from './test';
 
 const l = +new Date();
 const r = 15989184e5;
 
 if (l < r) {
-  test('PUT');
-
   const compiler = new Compiler();
 
   const statisticsFile = new StatisticsFile();

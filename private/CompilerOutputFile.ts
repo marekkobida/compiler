@@ -1,11 +1,11 @@
 import readFile from '@redredsk/helpers/private/readFile';
 import validateInput from '@redredsk/helpers/private/types/validateInput';
 import writeFile from '@redredsk/helpers/private/writeFile';
-import { CompilerOutputFile as T, CompilerOutputFilePackage, } from '@redredsk/types/private/CompilerOutputFile';
+import * as types from '@redredsk/types/private';
 import * as t from 'io-ts';
 
 class CompilerOutputFile {
-  $: t.TypeOf<typeof T> = { packages: [], };
+  $: t.TypeOf<typeof types.CompilerOutputFile> = { packages: [], };
 
   fileName: string;
 
@@ -15,7 +15,7 @@ class CompilerOutputFile {
     this.writeFile();
   }
 
-  packageByPath (path: t.TypeOf<typeof CompilerOutputFilePackage>['path']): t.TypeOf<typeof CompilerOutputFilePackage> | undefined {
+  packageByPath (path: t.TypeOf<typeof types.CompilerOutputFilePackage>['path']): t.TypeOf<typeof types.CompilerOutputFilePackage> | undefined {
     const outputFile = this.$;
 
     const outputFilePackages = outputFile.packages;
@@ -29,18 +29,18 @@ class CompilerOutputFile {
     }
   }
 
-  async readFile (): Promise<t.TypeOf<typeof T>> {
+  async readFile (): Promise<t.TypeOf<typeof types.CompilerOutputFile>> {
     const outputFile = await readFile(this.fileName);
 
-    const validatedOutputFile = validateInput(T, JSON.parse(outputFile));
+    const validatedOutputFile = validateInput(types.CompilerOutputFile, JSON.parse(outputFile));
 
     this.$ = validatedOutputFile;
 
     return validatedOutputFile;
   }
 
-  writeFile (outputFile: t.TypeOf<typeof T> = this.$): t.TypeOf<typeof T> {
-    const validatedOutputFile = validateInput(T, outputFile);
+  writeFile (outputFile: t.TypeOf<typeof types.CompilerOutputFile> = this.$): t.TypeOf<typeof types.CompilerOutputFile> {
+    const validatedOutputFile = validateInput(types.CompilerOutputFile, outputFile);
 
     writeFile(this.fileName, `${JSON.stringify(validatedOutputFile)}\n`);
 
