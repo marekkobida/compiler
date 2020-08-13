@@ -7,15 +7,12 @@ import readFile from '@redredsk/helpers/private/readFile';
 import { version, } from '../package.json';
 
 import Compiler from './Compiler';
-import StatisticsFile from './StatisticsFile';
 
 const l = +new Date();
 const r = 15989184e5;
 
 if (l < r) {
   const compiler = new Compiler();
-
-  const statisticsFile = new StatisticsFile();
 
   const server = http.createServer(async (request, response) => {
     response.setHeader('Access-Control-Allow-Origin', '*');
@@ -60,31 +57,6 @@ if (l < r) {
 
       if (requestedURL.pathname === `/compiler/${compiler.outputFile.fileName}`) {
         response.end(JSON.stringify(compiler.outputFile.$));
-
-        return;
-      }
-
-      // Statistics
-
-      if (requestedURL.pathname === `/statistics/${statisticsFile.fileName}`) {
-        const urlFromRequestedUrlParameters = requestedURLParameters.get('url');
-
-        if (request.headers.referer && request.headers['user-agent'] && urlFromRequestedUrlParameters) {
-          statisticsFile.$.requests = [
-            {
-              headers: [
-                [ 'referer', request.headers.referer, ],
-                [ 'user-agent', request.headers['user-agent'], ],
-              ],
-              url: new URL(urlFromRequestedUrlParameters).toString(),
-            },
-            ...statisticsFile.$.requests,
-          ];
-
-          statisticsFile.writeFile();
-        }
-
-        response.end(JSON.stringify(statisticsFile.$));
 
         return;
       }
