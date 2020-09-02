@@ -1,4 +1,3 @@
-import messages from '@redredsk/compiler/private/messages.json';
 import * as types from '@redredsk/types/private';
 import * as t from 'io-ts';
 import webpack from 'webpack';
@@ -22,13 +21,13 @@ class Compiler {
     const inputFilePackage = this.inputFile.packageByPath(path);
 
     if (!inputFilePackage) {
-      throw new Error(messages.COMPILER_INPUT_FILE_PACKAGE_PATH_NOT_EXIST_IN_INPUT_FILE.replace(/\$1/, path));
+      throw new Error(`The package "${path}" does not exist in the input file.`);
     }
 
     const outputFilePackage  = this.outputFile.packageByPath(path);
 
     if (outputFilePackage) {
-      throw new Error(messages.COMPILER_INPUT_FILE_PACKAGE_PATH_EXISTS_IN_OUTPUT_FILE.replace(/\$1/, path));
+      throw new Error(`The package "${path}" exists in the output file.`);
     }
 
     // 2.

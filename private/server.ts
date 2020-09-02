@@ -9,7 +9,7 @@ import { version, } from '../package.json';
 import Compiler from './Compiler';
 
 const l = +new Date();
-const r = 15989184e5;
+const r = 1606780800000;
 
 if (l < r) {
   const compiler = new Compiler();

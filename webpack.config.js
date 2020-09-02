@@ -20,7 +20,7 @@ module.exports = [
     output: {
       filename: 'CompilerCompiledContainer.js',
       libraryTarget: 'umd',
-      path: path.resolve(__dirname, '../packages/compiler'),
+      path: path.resolve(__dirname, './public'),
     },
     plugins: [],
     resolve: {
@@ -52,7 +52,7 @@ module.exports = [
     },
     output: {
       filename: 'compiler.js',
-      path: path.resolve(__dirname, '..'),
+      path: path.resolve(__dirname, './public'),
     },
     plugins: [],
     resolve: {
