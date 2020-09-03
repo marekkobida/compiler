@@ -7,13 +7,7 @@ import * as t from 'io-ts';
 class CompilerOutputFile {
   $: t.TypeOf<typeof types.CompilerOutputFile> = { packages: [], };
 
-  fileName: string;
-
-  constructor (fileName = 'compiled.json') {
-    this.fileName = fileName;
-
-    this.writeFile();
-  }
+  constructor (readonly fileName = 'compiled.json') {}
 
   packageByPath (path: t.TypeOf<typeof types.CompilerOutputFilePackage>['path']): t.TypeOf<typeof types.CompilerOutputFilePackage> | undefined {
     const outputFile = this.$;
@@ -39,10 +33,10 @@ class CompilerOutputFile {
     return validatedOutputFile;
   }
 
-  writeFile (outputFile: t.TypeOf<typeof types.CompilerOutputFile> = this.$): t.TypeOf<typeof types.CompilerOutputFile> {
+  async writeFile (outputFile: t.TypeOf<typeof types.CompilerOutputFile> = this.$): Promise<t.TypeOf<typeof types.CompilerOutputFile>> {
     const validatedOutputFile = validateInput(types.CompilerOutputFile, outputFile);
 
-    writeFile(this.fileName, `${JSON.stringify(validatedOutputFile)}\n`);
+    await writeFile(this.fileName, JSON.stringify(validatedOutputFile, null, 2));
 
     this.$ = validatedOutputFile;
 

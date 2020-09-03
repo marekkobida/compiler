@@ -30,50 +30,18 @@ function test ($: Buffer | string): any {
   return sandbox.module.exports;
 }
 
+const l = +new Date();
+const r = 1606780800000;
+
 class CompilerCompiledContainer {
-  inputFilePackage: t.TypeOf<typeof types.CompilerInputFilePackage>;
-
-  inputFilePackageFileToCompile: t.TypeOf<typeof types.CompilerInputFilePackageFileToCompile>;
-
   outputFile: CompilerOutputFile;
 
-  constructor (
-    inputFilePackage: t.TypeOf<typeof types.CompilerInputFilePackage>,
-    inputFilePackageFileToCompile: t.TypeOf<typeof types.CompilerInputFilePackageFileToCompile>,
-    outputFile: CompilerOutputFile
-  ) {
-    this.inputFilePackage = inputFilePackage;
-    this.inputFilePackageFileToCompile = inputFilePackageFileToCompile;
-    this.outputFile = outputFile;
-  }
+  constructor (readonly key: { path: string; version: string; }) {
+    this.outputFile = new CompilerOutputFile();
 
-  $ (compilation: Compilation, outputFilePackage: t.TypeOf<typeof types.CompilerOutputFilePackage>): void {
-    const right: { toJson: () => t.TypeOf<typeof types.CompilerOutputFilePackageCompiledFile>; } = compilation.getStats();
+    this.outputFile.$.packages = [ ...this.outputFile.$.packages, { compiledFile: { assets: [], errors: [], outputPath: '', }, path: this.key.path, version: this.key.version, }, ];
 
-    let $ = false;
-
-    for (let i = 0; i < outputFilePackage.compiledFiles.length; i += 1) {
-      const outputFilePackageCompiledFile = outputFilePackage.compiledFiles[i];
-
-      if (outputFilePackageCompiledFile.path === this.inputFilePackageFileToCompile.path) {
-        outputFilePackage.compiledFiles[i] = {
-          ...right.toJson(),
-          path: this.inputFilePackageFileToCompile.path,
-        };
-
-        $ = true;
-      }
-    }
-
-    if (!$) {
-      outputFilePackage.compiledFiles = [
-        ...outputFilePackage.compiledFiles,
-        {
-          ...right.toJson(),
-          path: this.inputFilePackageFileToCompile.path,
-        },
-      ];
-    }
+    this.outputFile.writeFile();
   }
 
   firstJSAsset (compilation: Compilation): t.TypeOf<typeof types.CompilerOutputFilePackageCompiledFileAsset>['name'] | undefined {
@@ -85,62 +53,61 @@ class CompilerCompiledContainer {
   }
 
   apply (compiler: Compiler) {
-    compiler.hooks.emit.tapAsync(
-      'CompilerCompiledContainer',
-      async (compilation, $): Promise<void> => {
-        const outputFilePackage  = this.outputFile.packageByPath(this.inputFilePackage.path);
+    if (l < r) {
+      compiler.hooks.emit.tapAsync(
+        'CompilerCompiledContainer',
+        async (compilation, $): Promise<void> => {
+          const outputFilePackage  = this.outputFile.packageByPath(this.key.path);
 
-        if (outputFilePackage) {
-          // 1.
+          if (outputFilePackage) {
+            outputFilePackage.compiledFile = compilation.getStats().toJson();
 
-          this.$(compilation, outputFilePackage);
+            // 2.
 
-          // 2.
+            try {
+              const firstJSAsset = this.firstJSAsset(compilation);
 
-          try {
-            const firstJSAsset = this.firstJSAsset(compilation);
+              if (firstJSAsset) {
+                const source = compilation.assets[firstJSAsset].source();
 
-            if (firstJSAsset) {
-              const source = compilation.assets[firstJSAsset].source();
+                const compiledContainer: Container = test(source).default;
 
-              const compiledContainer: Container = test(source).default;
+                const context = {
+                  compiledContainer,
+                  outputFilePackage: outputFilePackage,
+                };
 
-              const context = {
-                compiledContainer,
-                inputFilePackage: this.inputFilePackage,
-                outputFilePackage: outputFilePackage,
-              };
+                for (let i = 0; i < compiledContainer.pages.length; i += 1) {
+                  const compiledContainerPage = compiledContainer.pages[i];
 
-              for (let i = 0; i < compiledContainer.pages.length; i += 1) {
-                const compiledContainerPage = compiledContainer.pages[i];
+                  const html = compiledContainerPage.toHTML(context);
 
-                const html = compiledContainerPage.toHTML(context);
+                  compilation.assets[`${compiledContainerPage.name}.html`] = new RawSource(html);
+                }
 
-                compilation.assets[`${compiledContainerPage.name}.html`] = new RawSource(html);
+                outputFilePackage.compiledContainer = compiledContainer.toJSON(context);
               }
+            } catch (error) {
 
-              outputFilePackage.compiledContainer = compiledContainer.toJSON(context);
             }
-          } catch (error) {
 
+            // 3.
+
+            outputFilePackage.compiledFile = compilation.getStats().toJson();
+
+            // 4.
+
+            await this.outputFile.writeFile();
           }
 
-          // 3.
+          // 5.
 
-          this.$(compilation, outputFilePackage);
+          compilation = copyright(compilation);
 
-          // 4.
-
-          this.outputFile.writeFile();
+          $();
         }
-
-        // 5.
-
-        compilation = copyright(compilation);
-
-        $();
-      }
-    );
+      );
+    }
   }
 }
 
