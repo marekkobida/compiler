@@ -1,6 +1,6 @@
-import readFile from '@redredsk/helpers/private/readFile';
+import fs from 'fs';
+
 import validateInput from '@redredsk/helpers/private/types/validateInput';
-import writeFile from '@redredsk/helpers/private/writeFile';
 import * as types from '@redredsk/types/private';
 import * as t from 'io-ts';
 
@@ -24,7 +24,7 @@ class CompilerOutputFile {
   }
 
   async readFile (): Promise<t.TypeOf<typeof types.CompilerOutputFile>> {
-    const outputFile = await readFile(this.fileName);
+    const outputFile = fs.readFileSync(this.fileName, { encoding: 'utf-8', });
 
     const validatedOutputFile = validateInput(types.CompilerOutputFile, JSON.parse(outputFile));
 
@@ -36,7 +36,7 @@ class CompilerOutputFile {
   async writeFile (outputFile: t.TypeOf<typeof types.CompilerOutputFile> = this.$): Promise<t.TypeOf<typeof types.CompilerOutputFile>> {
     const validatedOutputFile = validateInput(types.CompilerOutputFile, outputFile);
 
-    await writeFile(this.fileName, JSON.stringify(validatedOutputFile, null, 2));
+    fs.writeFileSync(this.fileName, JSON.stringify(validatedOutputFile));
 
     this.$ = validatedOutputFile;
 

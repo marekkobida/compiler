@@ -82,7 +82,7 @@ class CompilerCompiledContainer {
 
                   const html = compiledContainerPage.toHTML(context);
 
-                  compilation.assets[`${compiledContainerPage.name}.html`] = new RawSource(html);
+                  compilation.assets[compiledContainerPage.name] = new RawSource(html);
                 }
 
                 outputFilePackage.compiledContainer = compiledContainer.toJSON(context);
