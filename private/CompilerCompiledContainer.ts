@@ -1,4 +1,3 @@
-// TODO
 import vm from 'vm';
 
 import Container from '@redredsk/pages/private/Container';
@@ -54,9 +53,9 @@ class CompilerCompiledContainer {
 
   apply (compiler: Compiler) {
     if (l < r) {
-      compiler.hooks.emit.tapAsync(
+      compiler.hooks.emit.tap(
         'CompilerCompiledContainer',
-        async (compilation, $): Promise<void> => {
+        (compilation) => {
           const outputFilePackage  = this.outputFile.packageByPath(this.key.path);
 
           if (outputFilePackage) {
@@ -78,7 +77,7 @@ class CompilerCompiledContainer {
                 };
 
                 for (let i = 0; i < compiledContainer.pages.length; i += 1) {
-                  const compiledContainerPage = compiledContainer.pages[i];
+                  const compiledContainerPage = new compiledContainer.pages[i]();
 
                   const html = compiledContainerPage.toHTML(context);
 
@@ -97,14 +96,12 @@ class CompilerCompiledContainer {
 
             // 4.
 
-            await this.outputFile.writeFile();
+            this.outputFile.writeFile();
           }
 
           // 5.
 
           compilation = copyright(compilation);
-
-          $();
         }
       );
     }
@@ -112,4 +109,3 @@ class CompilerCompiledContainer {
 }
 
 export default CompilerCompiledContainer;
-//

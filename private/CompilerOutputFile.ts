@@ -23,7 +23,7 @@ class CompilerOutputFile {
     }
   }
 
-  async readFile (): Promise<t.TypeOf<typeof types.CompilerOutputFile>> {
+  readFile (): t.TypeOf<typeof types.CompilerOutputFile> {
     const outputFile = fs.readFileSync(this.fileName, { encoding: 'utf-8', });
 
     const validatedOutputFile = validateInput(types.CompilerOutputFile, JSON.parse(outputFile));
@@ -33,7 +33,7 @@ class CompilerOutputFile {
     return validatedOutputFile;
   }
 
-  async writeFile (outputFile: t.TypeOf<typeof types.CompilerOutputFile> = this.$): Promise<t.TypeOf<typeof types.CompilerOutputFile>> {
+  writeFile (outputFile: t.TypeOf<typeof types.CompilerOutputFile> = this.$): t.TypeOf<typeof types.CompilerOutputFile> {
     const validatedOutputFile = validateInput(types.CompilerOutputFile, outputFile);
 
     fs.writeFileSync(this.fileName, JSON.stringify(validatedOutputFile));
