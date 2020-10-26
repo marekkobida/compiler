@@ -1,8 +1,10 @@
 import fs from 'fs';
 
-import validateInput from '@redredsk/helpers/private/types/validateInput';
+import Validation from '@redredsk/helpers/private/types/Validation';
 import * as types from '@redredsk/types/private';
 import * as t from 'io-ts';
+
+const validation = new Validation();
 
 class CompilerOutputFile {
   $: t.TypeOf<typeof types.CompilerOutputFile> = { packages: [], };
@@ -26,7 +28,7 @@ class CompilerOutputFile {
   readFile (): t.TypeOf<typeof types.CompilerOutputFile> {
     const outputFile = fs.readFileSync(this.fileName, { encoding: 'utf-8', });
 
-    const validatedOutputFile = validateInput(types.CompilerOutputFile, JSON.parse(outputFile));
+    const validatedOutputFile = validation.validateInput(JSON.parse(outputFile), types.CompilerOutputFile);
 
     this.$ = validatedOutputFile;
 
@@ -34,7 +36,7 @@ class CompilerOutputFile {
   }
 
   writeFile (outputFile: t.TypeOf<typeof types.CompilerOutputFile> = this.$): t.TypeOf<typeof types.CompilerOutputFile> {
-    const validatedOutputFile = validateInput(types.CompilerOutputFile, outputFile);
+    const validatedOutputFile = validation.validateInput(outputFile, types.CompilerOutputFile);
 
     fs.writeFileSync(this.fileName, JSON.stringify(validatedOutputFile));
 
