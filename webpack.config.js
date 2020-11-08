@@ -22,12 +22,8 @@ module.exports = [
       libraryTarget: 'umd',
       path: path.resolve(__dirname, '../packages/compiler'),
     },
-    plugins: [],
     resolve: {
-      extensions: [
-        '.js',
-        '.ts',
-      ],
+      extensions: ['.js', '.ts'],
     },
     target: 'node',
   },
