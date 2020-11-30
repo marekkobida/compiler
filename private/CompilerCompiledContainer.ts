@@ -3,11 +3,11 @@ import vm from 'vm';
 import { Compilation, Compiler } from 'webpack';
 import { RawSource } from 'webpack-sources';
 
-import * as types from '@redredsk/types/private';
+import * as types from '@redredsk/types';
 import Container from '@redredsk/pages/private/Container';
 
 import CompilerOutputFile from './CompilerOutputFile';
-import copyright from './copyright';
+// import copyright from './copyright';
 
 function test($: Buffer | string): any {
   if (Buffer.isBuffer($)) {
@@ -41,7 +41,6 @@ class CompilerCompiledContainer {
         assets: [],
         errors: [],
         inputPath: this.key.inputPath,
-        outputPath: '',
         version: this.key.version,
       },
     ];
@@ -82,10 +81,7 @@ class CompilerCompiledContainer {
 
             const compiledContainer: Container = test(source).default;
 
-            const context = {
-              compiledContainer,
-              outputFilePackage: outputFilePackage,
-            };
+            const context = { outputFilePackage };
 
             for (let i = 0; i < compiledContainer.pages.length; i += 1) {
               const compiledContainerPage = new compiledContainer.pages[i]();
@@ -118,7 +114,7 @@ class CompilerCompiledContainer {
 
       // 5.
 
-      compilation = copyright(compilation);
+      // compilation = copyright(compilation);
     });
   }
 }

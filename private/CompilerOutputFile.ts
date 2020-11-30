@@ -1,7 +1,7 @@
 import * as t from 'io-ts';
 import fs from 'fs';
 
-import * as types from '@redredsk/types/private';
+import * as types from '@redredsk/types';
 import Validation from '@redredsk/helpers/private/types/Validation';
 
 const validation = new Validation();
