@@ -1,8 +1,8 @@
+import * as t from 'io-ts';
 import fs from 'fs';
 
-import Validation from '@redredsk/helpers/private/types/Validation';
 import * as types from '@redredsk/types/private';
-import * as t from 'io-ts';
+import Validation from '@redredsk/helpers/private/types/Validation';
 
 const validation = new Validation();
 
@@ -12,7 +12,7 @@ class CompilerOutputFile {
   constructor(readonly fileName = 'compiled.json') {}
 
   packageByPath(
-    path: t.TypeOf<typeof types.CompilerOutputFilePackage>['path'],
+    path: t.TypeOf<typeof types.CompilerOutputFilePackage>['inputPath']
   ): t.TypeOf<typeof types.CompilerOutputFilePackage> | undefined {
     const outputFile = this.$;
 
@@ -21,7 +21,7 @@ class CompilerOutputFile {
     for (let i = 0; i < outputFilePackages.length; i += 1) {
       const outputFilePackage = outputFilePackages[i];
 
-      if (outputFilePackage.path === path) {
+      if (outputFilePackage.inputPath === path) {
         return outputFilePackage;
       }
     }
@@ -32,7 +32,7 @@ class CompilerOutputFile {
 
     const validatedOutputFile = validation.validateInput(
       JSON.parse(outputFile),
-      types.CompilerOutputFile,
+      types.CompilerOutputFile
     );
 
     this.$ = validatedOutputFile;
@@ -41,11 +41,11 @@ class CompilerOutputFile {
   }
 
   writeFile(
-    outputFile: t.TypeOf<typeof types.CompilerOutputFile> = this.$,
+    outputFile: t.TypeOf<typeof types.CompilerOutputFile> = this.$
   ): t.TypeOf<typeof types.CompilerOutputFile> {
     const validatedOutputFile = validation.validateInput(
       outputFile,
-      types.CompilerOutputFile,
+      types.CompilerOutputFile
     );
 
     fs.writeFileSync(this.fileName, JSON.stringify(validatedOutputFile));

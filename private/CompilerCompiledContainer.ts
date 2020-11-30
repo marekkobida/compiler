@@ -1,10 +1,10 @@
-import vm from 'vm';
-
-import Container from '@redredsk/pages/private/Container';
-import * as types from '@redredsk/types/private';
 import * as t from 'io-ts';
+import vm from 'vm';
 import { Compilation, Compiler } from 'webpack';
 import { RawSource } from 'webpack-sources';
+
+import * as types from '@redredsk/types/private';
+import Container from '@redredsk/pages/private/Container';
 
 import CompilerOutputFile from './CompilerOutputFile';
 import copyright from './copyright';
@@ -32,14 +32,16 @@ function test($: Buffer | string): any {
 class CompilerCompiledContainer {
   outputFile: CompilerOutputFile;
 
-  constructor(readonly key: { path: string; version: string }) {
+  constructor(readonly key: { inputPath: string; version: string }) {
     this.outputFile = new CompilerOutputFile();
 
     this.outputFile.$.packages = [
       ...this.outputFile.$.packages,
       {
-        compiledFile: { assets: [], errors: [], outputPath: '' },
-        path: this.key.path,
+        assets: [],
+        errors: [],
+        inputPath: this.key.inputPath,
+        outputPath: '',
         version: this.key.version,
       },
     ];
@@ -48,10 +50,8 @@ class CompilerCompiledContainer {
   }
 
   firstJSAsset(
-    compilation: Compilation,
-  ):
-    | t.TypeOf<typeof types.CompilerOutputFilePackageCompiledFileAsset>['name']
-    | undefined {
+    compilation: Compilation
+  ): t.TypeOf<typeof types.CompilerOutputFilePackageAsset>['name'] | undefined {
     for (const assetName in compilation.assets) {
       if (/\.js$/.test(assetName)) {
         return assetName;
@@ -61,10 +61,16 @@ class CompilerCompiledContainer {
 
   apply(compiler: Compiler) {
     compiler.hooks.emit.tap('CompilerCompiledContainer', compilation => {
-      const outputFilePackage = this.outputFile.packageByPath(this.key.path);
+      const outputFilePackage = this.outputFile.packageByPath(
+        this.key.inputPath
+      );
 
       if (outputFilePackage) {
-        outputFilePackage.compiledFile = compilation.getStats().toJson();
+        outputFilePackage.assets = compilation.getStats().toJson().assets;
+        outputFilePackage.errors = compilation.getStats().toJson().errors;
+        outputFilePackage.outputPath = compilation
+          .getStats()
+          .toJson().outputPath;
 
         // 2.
 
@@ -92,14 +98,18 @@ class CompilerCompiledContainer {
             }
 
             outputFilePackage.compiledContainer = compiledContainer.toJSON(
-              context,
+              context
             );
           }
         } catch (error) {}
 
         // 3.
 
-        outputFilePackage.compiledFile = compilation.getStats().toJson();
+        outputFilePackage.assets = compilation.getStats().toJson().assets;
+        outputFilePackage.errors = compilation.getStats().toJson().errors;
+        outputFilePackage.outputPath = compilation
+          .getStats()
+          .toJson().outputPath;
 
         // 4.
 
