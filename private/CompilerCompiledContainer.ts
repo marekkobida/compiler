@@ -70,6 +70,9 @@ class CompilerCompiledContainer {
         outputFilePackage.outputPath = compilation
           .getStats()
           .toJson().outputPath;
+        outputFilePackage.publicPath = compilation
+          .getStats()
+          .toJson().publicPath;
 
         // 2.
 
@@ -106,6 +109,9 @@ class CompilerCompiledContainer {
         outputFilePackage.outputPath = compilation
           .getStats()
           .toJson().outputPath;
+        outputFilePackage.publicPath = compilation
+          .getStats()
+          .toJson().publicPath;
 
         // 4.
 

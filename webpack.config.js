@@ -18,7 +18,7 @@ module.exports = [
       ],
     },
     output: {
-      filename: 'CompilerCompiledContainer.js',
+      filename: 'Test.js',
       libraryTarget: 'umd',
       path: path.resolve(__dirname, '../packages/compiler'),
     },
